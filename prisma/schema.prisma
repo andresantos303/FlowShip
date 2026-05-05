@@ -1,0 +1,81 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+model StoreConfig {
+  id                    String   @id @default(uuid())
+  shopDomain            String   @unique
+  markupType            String   @default("PERCENTAGE") // Pode ser "PERCENTAGE" ou "ABSOLUTE"
+  markupValue           Int      @default(15)           // Representa % (ex: 15, -10) ou cêntimos (ex: 500, -200)
+  freeShippingThreshold Int      @default(10000)
+  packageLength         Int      @default(10)
+  packageWidth          Int      @default(5)
+  packageHeight         Int      @default(5)
+  isActiveCTT           Boolean  @default(true)
+  isActiveGLS           Boolean  @default(true)
+  isActiveFedEx         Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model GlsEuroZone {
+  id                    String   @id @default(uuid())
+  countryCode           String   @unique
+  zoneName              String
+}
+
+model GlsPricing {
+  id                    String   @id @default(uuid())
+  zoneName              String
+  sizeLabel             String
+  basePrice             Float
+
+  @@unique([zoneName, sizeLabel])
+}
+
+model GlsDeliveryTime {
+  id                    String   @id @default(uuid())
+  zoneName              String   @unique
+  minDays  Int
+  maxDays  Int
+}
+
+model CttZoneMatrix {
+  id                    String   @id @default(uuid())
+  originDigit           String
+  destDigit             String
+  zoneName              String
+
+  @@unique([originDigit, destDigit])
+}
