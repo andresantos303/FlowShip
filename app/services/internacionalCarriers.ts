@@ -1,8 +1,8 @@
-import logger from '../utils/logger.ts';
-import { getFedExOptions } from '../utils/rates/FedExRates.ts';
-import { getGLSOptions } from '../utils/rates/GLSRates.ts';
-import type { CarrierRate } from '../utils/rateHelpers.ts';
-import { prisma } from '../utils/db.ts';
+import logger from '../utils/logger';
+import { getFedExOptions } from '../utils/rates/FedExRates';
+import { getGLSOptions } from '../utils/rates/GLSRates';
+import type { CarrierRate } from '../utils/rateHelpers';
+import prisma from '../db.server';
 
 export const fetchAllInternacionalRates = async (rateRequestInfo: any, prismaConfig: any): Promise<CarrierRate[]> => {
   const controller = new AbortController();

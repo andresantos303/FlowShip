@@ -1,6 +1,6 @@
-import logger from '../utils/logger.ts';
-import { getCTTOptions } from '../utils/rates/CTTRates.ts'; 
-import { getGLSOptions } from '../utils/rates/GLSRates.ts';
+import logger from '../utils/logger';
+import { getCTTOptions } from '../utils/rates/CTTRates'; 
+import { getGLSOptions } from '../utils/rates/GLSRates';
 import type { CarrierRate } from '../utils/rateHelpers.ts';
 
 export const fetchAllNacionalRates = async (rateRequestInfo: any, prismaConfig: any): Promise<CarrierRate[]> => {

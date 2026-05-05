@@ -1,0 +1,121 @@
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:12:19"}
+{"level":"info","message":"New store registered: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:12:19"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:12:19"}
+{"level":"warn","message":"Route doesnt exist: 4470-177 -> 4505-141","timestamp":"05-05-2026 16:12:19"}
+{"level":"warn","message":"No GLS pricing found for zone PT and size XS","timestamp":"05-05-2026 16:12:19"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"05-05-2026 16:12:19"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:12:20"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:12:20"}
+{"level":"warn","message":"Route doesnt exist: 4470-177 -> 4505-141","timestamp":"05-05-2026 16:12:20"}
+{"level":"warn","message":"No GLS pricing found for zone PT and size XS","timestamp":"05-05-2026 16:12:20"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"05-05-2026 16:12:20"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:16:53"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:16:53"}
+{"level":"warn","message":"Route doesnt exist: 4470-177 -> 4505-141","timestamp":"05-05-2026 16:16:53"}
+{"level":"warn","message":"No GLS pricing found for zone PT and size XS","timestamp":"05-05-2026 16:16:53"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"05-05-2026 16:16:53"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:16:54"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:16:54"}
+{"level":"warn","message":"Route doesnt exist: 4470-177 -> 4505-141","timestamp":"05-05-2026 16:16:54"}
+{"level":"warn","message":"No GLS pricing found for zone PT and size XS","timestamp":"05-05-2026 16:16:54"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"05-05-2026 16:16:54"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:21:14"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:21:14"}
+{"level":"warn","message":"Route doesnt exist: 4470-177 -> 4505-141","timestamp":"05-05-2026 16:21:14"}
+{"level":"warn","message":"No GLS pricing found for zone PT and size XS","timestamp":"05-05-2026 16:21:14"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"05-05-2026 16:21:14"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:21:15"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:21:15"}
+{"level":"warn","message":"Route doesnt exist: 4470-177 -> 4505-141","timestamp":"05-05-2026 16:21:15"}
+{"level":"warn","message":"No GLS pricing found for zone PT and size XS","timestamp":"05-05-2026 16:21:15"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"05-05-2026 16:21:15"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:21"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:21"}
+{"level":"info","message":"GLS route validated successfully for ZIP 34000 in FR. Calculated price: 21.00€","timestamp":"05-05-2026 16:31:21"}
+{"level":"info","message":"FedEx returned 4 rate options for ZIP 34000 in FR.","timestamp":"05-05-2026 16:31:24"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro I) at 21.00","timestamp":"05-05-2026 16:31:24"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:24"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:24"}
+{"level":"info","message":"GLS route validated successfully for ZIP 56068 in DE. Calculated price: 21.00€","timestamp":"05-05-2026 16:31:24"}
+{"level":"info","message":"FedEx returned 6 rate options for ZIP 56068 in DE.","timestamp":"05-05-2026 16:31:26"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro I) at 21.00","timestamp":"05-05-2026 16:31:26"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:27"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:27"}
+{"level":"info","message":"GLS route validated successfully for ZIP 00144 in IT. Calculated price: 22.00€","timestamp":"05-05-2026 16:31:27"}
+{"level":"info","message":"FedEx returned 5 rate options for ZIP 00144 in IT.","timestamp":"05-05-2026 16:31:29"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro II) at 22.00","timestamp":"05-05-2026 16:31:29"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:29"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:29"}
+{"level":"info","message":"GLS route validated successfully for ZIP SE22 8DL in GB. Calculated price: 42.00€","timestamp":"05-05-2026 16:31:30"}
+{"level":"info","message":"FedEx returned 5 rate options for ZIP SE22 8DL in GB.","timestamp":"05-05-2026 16:31:31"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro IV) at 42.00","timestamp":"05-05-2026 16:31:31"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:32"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:32"}
+{"level":"info","message":"FedEx returned 5 rate options for ZIP 90210 in US.","timestamp":"05-05-2026 16:31:35"}
+{"level":"info","message":"Cheapest rate selected: FedEx FedEx International Connect Plus at 225.00","timestamp":"05-05-2026 16:31:35"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:35"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:35"}
+{"level":"info","message":"GLS route validated successfully for ZIP 1010 in AT. Calculated price: 22.00€","timestamp":"05-05-2026 16:31:36"}
+{"level":"info","message":"FedEx returned 6 rate options for ZIP 1010 in AT.","timestamp":"05-05-2026 16:31:38"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro II) at 22.00","timestamp":"05-05-2026 16:31:38"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:38"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:38"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4000 in BE. Calculated price: 22.00€","timestamp":"05-05-2026 16:31:39"}
+{"level":"info","message":"FedEx returned 5 rate options for ZIP 4000 in BE.","timestamp":"05-05-2026 16:31:41"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro II) at 22.00","timestamp":"05-05-2026 16:31:41"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:42"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:42"}
+{"level":"info","message":"GLS route validated successfully for ZIP 100 00 in CZ. Calculated price: 22.00€","timestamp":"05-05-2026 16:31:42"}
+{"level":"info","message":"FedEx returned 6 rate options for ZIP 100 00 in CZ.","timestamp":"05-05-2026 16:31:45"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro II) at 22.00","timestamp":"05-05-2026 16:31:45"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:45"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:45"}
+{"level":"info","message":"GLS route validated successfully for ZIP 8660 in DK. Calculated price: 29.70€","timestamp":"05-05-2026 16:31:46"}
+{"level":"info","message":"FedEx returned 4 rate options for ZIP 8660 in DK.","timestamp":"05-05-2026 16:31:50"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro III) at 29.70","timestamp":"05-05-2026 16:31:50"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:31:50"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:31:50"}
+{"level":"info","message":"GLS route validated successfully for ZIP 00550 in FI. Calculated price: 42.00€","timestamp":"05-05-2026 16:31:51"}
+{"level":"info","message":"FedEx returned 5 rate options for ZIP 00550 in FI.","timestamp":"05-05-2026 16:31:52"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro IV) at 42.00","timestamp":"05-05-2026 16:31:52"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:33:55"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:33:55"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"05-05-2026 16:33:55"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"05-05-2026 16:33:55"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"05-05-2026 16:33:55"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:33:55"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:33:55"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"05-05-2026 16:33:55"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"05-05-2026 16:33:56"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"05-05-2026 16:33:56"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:54:18"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:54:18"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"05-05-2026 16:54:18"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"05-05-2026 16:54:19"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"05-05-2026 16:54:19"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:54:19"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:54:19"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"05-05-2026 16:54:19"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"05-05-2026 16:54:19"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"05-05-2026 16:54:19"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:55:02"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:55:02"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 2kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"05-05-2026 16:55:02"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"05-05-2026 16:55:02"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"05-05-2026 16:55:02"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:55:03"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:55:03"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 2kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"05-05-2026 16:55:03"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"05-05-2026 16:55:03"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"05-05-2026 16:55:03"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:57:11"}
+{"level":"info","message":"Processing national shipping","timestamp":"05-05-2026 16:57:11"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 2kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"05-05-2026 16:57:11"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"05-05-2026 16:57:11"}
+{"level":"info","message":"Cart total meets free shipping threshold.","timestamp":"05-05-2026 16:57:11"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 0.00","timestamp":"05-05-2026 16:57:11"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"05-05-2026 16:58:00"}
+{"level":"info","message":"Processing international shipping","timestamp":"05-05-2026 16:58:00"}
+{"level":"info","message":"GLS route validated successfully for ZIP 40210 in FR. Calculated price: 21.00€","timestamp":"05-05-2026 16:58:01"}
+{"level":"info","message":"FedEx returned 3 rate options for ZIP 40210 in FR.","timestamp":"05-05-2026 16:58:04"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro I) at 21.00","timestamp":"05-05-2026 16:58:04"}

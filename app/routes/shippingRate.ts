@@ -2,7 +2,6 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import crypto from "crypto";
 import logger from "../utils/logger";
-// Import necessary services and helpers
 import { fetchAllInternacionalRates } from "../services/internacionalCarriers";
 import { fetchAllNacionalRates } from "../services/nacionalCarriers";
 import { calculateFreeShipping } from "../utils/rateHelpers";
@@ -13,7 +12,7 @@ const FALLBACK_RATE = {
   service_name: "Entrega Standard",
   service_code: "FALLBACK-STD",
   total_price: 1500,
-  description: "Entrega Normal",
+  description: "Entrega standard - fallback rate",
   min_delivery_date: getDeliveryDate(5),
   max_delivery_date: getDeliveryDate(10)
 };
@@ -57,7 +56,6 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ message: "Not authorized" }, { status: 401 });
   }
 
-  // 2. Parse the payload and process rates
   try {
     const payload = JSON.parse(rawBody);
     const { rate } = payload;
@@ -112,7 +110,7 @@ export async function action({ request }: ActionFunctionArgs) {
     if (isNacional) {
       logger.info("Processing national shipping");
       const liveNacionalRates = await fetchAllNacionalRates(rateRequestInfo, config);
-      finalRates = calculateFreeShipping(liveNacionalRates, cartTotalCents, config);
+      finalRates = calculateFreeShipping(liveNacionalRates, cartTotalCents,config);
     } else {
       logger.info("Processing international shipping");
       finalRates = await fetchAllInternacionalRates(rateRequestInfo, config);

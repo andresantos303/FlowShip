@@ -52,6 +52,7 @@
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^10.0.1",
     "prettier": "^3.2.4",
+    "tsx": "^4.21.0",
     "typescript": "^5.2.2",
     "vite": "^6.2.2"
   },
@@ -74,6 +75,9 @@
     "@graphql-codegen/typescript-operations": "4.5.0",
     "minimatch": "9.0.5",
     "vite": "^6.2.2"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "author": "skrey-andresantos"
 }

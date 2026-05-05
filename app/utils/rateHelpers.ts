@@ -1,5 +1,5 @@
-import prisma from "../db.server";
-
+import logger from "../utils/logger";
+  
 export interface CarrierRate {
   service_name: string;
   service_code: string;
@@ -11,8 +11,9 @@ export interface CarrierRate {
   max_delivery_date: string;
 }
 
-export const calculateFreeShipping = (processedRates: CarrierRate[], cartTotalCents: number): CarrierRate[] => {
-  if (cartTotalCents >= prisma.StoreConfig.freeShippingThreshold) {
+export const calculateFreeShipping = (processedRates: CarrierRate[], cartTotalCents: number, config: any): CarrierRate[] => {
+  if (cartTotalCents >= config.freeShippingThreshold) {
+    logger.info("Cart total meets free shipping threshold.");
     return processedRates.map(rate => ({ ...rate, total_price: 0 }));
   }
   return processedRates;
