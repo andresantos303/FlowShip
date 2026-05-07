@@ -24,7 +24,9 @@ export default function App() {
         <Link to="/app" rel="home">
           Home
         </Link>
-        <Link to="/app/additional">Additional page</Link>
+        <Link to="/app/cttTables">Gerir CTT</Link>
+        <Link to="/app/glsTables">Gerir GLS</Link>
+        <Link to="/app/adicionalRules">Regras Adicionais</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

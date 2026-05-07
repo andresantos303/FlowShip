@@ -18,15 +18,23 @@ export const calculateCTTRate = async (originZip: string, destZip: string, weigh
   const isIslandTransit = (destDigit === '9');
 
   if (isIslandTransit) {
-    if (weightKg <= 2) basePrice = 12.85;
-    else if (weightKg <= 3) basePrice = 16.70;
-    else if (weightKg <= 4) basePrice = 16.90;
-    else if (weightKg <= 5) basePrice = 18.00;
-    else if (weightKg <= 6) basePrice = 23.70;
-    else if (weightKg <= 7) basePrice = 27.00;
-    else if (weightKg <= 8) basePrice = 29.10;
-    else if (weightKg <= 9) basePrice = 29.95;
-    else if (weightKg <= 10) basePrice = 30.35;       
+    const islandPricing = await prisma.cttIslandsPricing.findFirst({
+      where: { 
+        maxWeight: { gte: weightKg } 
+      },
+      orderBy: { 
+        maxWeight: 'asc' 
+      }
+    });
+
+    if (islandPricing) {
+      basePrice = islandPricing.price;
+      logger.info(`Calculated base price for islands: ${basePrice} EUR for weight: ${weightKg}kg`);
+    } else {
+      // Fallback logic if the weight exceeds the maximum allowed (10kg)
+      logger.error(`Weight limit exceeded for islands: ${weightKg}kg`);
+      throw new Error("Package weight exceeds the maximum allowed limit for Islands (10kg)");
+    }
   } else {
     // Fetch zone from DB
     const matrixRecord = await prisma.cttZoneMatrix.findUnique({
@@ -42,12 +50,19 @@ export const calculateCTTRate = async (originZip: string, destZip: string, weigh
       return null;
     }
 
-    if (weightKg <= 2) {
-      basePrice = zone === 'T1' ? 8.25 : 9.60;
-    } else if (weightKg <= 5) {
-      basePrice = zone === 'T1' ? 10.50 : 12.10;
-    } else if (weightKg <= 10) {
-      basePrice = zone === 'T1' ? 15.55 : 17.60;
+    const pricing = await prisma.cttPricing.findFirst({
+      where: { 
+        maxWeight: { gte: weightKg } 
+      },
+      orderBy: { 
+        maxWeight: 'asc' 
+      }
+    });
+
+    if (pricing) {
+      basePrice = zone === 'T1' ? pricing.priceT1 : pricing.priceT2;
+    } else {
+      throw new Error("Weight exceeds limit for CTT pricing (10kg)");
     }
   }
 

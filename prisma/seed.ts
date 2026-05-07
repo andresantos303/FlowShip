@@ -47,6 +47,8 @@ async function main() {
   await prisma.glsPricing.deleteMany();
   await prisma.glsDeliveryTime.deleteMany();
   await prisma.cttZoneMatrix.deleteMany();
+  await prisma.cttPricing.deleteMany();
+  await prisma.cttIslandsPricing.deleteMany();
 
   console.log('Cleared existing carrier data.');
 
@@ -107,6 +109,30 @@ async function main() {
   }
   await prisma.cttZoneMatrix.createMany({ data: matrixData });
   console.log('Seeded CTT Zone Matrix.');
+
+  const cttPricingData = [
+    { weightLabel: 'Até 2 kg', maxWeight: 2, priceT1: 8.25, priceT2: 9.60 },
+    { weightLabel: '> 2 kg – 5 kg', maxWeight: 5, priceT1: 10.50, priceT2: 12.10 },
+    { weightLabel: '> 5 kg – 10 kg', maxWeight: 10, priceT1: 15.55, priceT2: 17.60 }
+  ];
+
+  await prisma.cttPricing.createMany({ data: cttPricingData });
+  console.log('Seeded CTT Pricing.');
+
+  const cttIslandsPricingData = [
+    { weightLabel: 'Até 2 kg', maxWeight: 2, price: 12.85 },
+    { weightLabel: '> 2 kg – 3 kg', maxWeight: 3, price: 16.70 },
+    { weightLabel: '> 3 kg – 4 kg', maxWeight: 4, price: 16.90 },
+    { weightLabel: '> 4 kg – 5 kg', maxWeight: 5, price: 18.00 },
+    { weightLabel: '> 5 kg – 6 kg', maxWeight: 6, price: 23.70 },
+    { weightLabel: '> 6 kg – 7 kg', maxWeight: 7, price: 27.00 },
+    { weightLabel: '> 7 kg – 8 kg', maxWeight: 8, price: 29.10 },
+    { weightLabel: '> 8 kg – 9 kg', maxWeight: 9, price: 29.95 },
+    { weightLabel: '> 9 kg – 10 kg', maxWeight: 10, price: 30.35 }
+  ];
+
+  await prisma.cttIslandsPricing.createMany({ data: cttIslandsPricingData });
+  console.log('Seeded CTT Islands Pricing.');
 
   console.log('Database seeding completed successfully.');
 }

@@ -119,3 +119,80 @@
 {"level":"info","message":"GLS route validated successfully for ZIP 40210 in FR. Calculated price: 21.00€","timestamp":"05-05-2026 16:58:01"}
 {"level":"info","message":"FedEx returned 3 rate options for ZIP 40210 in FR.","timestamp":"05-05-2026 16:58:04"}
 {"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro I) at 21.00","timestamp":"05-05-2026 16:58:04"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 12:16:04"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 12:16:04"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 12:16:04"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 12:16:05"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 12:16:05"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 12:16:05"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 12:16:05"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 12:16:05"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 12:16:06"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 12:16:06"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 12:22:00"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 12:22:00"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 12:22:00"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 12:22:01"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 12:22:01"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 12:22:01"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 12:22:01"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 12:22:01"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 12:22:02"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 12:22:02"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 12:25:07"}
+{"level":"info","message":"Processing international shipping","timestamp":"06-05-2026 12:25:07"}
+{"level":"info","message":"GLS route validated successfully for ZIP 63880 in FR. Calculated price: 21.00€","timestamp":"06-05-2026 12:25:08"}
+{"level":"info","message":"FedEx returned 3 rate options for ZIP 63880 in FR.","timestamp":"06-05-2026 12:25:10"}
+{"level":"info","message":"Cheapest rate selected: GLS Europe (Zone Euro I) at 21.00","timestamp":"06-05-2026 12:25:10"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 12:25:25"}
+{"level":"info","message":"Processing international shipping","timestamp":"06-05-2026 12:25:25"}
+{"level":"info","message":"FedEx returned 5 rate options for ZIP 20166 in US.","timestamp":"06-05-2026 12:25:30"}
+{"level":"info","message":"Cheapest rate selected: FedEx FedEx International Connect Plus at 317.00","timestamp":"06-05-2026 12:25:30"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 12:31:28"}
+{"level":"info","message":"Processing international shipping","timestamp":"06-05-2026 12:31:28"}
+{"level":"info","message":"FedEx returned 5 rate options for ZIP 20166 in US.","timestamp":"06-05-2026 12:31:31"}
+{"level":"info","message":"Cheapest rate selected: FedEx FedEx International Connect Plus at 317.00","timestamp":"06-05-2026 12:31:31"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 13:15:29"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 13:15:29"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 13:15:29"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 13:15:30"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 13:15:30"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 13:15:30"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 13:15:30"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 13:15:30"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 13:15:31"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 13:15:31"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 13:16:51"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 13:16:51"}
+{"level":"info","message":"Calculated base price for islands: 12.85 EUR for weight: 1.5kg","timestamp":"06-05-2026 13:16:51"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 9050-028, Weight 1.5kg, Base Price 0, Home Delivery 2.95, Total 2.95","timestamp":"06-05-2026 13:16:51"}
+{"level":"info","message":"GLS route validated successfully for ZIP 9050-028 in PT. Calculated price: 31.40€","timestamp":"06-05-2026 13:16:51"}
+{"level":"info","message":"Cheapest rate selected: CTT Encomenda Postal at 2.95","timestamp":"06-05-2026 13:16:51"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 13:20:29"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 13:20:29"}
+{"level":"info","message":"Calculated base price for islands: 12.85 EUR for weight: 1.5kg","timestamp":"06-05-2026 13:20:29"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 9050-028, Weight 1.5kg, Base Price 12.85, Home Delivery 2.95, Total 15.8","timestamp":"06-05-2026 13:20:29"}
+{"level":"info","message":"GLS route validated successfully for ZIP 9050-028 in PT. Calculated price: 31.40€","timestamp":"06-05-2026 13:20:30"}
+{"level":"info","message":"Cheapest rate selected: CTT Encomenda Postal at 15.80","timestamp":"06-05-2026 13:20:30"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 13:22:01"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 13:22:01"}
+{"level":"info","message":"Calculated base price for islands: 12.85 EUR for weight: 2kg","timestamp":"06-05-2026 13:22:01"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 9050-028, Weight 2kg, Base Price 12.85, Home Delivery 2.95, Total 15.8","timestamp":"06-05-2026 13:22:01"}
+{"level":"info","message":"GLS route validated successfully for ZIP 9050-028 in PT. Calculated price: 31.40€","timestamp":"06-05-2026 13:22:01"}
+{"level":"info","message":"Cart total meets free shipping threshold.","timestamp":"06-05-2026 13:22:01"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 0.00","timestamp":"06-05-2026 13:22:01"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 14:23:35"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 14:23:35"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 14:23:35"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 14:23:36"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 14:23:36"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 14:23:36"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 14:23:36"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 14:23:36"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 14:23:36"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 14:23:36"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"06-05-2026 14:23:42"}
+{"level":"info","message":"Processing national shipping","timestamp":"06-05-2026 14:23:42"}
+{"level":"info","message":"Calculated CTT rate: Origin 4470-177, Destination 4505-141, Weight 1.5kg, Base Price 8.25, Home Delivery 2.95, Total 11.2","timestamp":"06-05-2026 14:23:42"}
+{"level":"info","message":"GLS route validated successfully for ZIP 4505-141 in PT. Calculated price: 6.50€","timestamp":"06-05-2026 14:23:42"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 6.50","timestamp":"06-05-2026 14:23:42"}
