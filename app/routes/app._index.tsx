@@ -1,334 +1,192 @@
-import { useEffect } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
-import {
-  Page,
-  Layout,
-  Text,
-  Card,
-  Button,
-  BlockStack,
-  Box,
-  List,
-  Link,
+import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData, useNavigate, useFetcher } from "@remix-run/react";
+import { 
+  Page, 
+  Layout, 
+  Card, 
+  IndexTable, 
+  Badge, 
+  Text, 
+  Button, 
+  EmptyState,
   InlineStack,
+  Tooltip
 } from "@shopify/polaris";
-import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import { DeleteIcon } from '@shopify/polaris-icons';
 import { authenticate } from "../shopify.server";
+import prisma from "../db.server";
+import { useEffect } from "react";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { session } = await authenticate.admin(request);
+  
+  const carriers = await prisma.carrier.findMany({
+    where: { shopDomain: session.shop },
+    orderBy: { createdAt: "desc" },
+  });
 
-  return null;
-};
+  return json({ carriers });
+}
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
-  ];
-  const response = await admin.graphql(
-    `#graphql
-      mutation populateProduct($product: ProductCreateInput!) {
-        productCreate(product: $product) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
-          }
-        }
-      }`,
-    {
-      variables: {
-        product: {
-          title: `${color} Snowboard`,
-        },
-      },
-    },
-  );
-  const responseJson = await response.json();
+export async function action({ request }: ActionFunctionArgs) {
+  const { session } = await authenticate.admin(request);
+  const formData = await request.formData();
+  const id = formData.get("id") as string;
+  const intent = formData.get("intent");
 
-  const product = responseJson.data!.productCreate!.product!;
-  const variantId = product.variants.edges[0]!.node!.id!;
+  if (intent === "delete") {
+    try {
+      // 1. Validação de segurança no Backend
+      const carrier = await prisma.carrier.findUnique({
+        where: { id, shopDomain: session.shop },
+        select: { isActive: true }
+      });
 
-  const variantResponse = await admin.graphql(
-    `#graphql
-    mutation shopifyRemixTemplateUpdateVariant($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
-      productVariantsBulkUpdate(productId: $productId, variants: $variants) {
-        productVariants {
-          id
-          price
-          barcode
-          createdAt
-        }
+      if (carrier?.isActive) {
+        return json({ success: false, message: "Não podes eliminar uma transportadora ativa. Desativa-a primeiro." }, { status: 400 });
       }
-    }`,
-    {
-      variables: {
-        productId: product.id,
-        variants: [{ id: variantId, price: "100.00" }],
-      },
-    },
-  );
 
-  const variantResponseJson = await variantResponse.json();
+      // 2. Eliminação segura
+      await prisma.carrier.delete({
+        where: { id, shopDomain: session.shop },
+      });
+      return json({ success: true, message: "Transportadora eliminada com sucesso" });
+      
+    } catch (error) {
+      return json({ success: false, message: "Erro ao eliminar transportadora" }, { status: 500 });
+    }
+  }
 
-  return {
-    product: responseJson!.data!.productCreate!.product,
-    variant:
-      variantResponseJson!.data!.productVariantsBulkUpdate!.productVariants,
-  };
-};
+  if (intent === "toggle_status") {
+    const isActive = formData.get("isActive") === "true";
+    await prisma.carrier.update({
+      where: { id, shopDomain: session.shop },
+      data: { isActive },
+    });
+    return json({ success: true });
+  }
 
-export default function Index() {
+  return json({ success: false }, { status: 400 });
+}
+
+export default function CarriersList() {
+  const { carriers } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
   const fetcher = useFetcher<typeof action>();
 
-  const shopify = useAppBridge();
-  const isLoading =
-    ["loading", "submitting"].includes(fetcher.state) &&
-    fetcher.formMethod === "POST";
-  const productId = fetcher.data?.product?.id.replace(
-    "gid://shopify/Product/",
-    "",
-  );
-
   useEffect(() => {
-    if (productId) {
-      shopify.toast.show("Product created");
+    if (fetcher.data?.message) {
+      // Mostra a notificação quer seja de erro ou sucesso
+      shopify.toast.show(fetcher.data.message, {
+        isError: !fetcher.data.success
+      });
     }
-  }, [productId, shopify]);
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  }, [fetcher.data]);
 
-  return (
-    <Page>
-      <TitleBar title="Shipping App">
-        <button variant="primary" onClick={generateProduct}>
-          Generate a product
-        </button>
-      </TitleBar>
-      <BlockStack gap="500">
+  if (carriers.length === 0) {
+    return (
+      <Page title="Transportadoras">
         <Layout>
           <Layout.Section>
-            <Card>
-              <BlockStack gap="500">
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Congrats on creating a new Shopify app 🎉
-                  </Text>
-                  <Text variant="bodyMd" as="p">
-                    This embedded app template uses{" "}
-                    <Link
-                      url="https://shopify.dev/docs/apps/tools/app-bridge"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      App Bridge
-                    </Link>{" "}
-                    interface examples like an{" "}
-                    <Link url="/app/additional" removeUnderline>
-                      additional page in the app nav
-                    </Link>
-                    , as well as an{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      Admin GraphQL
-                    </Link>{" "}
-                    mutation demo, to provide a starting point for app
-                    development.
-                  </Text>
-                </BlockStack>
-                <BlockStack gap="200">
-                  <Text as="h3" variant="headingMd">
-                    Get started with products
-                  </Text>
-                  <Text as="p" variant="bodyMd">
-                    Generate a product with GraphQL and get the JSON output for
-                    that product. Learn more about the{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      productCreate
-                    </Link>{" "}
-                    mutation in our API references.
-                  </Text>
-                </BlockStack>
-                <InlineStack gap="300">
-                  <Button loading={isLoading} onClick={generateProduct}>
-                    Generate a product
-                  </Button>
-                  {fetcher.data?.product && (
-                    <Button
-                      url={`shopify:admin/products/${productId}`}
-                      target="_blank"
-                      variant="plain"
-                    >
-                      View product
-                    </Button>
-                  )}
-                </InlineStack>
-                {fetcher.data?.product && (
-                  <>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productCreate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.product, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productVariantsBulkUpdate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.variant, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                  </>
-                )}
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-          <Layout.Section variant="oneThird">
-            <BlockStack gap="500">
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    App template specs
-                  </Text>
-                  <BlockStack gap="200">
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Framework
-                      </Text>
-                      <Link
-                        url="https://remix.run"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Remix
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Database
-                      </Text>
-                      <Link
-                        url="https://www.prisma.io/"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        Prisma
-                      </Link>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        Interface
-                      </Text>
-                      <span>
-                        <Link
-                          url="https://polaris.shopify.com"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          Polaris
-                        </Link>
-                        {", "}
-                        <Link
-                          url="https://shopify.dev/docs/apps/tools/app-bridge"
-                          target="_blank"
-                          removeUnderline
-                        >
-                          App Bridge
-                        </Link>
-                      </span>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="span" variant="bodyMd">
-                        API
-                      </Text>
-                      <Link
-                        url="https://shopify.dev/docs/api/admin-graphql"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphQL API
-                      </Link>
-                    </InlineStack>
-                  </BlockStack>
-                </BlockStack>
-              </Card>
-              <Card>
-                <BlockStack gap="200">
-                  <Text as="h2" variant="headingMd">
-                    Next steps
-                  </Text>
-                  <List>
-                    <List.Item>
-                      Build an{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/getting-started/build-app-example"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        {" "}
-                        example app
-                      </Link>{" "}
-                      to get started
-                    </List.Item>
-                    <List.Item>
-                      Explore Shopify’s API with{" "}
-                      <Link
-                        url="https://shopify.dev/docs/apps/tools/graphiql-admin-api"
-                        target="_blank"
-                        removeUnderline
-                      >
-                        GraphiQL
-                      </Link>
-                    </List.Item>
-                  </List>
-                </BlockStack>
-              </Card>
-            </BlockStack>
+            <EmptyState
+              heading="Ainda não tens transportadoras configuradas"
+              action={{
+                content: 'Criar Transportadora',
+                onAction: () => navigate("/app/newCarrier"),
+              }}
+              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/empty-state-cards_customer-delivery-service.svg"
+            >
+              <p>Cria a tua primeira transportadora para começares a gerir os teus envios.</p>
+            </EmptyState>
           </Layout.Section>
         </Layout>
-      </BlockStack>
+      </Page>
+    );
+  }
+
+  const rowMarkup = carriers.map(
+    ({ id, name, calculationMethod, isActive }, index) => (
+      <IndexTable.Row id={id} key={id} position={index}>
+        <IndexTable.Cell>
+          <Text variant="bodyMd" fontWeight="bold" as="span">{name}</Text>
+        </IndexTable.Cell>
+        <IndexTable.Cell>
+          {calculationMethod === "API" ? "Integração via API" : "Tabela de tarifas"}
+        </IndexTable.Cell>
+        <IndexTable.Cell>
+          <Badge tone={isActive ? "success" : "attention"}>
+            {isActive ? "Ativa" : "Inativa"}
+          </Badge>
+        </IndexTable.Cell>
+        <IndexTable.Cell>
+          <InlineStack gap="200">
+            <Button onClick={() => navigate(`/app/carrier/${id}`)}>Editar</Button>
+            
+            {/* O Tooltip ajuda a explicar ao utilizador o motivo de o botão estar bloqueado */}
+            <Tooltip content={isActive ? "Desativa a transportadora para a poderes eliminar" : "Eliminar transportadora"}>
+              <div> {/* O Tooltip precisa de um elemento wrapper quando o componente filho está desativado */}
+                <fetcher.Form method="post">
+                  <input type="hidden" name="id" value={id} />
+                  <input type="hidden" name="intent" value="delete" />
+                  <Button 
+                    tone="critical" 
+                    icon={DeleteIcon}
+                    onClick={(e) => {
+                      if (!confirm("Tens a certeza que pretendes eliminar esta transportadora? Esta ação não pode ser revertida.")) {
+                        e.preventDefault();
+                      }
+                    }}
+                    submit
+                    disabled={isActive} // Bloqueio na Interface
+                    loading={fetcher.state === "submitting" && fetcher.formData?.get("id") === id && fetcher.formData?.get("intent") === "delete"}
+                  >
+                    Eliminar
+                  </Button>
+                </fetcher.Form>
+              </div>
+            </Tooltip>
+
+            <fetcher.Form method="post">
+              <input type="hidden" name="id" value={id} />
+              <input type="hidden" name="intent" value="toggle_status" />
+              <input type="hidden" name="isActive" value={String(!isActive)} />
+              <Button variant="tertiary" submit>
+                {isActive ? "Desativar" : "Ativar"}
+              </Button>
+            </fetcher.Form>
+          </InlineStack>
+        </IndexTable.Cell>
+      </IndexTable.Row>
+    ),
+  );
+
+  return (
+    <Page
+      title="Transportadoras"
+      primaryAction={{
+        content: "Criar Transportadora",
+        onAction: () => navigate("/app/newCarrier"),
+      }}
+    >
+      <Layout>
+        <Layout.Section>
+          <Card padding="0">
+            <IndexTable
+              resourceName={{ singular: "transportadora", plural: "transportadoras" }}
+              itemCount={carriers.length}
+              headings={[
+                { title: "Nome" },
+                { title: "Método de Cálculo" },
+                { title: "Estado" },
+                { title: "Ações" },
+              ]}
+              selectable={false}
+            >
+              {rowMarkup}
+            </IndexTable>
+          </Card>
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 }

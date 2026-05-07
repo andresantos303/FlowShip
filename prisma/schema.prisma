@@ -36,55 +36,43 @@ model StoreConfig {
   packageLength         Int      @default(10)
   packageWidth          Int      @default(5)
   packageHeight         Int      @default(5)
-  isActiveCTT           Boolean  @default(true)
-  isActiveGLS           Boolean  @default(true)
-  isActiveFedEx         Boolean  @default(true)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }
 
-model GlsEuroZone {
-  id          String @id @default(uuid())
-  countryCode String @unique
-  zoneName    String
+model Carrier {
+  id                String   @id @default(uuid())
+  shopDomain        String
+  name              String
+  calculationMethod String   // "API" or "TABLE"
+  isActive          Boolean  @default(true)
+  
+  // Fields for API integration
+  apiKey            String?
+  apiSecret         String?
+  markupType        String?  @default("PERCENTAGE")
+  markupValue       Float?   @default(0)
+
+  // Relation to manual rates (for TABLE method)
+  rates             CarrierRate[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([shopDomain])
 }
 
-model GlsPricing {
-  id        String @id @default(uuid())
-  zoneName  String
-  sizeLabel String
-  basePrice Float
+model CarrierRate {
+  id              String  @id @default(uuid())
+  carrierId       String
+  carrier         Carrier @relation(fields: [carrierId], references: [id], onDelete: Cascade)
+  
+  countryCode     String
+  postalCodeStart String? // e.g., '1000'
+  postalCodeEnd   String? // e.g., '1999'
+  maxWeight       Float   // Maximum weight for this price tier
+  maxVolume       Float?  // Maximum volume (optional)
+  price           Float   // The agreed price
 
-  @@unique([zoneName, sizeLabel])
-}
-
-model GlsDeliveryTime {
-  id       String @id @default(uuid())
-  zoneName String @unique
-  minDays  Int
-  maxDays  Int
-}
-
-model CttZoneMatrix {
-  id          String @id @default(uuid())
-  originDigit String
-  destDigit   String
-  zoneName    String
-
-  @@unique([originDigit, destDigit])
-}
-
-model CttPricing {
-  id          String @id @default(uuid())
-  weightLabel String
-  maxWeight   Float  @unique
-  priceT1     Float
-  priceT2     Float
-}
-
-model CttIslandsPricing {
-  id          String @id @default(uuid())
-  weightLabel String
-  maxWeight   Float  @unique
-  price       Float
+  @@index([carrierId])
 }

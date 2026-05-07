@@ -64,10 +64,6 @@ export default function AdditionalRules() {
   const [markupType, setMarkupType] = useState(config.markupType);
   const [markupValue, setMarkupValue] = useState(String(config.markupValue));
   const [threshold, setThreshold] = useState(String(config.freeShippingThreshold));
-  
-  const [isActiveCTT, setIsActiveCTT] = useState(config.isActiveCTT);
-  const [isActiveGLS, setIsActiveGLS] = useState(config.isActiveGLS);
-  const [isActiveFedEx, setIsActiveFedEx] = useState(config.isActiveFedEx);
 
   useEffect(() => {
     if (actionData?.success) {
@@ -82,12 +78,9 @@ export default function AdditionalRules() {
     formData.append("markupType", markupType);
     formData.append("markupValue", markupValue);
     formData.append("freeShippingThreshold", threshold);
-    formData.append("isActiveCTT", String(isActiveCTT));
-    formData.append("isActiveGLS", String(isActiveGLS));
-    formData.append("isActiveFedEx", String(isActiveFedEx));
 
     submit(formData, { method: "post" });
-  }, [markupType, markupValue, threshold, isActiveCTT, isActiveGLS, isActiveFedEx, submit]);
+  }, [markupType, markupValue, threshold, submit]);
 
   return (
     <Page
@@ -131,17 +124,6 @@ export default function AdditionalRules() {
                     autoComplete="off"
                     helpText="Valor na unidade base (ex: 10000 para 100.00€ se usares cêntimos)."
                   />
-                </FormLayout>
-              </BlockStack>
-            </Card>
-
-            <Card>
-              <BlockStack gap="400">
-                <Text variant="headingMd" as="h2">Transportadoras Ativas</Text>
-                <FormLayout>
-                  <Checkbox label="Ativar CTT" checked={isActiveCTT} onChange={setIsActiveCTT} />
-                  <Checkbox label="Ativar GLS" checked={isActiveGLS} onChange={setIsActiveGLS} />
-                  <Checkbox label="Ativar FedEx" checked={isActiveFedEx} onChange={setIsActiveFedEx} />
                 </FormLayout>
               </BlockStack>
             </Card>
