@@ -2,9 +2,7 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import crypto from "crypto";
 import logger from "../utils/logger";
-import { fetchAllInternacionalRates } from "../services/internacionalCarriers";
-import { fetchAllNacionalRates } from "../services/nacionalCarriers";
-import { calculateFreeShipping } from "../utils/rateHelpers";
+import { fetchFinalRate } from "../services/finalCarrier";
 import { getDeliveryDate } from "../utils/DeliveryDate";
 import prisma from "../db.server";
 
@@ -23,10 +21,9 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ message: "Method not allowed" }, { status: 405 });
   }
 
-  // 1. HMAC Verification
+  //HMAC Verification
   const hmacHeader = request.headers.get("X-Shopify-Hmac-Sha256");
   const shopDomain = request.headers.get("X-Shopify-Shop-Domain");
-  const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET || "";
 
   // Read the raw body as text for HMAC validation
   const rawBody = await request.text();
@@ -37,7 +34,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const generatedHash = crypto
-    .createHmac("sha256", SHOPIFY_API_SECRET)
+    .createHmac("sha256", process.env.SHOPIFY_API_SECRET || "")
     .update(rawBody, "utf8")
     .digest("base64");
 
@@ -87,7 +84,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     const totalWeightKg = totalWeightGrams / 1000;
-    const isNacional = rate.destination.country === 'PT';
+    //const isNacional = rate.destination.country === 'PT';
 
     const rateRequestInfo = {
       ShipFrom: {
@@ -102,34 +99,22 @@ export async function action({ request }: ActionFunctionArgs) {
         UnitOfMeasurement: { Code: "KG" },
         Weight: totalWeightKg
       },
-      currency: rate.currency
+      currency: rate.currency,
+      country: rate.destination.country
     };
 
-    let finalRates: any[] = [];
-
-    if (isNacional) {
+    logger.info("Processing Shipping Rates with available carriers...");
+    const finalRate = await fetchFinalRate(rateRequestInfo, config);
+    /* if (isNacional) {
       logger.info("Processing national shipping");
       const liveNacionalRates = await fetchAllNacionalRates(rateRequestInfo, config);
       finalRates = calculateFreeShipping(liveNacionalRates, cartTotalCents,config);
     } else {
       logger.info("Processing international shipping");
       finalRates = await fetchAllInternacionalRates(rateRequestInfo, config);
-    }
+    } */
 
-    if (finalRates.length > 0) {
-      const cheapestRate = finalRates.reduce((prev, curr) =>
-        prev.total_price < curr.total_price ? prev : curr
-      );
-      finalRates = [cheapestRate];
-      logger.info(`Cheapest rate selected: ${cheapestRate.service_name} at ${(cheapestRate.total_price / 100).toFixed(2)}`);
-    } else {
-      logger.warn("No carrier rates could be fetched, returning fallback rate.");
-      return json({
-        rates: [{ ...FALLBACK_RATE, currency: rate.currency || "EUR" }]
-      });
-    }
-
-    return json({ rates: finalRates });
+    return json({rates: finalRate});
 
   } catch (error) {
     logger.error("Critical error in shipping route:", error);

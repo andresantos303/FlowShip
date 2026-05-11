@@ -41,9 +41,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
 
   const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const category = formData.get("category") as string;
   const calculationMethod = formData.get("calculationMethod") as string;
   const apiKey = formData.get("apiKey") as string | null;
   const apiSecret = formData.get("apiSecret") as string | null;
+  const apiAccountNumber = formData.get("apiAccountNumber") as string | null;
   const markupType = formData.get("markupType") as string;
   const markupValue = Number(formData.get("markupValue") || 0);
   const rawRates = formData.get("ratesData") as string;
@@ -54,10 +57,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     where: { id: params.id },
     data: {
       name,
+      description,
+      category,
       calculationMethod,
       isActive,
       apiKey: calculationMethod === "API" ? apiKey : null,
       apiSecret: calculationMethod === "API" ? apiSecret : null,
+      apiAccountNumber: calculationMethod === "API" ? apiAccountNumber : null,
       markupType: calculationMethod === "API" ? markupType : null,
       markupValue: calculationMethod === "API" ? markupValue : null,
       rates: {
@@ -69,6 +75,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           maxWeight: Number(rate.weight),
           maxVolume: Number(rate.volume),
           price: Number(rate.price),
+          deliveryTime: Number(rate.deliveryTime)
         })) : [],
       },
     },
@@ -85,10 +92,13 @@ export default function EditCarrier() {
   const isSaving = navigation.state === "submitting";
 
   const [name, setName] = useState(carrier.name);
+  const [description, setDescription] = useState(carrier.description);
+  const [category, setCategory] = useState(carrier.category);
   const [isActive, setIsActive] = useState(carrier.isActive);
   const [method, setMethod] = useState([carrier.calculationMethod]);
   const [apiKey, setApiKey] = useState(carrier.apiKey || "");
   const [apiSecret, setApiSecret] = useState(carrier.apiSecret || "");
+  const [apiAccountNumber, setApiAccountNumber] = useState(carrier.apiAccountNumber || "");
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
   const [markupValue, setMarkupValue] = useState(String(carrier.markupValue || 0));
 
@@ -102,6 +112,7 @@ export default function EditCarrier() {
       weight: String(r.maxWeight),
       volume: String(r.maxVolume || ""),
       price: String(r.price),
+      deliveryTime: String(r.deliveryTime),
     })) || [],
   );
 
@@ -118,7 +129,7 @@ export default function EditCarrier() {
   const addRateRow = () => {
     setRates([
       ...rates,
-      { id: Date.now(), country: "PT", postalStart: "", postalEnd: "", weight: "", volume: "", price: "" },
+      { id: Date.now(), country: "PT", postalStart: "", postalEnd: "", weight: "", volume: "", price: "", deliveryTime: "" },
     ]);
   };
 
@@ -129,16 +140,19 @@ export default function EditCarrier() {
   const handleSave = useCallback(() => {
     const formData = new FormData();
     formData.append("name", name);
+    formData.append("description", description);
+    formData.append("category", category);
     formData.append("isActive", String(isActive));
     formData.append("calculationMethod", method[0]);
     formData.append("apiKey", apiKey);
     formData.append("apiSecret", apiSecret);
+    formData.append("apiAccountNumber", apiAccountNumber);
     formData.append("markupType", markupType);
     formData.append("markupValue", markupValue);
     formData.append("ratesData", JSON.stringify(rates));
 
     submit(formData, { method: "post" });
-  }, [name, method, isActive, apiKey, apiSecret, markupType, markupValue, rates, submit]);
+  }, [name, description, category, method, isActive, apiKey, apiSecret, apiAccountNumber, markupType, markupValue, rates, submit]);
 
   return (
     <Page
@@ -158,6 +172,9 @@ export default function EditCarrier() {
                 <Text variant="headingMd" as="h2">Configuração Geral</Text>
                 <FormLayout>
                   <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" />
+                  <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
+                  <TextField label="Categoria" value={category} onChange={setCategory} autoComplete="off" />
+                  <Divider />
                   {/* Campo para ativar/desativar */}
                   <Checkbox
                     label="Transportadora ativa"
@@ -165,7 +182,7 @@ export default function EditCarrier() {
                     onChange={setIsActive}
                     helpText="Se desativada, esta transportadora não será considerada no cálculo de portes no checkout."
                   />
-                  <ChoiceList
+                  {/* <ChoiceList
                     title="Método de Cálculo"
                     choices={[
                       { label: "Tabela de Preços Manual", value: "TABLE" },
@@ -173,7 +190,7 @@ export default function EditCarrier() {
                     ]}
                     selected={method}
                     onChange={setMethod}
-                  />
+                  /> */}
                 </FormLayout>
               </BlockStack>
             </Card>
@@ -183,8 +200,9 @@ export default function EditCarrier() {
                 <BlockStack gap="400">
                   <Text variant="headingMd" as="h2">Dados da Integração</Text>
                   <FormLayout>
-                    <TextField label="Chave da API" value={apiKey} onChange={setApiKey} autoComplete="off" />
-                    <TextField label="Segredo da API" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
+                    <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
+                    <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
+                    <TextField label="API Account Number" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
                     <Divider />
                     <Text variant="headingSm" as="h3">Margem de Lucro (*Markup*)</Text>
                     <FormLayout.Group>
@@ -220,6 +238,7 @@ export default function EditCarrier() {
                           <TextField label="Peso Máx (kg)" type="number" value={rate.weight} onChange={(v) => updateRate(rate.id, "weight", v)} autoComplete="off" />
                           <TextField label="Vol. Máx (cm³)" type="number" value={rate.volume} onChange={(v) => updateRate(rate.id, "volume", v)} autoComplete="off" />
                           <TextField label="Preço (€)" type="number" value={rate.price} onChange={(v) => updateRate(rate.id, "price", v)} autoComplete="off" />
+                          <TextField label="Tempo de Entrega (dias)" type="number" value={rate.deliveryTime} onChange={(v) => updateRate(rate.id, "deliveryTime", v)} autoComplete="off" />
                           <div style={{ alignSelf: "end" }}>
                             <Button tone="critical" onClick={() => removeRateRow(rate.id)}>Remover</Button>
                           </div>

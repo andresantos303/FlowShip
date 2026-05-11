@@ -32,23 +32,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export async function action({ request }: ActionFunctionArgs) {
   const { session } = await authenticate.admin(request);
   const formData = await request.formData();
-
-  const markupType = formData.get("markupType") as string;
-  const markupValue = Number(formData.get("markupValue"));
   const freeShippingThreshold = Number(formData.get("freeShippingThreshold"));
-  const isActiveCTT = formData.get("isActiveCTT") === "true";
-  const isActiveGLS = formData.get("isActiveGLS") === "true";
-  const isActiveFedEx = formData.get("isActiveFedEx") === "true";
 
   await prisma.storeConfig.update({
     where: { shopDomain: session.shop },
     data: {
-      markupType,
-      markupValue,
       freeShippingThreshold,
-      isActiveCTT,
-      isActiveGLS,
-      isActiveFedEx,
     },
   });
   return { success: true };
@@ -61,8 +50,6 @@ export default function AdditionalRules() {
   const navigation = useNavigation();
   const isSaving = navigation.state === "submitting";
 
-  const [markupType, setMarkupType] = useState(config.markupType);
-  const [markupValue, setMarkupValue] = useState(String(config.markupValue));
   const [threshold, setThreshold] = useState(String(config.freeShippingThreshold));
 
   useEffect(() => {
@@ -75,12 +62,10 @@ export default function AdditionalRules() {
 
   const handleSave = useCallback(() => {
     const formData = new FormData();
-    formData.append("markupType", markupType);
-    formData.append("markupValue", markupValue);
     formData.append("freeShippingThreshold", threshold);
 
     submit(formData, { method: "post" });
-  }, [markupType, markupValue, threshold, submit]);
+  }, [threshold, submit]);
 
   return (
     <Page
@@ -98,24 +83,6 @@ export default function AdditionalRules() {
               <BlockStack gap="400">
                 <Text variant="headingMd" as="h2">Margem de Lucro e Portes</Text>
                 <FormLayout>
-                  <FormLayout.Group>
-                    <Select
-                      label="Tipo de Markup"
-                      options={[
-                        { label: 'Percentagem (%)', value: 'PERCENTAGE' },
-                        { label: 'Valor Absoluto', value: 'ABSOLUTE' },
-                      ]}
-                      value={markupType}
-                      onChange={setMarkupType}
-                    />
-                    <TextField
-                      label="Valor do Markup"
-                      type="number"
-                      value={markupValue}
-                      onChange={setMarkupValue}
-                      autoComplete="off"
-                    />
-                  </FormLayout.Group>
                   <TextField
                     label="Valor mínimo para portes grátis"
                     type="number"

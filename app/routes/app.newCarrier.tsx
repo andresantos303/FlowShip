@@ -14,11 +14,14 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
   const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const category = formData.get("category") as string;
   const calculationMethod = formData.get("calculationMethod") as string;
   
   // Extract API fields
   const apiKey = formData.get("apiKey") as string | null;
   const apiSecret = formData.get("apiSecret") as string | null;
+  const apiAccountNumber = formData.get("apiAccountNumber") as string | null;
   const markupType = formData.get("markupType") as string;
   const markupValue = Number(formData.get("markupValue") || 0);
 
@@ -31,9 +34,12 @@ export async function action({ request }: ActionFunctionArgs) {
     data: {
       shopDomain: session.shop,
       name,
+      description,
+      category,
       calculationMethod,
       apiKey: calculationMethod === 'API' ? apiKey : null,
       apiSecret: calculationMethod === 'API' ? apiSecret : null,
+      apiAccountNumber: calculationMethod === 'API' ? apiAccountNumber : null,
       markupType: calculationMethod === 'API' ? markupType : null,
       markupValue: calculationMethod === 'API' ? markupValue : null,
       rates: calculationMethod === 'TABLE' ? {
@@ -43,7 +49,8 @@ export async function action({ request }: ActionFunctionArgs) {
           postalCodeEnd: rate.postalEnd,
           maxWeight: Number(rate.weight),
           maxVolume: Number(rate.volume),
-          price: Number(rate.price)
+          price: Number(rate.price),
+          deliveryTime: Number(rate.deliveryTime)
         }))
       } : undefined
     }
@@ -60,17 +67,20 @@ export default function CreateCarrier() {
 
   // General state
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [method, setMethod] = useState(["TABLE"]); // Default to Table
 
   // API state
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
+  const [apiAccountNumber, setApiAccountNumber] = useState("");
   const [markupType, setMarkupType] = useState("PERCENTAGE");
   const [markupValue, setMarkupValue] = useState("");
 
   // Table state (Dynamic rows)
   const [rates, setRates] = useState([
-    { id: Date.now(), country: "PT", postalStart: "", postalEnd: "", weight: "", volume: "", price: "" }
+    { id: Date.now(), country: "PT", postalStart: "", postalEnd: "", weight: "", volume: "", price: "", deliveryTime: "" }
   ]);
 
   // Show success toast
@@ -80,6 +90,8 @@ export default function CreateCarrier() {
       (window as any).shopify.toast.show('Transportadora criada com sucesso!');
       // Reset form
       setName("");
+      setDescription("");
+      setCategory("");
       setMethod(["TABLE"]);
     }
   }, [actionData]);
@@ -90,17 +102,20 @@ export default function CreateCarrier() {
   };
 
   const addRateRow = () => {
-    setRates([...rates, { id: Date.now(), country: "", postalStart: "", postalEnd: "", weight: "", volume: "", price: "" }]);
+    setRates([...rates, { id: Date.now(), country: "", postalStart: "", postalEnd: "", weight: "", volume: "", price: "", deliveryTime: "" }]);
   };
 
   const handleSave = useCallback(() => {
     const formData = new FormData();
     formData.append("name", name);
+    formData.append("description", description);
+    formData.append("category", category);
     formData.append("calculationMethod", method[0]);
 
     if (method[0] === 'API') {
       formData.append("apiKey", apiKey);
       formData.append("apiSecret", apiSecret);
+      formData.append("apiAccountNumber", apiAccountNumber);
       formData.append("markupType", markupType);
       formData.append("markupValue", markupValue);
     } else {
@@ -108,7 +123,7 @@ export default function CreateCarrier() {
     }
 
     submit(formData, { method: "post" });
-  }, [name, method, apiKey, apiSecret, markupType, markupValue, rates, submit]);
+  }, [name, description, category, method, apiKey, apiSecret, apiAccountNumber, markupType, markupValue, rates, submit]);
 
   return (
     <Page
@@ -145,6 +160,20 @@ export default function CreateCarrier() {
                     selected={method}
                     onChange={setMethod}
                   />
+                  <TextField
+                    label="Descrição"
+                    value={description}
+                    onChange={setDescription}
+                    autoComplete="off"
+                    placeholder="Ex: Transporte expresso"
+                  />
+                  <TextField
+                    label="Categoria"
+                    value={category}
+                    onChange={setCategory}
+                    autoComplete="off"
+                    placeholder="Ex: Nacional"
+                  />
                 </FormLayout>
               </BlockStack>
             </Card>
@@ -157,6 +186,7 @@ export default function CreateCarrier() {
                   <FormLayout>
                     <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
                     <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
+                    <TextField label="API Account Number" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
                     
                     <Divider />
                     
@@ -206,6 +236,9 @@ export default function CreateCarrier() {
                           <TextField label="Peso Máx (kg)" type="number" value={rate.weight} onChange={(v) => updateRate(rate.id, 'weight', v)} autoComplete="off" />
                           <TextField label="Volume Máx (cm³)" type="number" value={rate.volume} onChange={(v) => updateRate(rate.id, 'volume', v)} autoComplete="off" />
                           <TextField label="Preço (€)" type="number" value={rate.price} onChange={(v) => updateRate(rate.id, 'price', v)} autoComplete="off" />
+                        </InlineGrid>
+                        <InlineGrid columns={3} gap="400">
+                          <TextField label="Tempo de entrega (dias)" type="number" value={rate.weight} onChange={(v) => updateRate(rate.id, 'weight', v)} autoComplete="off" />
                         </InlineGrid>
                       </BlockStack>
                     </div>

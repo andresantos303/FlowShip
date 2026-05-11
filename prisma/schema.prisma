@@ -30,8 +30,7 @@ model Session {
 model StoreConfig {
   id                    String   @id @default(uuid())
   shopDomain            String   @unique
-  markupType            String   @default("PERCENTAGE")
-  markupValue           Int      @default(15)
+  freeShippingActive    Boolean  @default(true)
   freeShippingThreshold Int      @default(10000)
   packageLength         Int      @default(10)
   packageWidth          Int      @default(5)
@@ -44,12 +43,15 @@ model Carrier {
   id                String   @id @default(uuid())
   shopDomain        String
   name              String
+  description       String   @default("")
+  category          String   @default("Nacional")// "Nacional" or "International"
   calculationMethod String   // "API" or "TABLE"
   isActive          Boolean  @default(true)
   
   // Fields for API integration
   apiKey            String?
   apiSecret         String?
+  apiAccountNumber  String?
   markupType        String?  @default("PERCENTAGE")
   markupValue       Float?   @default(0)
 
@@ -73,6 +75,7 @@ model CarrierRate {
   maxWeight       Float   // Maximum weight for this price tier
   maxVolume       Float?  // Maximum volume (optional)
   price           Float   // The agreed price
+  deliveryTime    Int     @default(3)
 
   @@index([carrierId])
 }
