@@ -1,8 +1,7 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSubmit, useNavigation, useActionData } from "@remix-run/react";
 import {
-  Page, Layout, Card, BlockStack, FormLayout, TextField,
-  Select, Checkbox, Text, InlineGrid, Divider
+  Page, Layout, Card, BlockStack, TextField, Text, InlineGrid, Divider
 } from "@shopify/polaris";
 import { useState, useCallback, useEffect } from "react";
 import { authenticate } from "../shopify.server";
@@ -31,8 +30,8 @@ export async function action({ request }: ActionFunctionArgs) {
   await prisma.storeConfig.update({
     where: { shopDomain: session.shop },
     data: {
-      freeShippingThreshold: Number(formData.get("freeShippingThreshold")),     
-      // Atualização das caixas
+      freeShippingThreshold: Number(formData.get("freeShippingThreshold")),   
+
       boxSmallMaxWeight: Number(formData.get("boxSmallMaxWeight")),
       boxSmallLength: Number(formData.get("boxSmallLength")),
       boxSmallWidth: Number(formData.get("boxSmallWidth")),
@@ -60,10 +59,7 @@ export default function AdditionalRules() {
   const navigation = useNavigation();
   const isSaving = navigation.state === "submitting";
 
-  // Estados gerais
   const [threshold, setThreshold] = useState(String(config.freeShippingThreshold));
-  
-  // Estados das caixas
   const [boxSmall, setBoxSmall] = useState({
     weight: String(config.boxSmallMaxWeight), l: String(config.boxSmallLength), w: String(config.boxSmallWidth), h: String(config.boxSmallHeight)
   });
@@ -109,7 +105,6 @@ export default function AdditionalRules() {
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
-            {/* Secção de Caixas */}
             <Card>
               <BlockStack gap="400">
                 <Text variant="headingMd" as="h2">Regras adicionais</Text>
@@ -128,7 +123,6 @@ export default function AdditionalRules() {
 
                 <Divider />
                 
-                {/* Caixa Pequena */}
                 <Text variant="headingSm" as="h3">Caixa Pequena (Small)</Text>
                 <InlineGrid columns={4} gap="400">
                   <TextField label="Peso Máximo (kg)" value={boxSmall.weight} onChange={(v) => setBoxSmall({...boxSmall, weight: v})} autoComplete="off" />
@@ -137,7 +131,6 @@ export default function AdditionalRules() {
                   <TextField label="Altura (cm)" value={boxSmall.h} onChange={(v) => setBoxSmall({...boxSmall, h: v})} autoComplete="off" />
                 </InlineGrid>
 
-                {/* Caixa Média */}
                 <Text variant="headingSm" as="h3">Caixa Média (Medium)</Text>
                 <InlineGrid columns={4} gap="400">
                   <TextField label="Peso Máximo (kg)" value={boxMedium.weight} onChange={(v) => setBoxMedium({...boxMedium, weight: v})} autoComplete="off" />
@@ -146,8 +139,7 @@ export default function AdditionalRules() {
                   <TextField label="Altura (cm)" value={boxMedium.h} onChange={(v) => setBoxMedium({...boxMedium, h: v})} autoComplete="off" />
                 </InlineGrid>
 
-                 {/* Caixa Grande */}
-                 <Text variant="headingSm" as="h3">Caixa Grande (Large)</Text>
+                <Text variant="headingSm" as="h3">Caixa Grande (Large)</Text>
                 <InlineGrid columns={4} gap="400">
                   <TextField label="Peso Máximo (kg)" value={boxLarge.weight} onChange={(v) => setBoxLarge({...boxLarge, weight: v})} autoComplete="off" />
                   <TextField label="Comprimento (cm)" value={boxLarge.l} onChange={(v) => setBoxLarge({...boxLarge, l: v})} autoComplete="off" />

@@ -90,7 +90,7 @@ export default function CarriersList() {
                 content: 'Criar Transportadora',
                 onAction: () => navigate("/app/newCarrier"),
               }}
-              image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/empty-state-cards_customer-delivery-service.svg"
+              image=""
             >
               <p>Cria a tua primeira transportadora para começares a gerir os teus envios.</p>
             </EmptyState>

@@ -26,7 +26,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     orderBy: { groupName: 'asc' },
   });
 
-  // Agrupar os dados por nome de grupo para facilitar a renderização na UI
   const groups = countryGroups.reduce((acc: any, curr) => {
     if (!acc[curr.groupName]) acc[curr.groupName] = [];
     acc[curr.groupName].push(curr);
@@ -116,7 +115,6 @@ export default function CountryGroups() {
   return (
     <Page title="Grupos de Envio por País">
       <Layout>
-        {/* Formulário para Adicionar Países */}
         <Layout.Section variant="oneThird">
           <Card>
             <BlockStack gap="400">
@@ -157,14 +155,13 @@ export default function CountryGroups() {
           </Card>
         </Layout.Section>
 
-        {/* Listagem de Grupos Existentes */}
         <Layout.Section>
           <BlockStack gap="400">
             {groupNames.length === 0 ? (
               <Card>
                 <EmptyState
                   heading="Sem grupos definidos"
-                  image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/empty-state-cards_customer-delivery-service.svg"
+                  image=""
                 >
                   <p>Adicione o seu primeiro país e grupo para começar a organizar as tarifas de envio.</p>
                 </EmptyState>

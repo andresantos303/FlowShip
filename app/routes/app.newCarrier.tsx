@@ -89,7 +89,6 @@ export default function CreateCarrier() {
     }
   }, [actionData]);
 
-  // Handle dynamic table changes
   const updateRate = (id: number, field: string, value: string) => {
     setRates(rates.map(rate => rate.id === id ? { ...rate, [field]: value } : rate));
   };
@@ -132,7 +131,6 @@ export default function CreateCarrier() {
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
-            {/* Informação Geral */}
             <Card>
               <BlockStack gap="400">
                 <Text variant="headingMd" as="h2">Detalhes da Transportadora</Text>
@@ -171,7 +169,6 @@ export default function CreateCarrier() {
               </BlockStack>
             </Card>
 
-            {/* Configuração via API */}
             {method[0] === 'API' && (
               <Card>
                 <BlockStack gap="400">
@@ -207,7 +204,6 @@ export default function CreateCarrier() {
               </Card>
             )}
 
-            {/* Configuração via Tabela Manual */}
             {method[0] === 'TABLE' && (
               <Card>
                 <BlockStack gap="400">

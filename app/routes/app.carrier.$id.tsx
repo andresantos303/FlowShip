@@ -19,7 +19,6 @@ import { useState, useCallback, useEffect } from "react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
-// Carregamento dos dados da transportadora e respetivas tarifas
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { session } = await authenticate.admin(request);
   
@@ -35,9 +34,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return json({ carrier });
 }
 
-// Atualização das informações na base de dados
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { session } = await authenticate.admin(request);
   const formData = await request.formData();
 
   const name = formData.get("name") as string;
@@ -106,7 +103,6 @@ export default function EditCarrier() {
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
   const [markupValue, setMarkupValue] = useState(String(carrier.markupValue || 0));
 
-  // Inicialização do estado com as tarifas guardadas
   const [rates, setRates] = useState(
     carrier.rates.map((r) => ({
       id: r.id,
@@ -179,7 +175,6 @@ export default function EditCarrier() {
                   <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
                   <TextField label="Categoria" value={category} onChange={setCategory} autoComplete="off" />
                   <Divider />
-                  {/* Campo para ativar/desativar */}
                   <Checkbox
                     label="Transportadora ativa"
                     checked={isActive}
@@ -198,7 +193,6 @@ export default function EditCarrier() {
                 </FormLayout>
               </BlockStack>
             </Card>
-
             {method[0] === "API" && (
               <Card>
                 <BlockStack gap="400">
