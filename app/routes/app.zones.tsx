@@ -18,14 +18,11 @@ import {
 } from "@shopify/polaris";
 import { DeleteIcon, PlusIcon } from '@shopify/polaris-icons';
 import { useState, useCallback, useEffect } from "react";
-import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { session } = await authenticate.admin(request);
 
   const countryGroups = await prisma.countryGroup.findMany({
-    where: { shopDomain: session.shop },
     orderBy: { groupName: 'asc' },
   });
 
@@ -40,7 +37,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { session } = await authenticate.admin(request);
   const formData = await request.formData();
   const intent = formData.get("intent");
 
@@ -52,14 +48,10 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       await prisma.countryGroup.upsert({
         where: {
-          shopDomain_countryCode: {
-            shopDomain: session.shop,
-            countryCode: countryCode,
-          },
+          countryCode: countryCode,
         },
         update: { groupName, countryName },
         create: {
-          shopDomain: session.shop,
           countryCode,
           countryName,
           groupName,
@@ -195,8 +187,8 @@ export default function CountryGroups() {
                         <ResourceItem id={id} onClick={() => {}}>
                           <InlineStack align="space-between" blockAlign="center">
                             <BlockStack gap="100">
-                              <Text variant="bodyMd" fontWeight="bold">{countryName}</Text>
-                              <Text variant="bodySm" tone="subdued">{countryCode}</Text>
+                              <Text variant="bodyMd" as="p" fontWeight="bold">{countryName}</Text>
+                              <Text variant="bodySm" as="p" tone="subdued">{countryCode}</Text>
                             </BlockStack>
                             <Button 
                               icon={DeleteIcon} 

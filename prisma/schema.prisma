@@ -55,29 +55,30 @@ model StoreConfig {
 
 model CountryGroup {
   id          String   @id @default(uuid())
-  shopDomain  String
   countryName String
   countryCode String   // Ex: 'PT', 'ES', 'FR'
   groupName   String   // Ex: 'Nacional', 'Europa 1'
 
-  @@unique([shopDomain, countryCode])
+  @@unique([countryCode])
 }
 
 model Carrier {
-  id                String   @id @default(uuid())
-  shopDomain        String
-  name              String
-  description       String   @default("")
-  category          String   @default("Nacional")// "Nacional" or "International"
-  calculationMethod String   // "API" or "TABLE"
-  isActive          Boolean  @default(true)
+  id                  String   @id @default(uuid())
+  shopDomain          String
+  name                String
+  description         String   @default("")
+  category            String   @default("Nacional")// "Nacional" or "International"
+  calculationMethod   String   // "API" or "TABLE"
+  isActive            Boolean  @default(true)
   
   // Fields for API integration
-  apiKey            String?
-  apiSecret         String?
-  apiAccountNumber  String?
-  markupType        String?  @default("PERCENTAGE")
-  markupValue       Float?   @default(0)
+  apiKey              String?
+  apiSecret           String?
+  apiAccountNumber    String?
+  apiUrlRates         String?
+  apiUrlAvailability  String?
+  markupType          String?  @default("PERCENTAGE")
+  markupValue         Float?   @default(0)
 
   // Relation to manual rates (for TABLE method)
   rates             CarrierRate[]

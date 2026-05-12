@@ -47,6 +47,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiKey = formData.get("apiKey") as string | null;
   const apiSecret = formData.get("apiSecret") as string | null;
   const apiAccountNumber = formData.get("apiAccountNumber") as string | null;
+  const apiUrlRates = formData.get("apiUrlRates") as string | null;
+  const apiUrlAvailability = formData.get("apiUrlAvailability") as string | null;
   const markupType = formData.get("markupType") as string;
   const markupValue = Number(formData.get("markupValue") || 0);
   const rawRates = formData.get("ratesData") as string;
@@ -64,6 +66,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       apiKey: calculationMethod === "API" ? apiKey : null,
       apiSecret: calculationMethod === "API" ? apiSecret : null,
       apiAccountNumber: calculationMethod === "API" ? apiAccountNumber : null,
+      apiUrlRates: calculationMethod === "API" ? apiUrlRates : null,
+      apiUrlAvailability: calculationMethod === "API" ? apiUrlAvailability : null,
       markupType: calculationMethod === "API" ? markupType : null,
       markupValue: calculationMethod === "API" ? markupValue : null,
       rates: {
@@ -97,6 +101,8 @@ export default function EditCarrier() {
   const [apiKey, setApiKey] = useState(carrier.apiKey || "");
   const [apiSecret, setApiSecret] = useState(carrier.apiSecret || "");
   const [apiAccountNumber, setApiAccountNumber] = useState(carrier.apiAccountNumber || "");
+  const [apiUrlRates, setApiUrlRates] = useState(carrier.apiUrlRates || "");
+  const [apiUrlAvailability, setApiUrlAvailability] = useState(carrier.apiUrlAvailability || "");
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
   const [markupValue, setMarkupValue] = useState(String(carrier.markupValue || 0));
 
@@ -143,12 +149,14 @@ export default function EditCarrier() {
     formData.append("apiKey", apiKey);
     formData.append("apiSecret", apiSecret);
     formData.append("apiAccountNumber", apiAccountNumber);
+    formData.append("apiUrlRates", apiUrlRates);
+    formData.append("apiUrlAvailability", apiUrlAvailability);
     formData.append("markupType", markupType);
     formData.append("markupValue", markupValue);
     formData.append("ratesData", JSON.stringify(rates));
 
     submit(formData, { method: "post" });
-  }, [name, description, category, method, isActive, apiKey, apiSecret, apiAccountNumber, markupType, markupValue, rates, submit]);
+  }, [name, description, category, method, isActive, apiKey, apiSecret, apiAccountNumber, apiUrlRates, apiUrlAvailability, markupType, markupValue, rates, submit]);
 
   return (
     <Page
@@ -199,6 +207,8 @@ export default function EditCarrier() {
                     <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
                     <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
                     <TextField label="API Account Number" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
+                    <TextField label="API URL para obtenção de tarifas" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
+                    <TextField label="API URL para verificação de disponibilidade" value={apiUrlAvailability} onChange={setApiUrlAvailability} autoComplete="off" />
                     <Divider />
                     <Text variant="headingSm" as="h3">Margem de Lucro (*Markup*)</Text>
                     <FormLayout.Group>
@@ -226,7 +236,7 @@ export default function EditCarrier() {
                     <div key={rate.id} style={{ padding: "12px", background: "#f4f6f8", borderRadius: "8px" }}>
                       <BlockStack gap="200">
                         <InlineGrid columns={3} gap="400">
-                          <TextField label="País" value={rate.groupName} onChange={(v) => updateRate(rate.id, "groupName", v)} autoComplete="off" />
+                          <TextField label="Zona" value={rate.groupName} onChange={(v) => updateRate(rate.id, "groupName", v)} autoComplete="off" />
                           <TextField label="Peso Máx (kg)" type="number" value={rate.maxWeight} onChange={(v) => updateRate(rate.id, "maxWeight", v)} autoComplete="off" />
                           <TextField label="Tamanho da caixa" value={rate.boxSize} onChange={(v) => updateRate(rate.id, "boxSize", v)} autoComplete="off" />
                         </InlineGrid>

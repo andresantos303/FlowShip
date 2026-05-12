@@ -31,13 +31,7 @@ export async function action({ request }: ActionFunctionArgs) {
   await prisma.storeConfig.update({
     where: { shopDomain: session.shop },
     data: {
-      markupType: formData.get("markupType") as string,
-      markupValue: Number(formData.get("markupValue")),
-      freeShippingThreshold: Number(formData.get("freeShippingThreshold")),
-      isActiveCTT: formData.get("isActiveCTT") === "true",
-      isActiveGLS: formData.get("isActiveGLS") === "true",
-      isActiveFedEx: formData.get("isActiveFedEx") === "true",
-      
+      freeShippingThreshold: Number(formData.get("freeShippingThreshold")),     
       // Atualização das caixas
       boxSmallMaxWeight: Number(formData.get("boxSmallMaxWeight")),
       boxSmallLength: Number(formData.get("boxSmallLength")),
@@ -125,7 +119,6 @@ export default function AdditionalRules() {
                     value={threshold}
                     onChange={setThreshold}
                     autoComplete="off"
-                    helpText="Valor na unidade base (ex: 10000 para 100.00€ se usares cêntimos)."
                   />
                 <Text variant="headingMd" as="h2">Definição do tamanho de caixas</Text>
                 <Text variant="bodyMd" as="p">

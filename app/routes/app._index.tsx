@@ -10,7 +10,6 @@ import {
   Button, 
   EmptyState,
   InlineStack,
-  Tooltip
 } from "@shopify/polaris";
 import { DeleteIcon } from '@shopify/polaris-icons';
 import { authenticate } from "../shopify.server";
@@ -36,7 +35,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === "delete") {
     try {
-      // 1. Validação de segurança no Backend
       const carrier = await prisma.carrier.findUnique({
         where: { id, shopDomain: session.shop },
         select: { isActive: true }
@@ -46,7 +44,6 @@ export async function action({ request }: ActionFunctionArgs) {
         return json({ success: false, message: "Não podes eliminar uma transportadora ativa. Desativa-a primeiro." }, { status: 400 });
       }
 
-      // 2. Eliminação segura
       await prisma.carrier.delete({
         where: { id, shopDomain: session.shop },
       });
@@ -76,7 +73,6 @@ export default function CarriersList() {
 
   useEffect(() => {
     if (fetcher.data?.message) {
-      // Mostra a notificação quer seja de erro ou sucesso
       shopify.toast.show(fetcher.data.message, {
         isError: !fetcher.data.success
       });
@@ -121,31 +117,29 @@ export default function CarriersList() {
         <IndexTable.Cell>
           <InlineStack gap="200">
             <Button onClick={() => navigate(`/app/carrier/${id}`)}>Editar</Button>
-            
-            {/* O Tooltip ajuda a explicar ao utilizador o motivo de o botão estar bloqueado */}
-            <Tooltip content={isActive ? "Desativa a transportadora para a poderes eliminar" : "Eliminar transportadora"}>
-              <div> {/* O Tooltip precisa de um elemento wrapper quando o componente filho está desativado */}
+              <div>
                 <fetcher.Form method="post">
                   <input type="hidden" name="id" value={id} />
                   <input type="hidden" name="intent" value="delete" />
-                  <Button 
-                    tone="critical" 
+                  <Button
+                    tone="critical"
                     icon={DeleteIcon}
-                    onClick={(e) => {
+                    onClick={() => {
                       if (!confirm("Tens a certeza que pretendes eliminar esta transportadora? Esta ação não pode ser revertida.")) {
-                        e.preventDefault();
+                        return;
                       }
+                      const fd = new FormData();
+                      fd.append("id", id);
+                      fd.append("intent", "delete");
+                      fetcher.submit(fd, { method: "post" });
                     }}
-                    submit
-                    disabled={isActive} // Bloqueio na Interface
+                    disabled={isActive}
                     loading={fetcher.state === "submitting" && fetcher.formData?.get("id") === id && fetcher.formData?.get("intent") === "delete"}
                   >
                     Eliminar
                   </Button>
                 </fetcher.Form>
               </div>
-            </Tooltip>
-
             <fetcher.Form method="post">
               <input type="hidden" name="id" value={id} />
               <input type="hidden" name="intent" value="toggle_status" />

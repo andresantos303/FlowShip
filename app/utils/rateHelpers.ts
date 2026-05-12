@@ -12,10 +12,10 @@ export interface CarrierRate {
   max_delivery_date: string;
 }
 
-export const calculateFreeShipping = (processedRates: CarrierRate[], cartTotalCents: number, config: any): CarrierRate[] => {
-  if (cartTotalCents >= config.freeShippingThreshold) {
+export const calculateFreeShipping = (bestRates: CarrierRate[], cartTotalCents: number, config: any): CarrierRate[] => {
+  if (cartTotalCents >= Math.round(config.freeShippingThreshold*100)) {
     logger.info("Cart total meets free shipping threshold.");
-    return processedRates.map(rate => ({ ...rate, total_price: 0 }));
+    return bestRates.map(rate => ({ ...rate, total_price: 0 }));
   }
-  return processedRates;
+  return bestRates;
 };

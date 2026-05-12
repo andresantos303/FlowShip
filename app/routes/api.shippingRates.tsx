@@ -95,8 +95,6 @@ export async function action({ request }: ActionFunctionArgs) {
       boxDimensions = { length: config.boxMediumLength, width: config.boxMediumWidth, height: config.boxMediumHeight };
     }
 
-    // const groupName = countryGroupData ? countryGroupData.groupName : "Rest of World";
-
 
     const rateRequestInfo = {
       ShipFrom: {

@@ -95,9 +95,7 @@ export default function UnfulfilledOrders() {
             {renderFinancialStatus(displayFinancialStatus)}
           </IndexTable.Cell>
           <IndexTable.Cell>
-            <Text as="span" alignment="end">
-              {price} {currency}
-            </Text>
+            <Text as="span">{price} {currency}</Text>
           </IndexTable.Cell>
         </IndexTable.Row>
       );

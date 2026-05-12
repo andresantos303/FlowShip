@@ -44,7 +44,7 @@ export async function action({ request }: ActionFunctionArgs) {
       markupValue: calculationMethod === 'API' ? markupValue : null,
       rates: calculationMethod === 'TABLE' ? {
         create: ratesData.map((rate: any) => ({
-          countryCode: rate.country,
+          groupName: rate.groupName,
           maxWeight: Number(rate.weight),
           boxSize: String(rate.boxSize),
           price: Number(rate.price),
@@ -78,19 +78,14 @@ export default function CreateCarrier() {
 
   // Table state (Dynamic rows)
   const [rates, setRates] = useState([
-    { id: Date.now(), country: "PT", weight: "", boxSize: "", price: "", deliveryTime: "" }
+    { id: Date.now(), groupName: "", weight: "", boxSize: "", price: "", deliveryTime: "" }
   ]);
 
   // Show success toast
   useEffect(() => {
     if (actionData?.success) {
-      // Use any to bypass TypeScript if shopify global is not typed
-      (window as any).shopify.toast.show('Transportadora criada com sucesso!');
-      // Reset form
-      setName("");
-      setDescription("");
-      setCategory("");
-      setMethod(["TABLE"]);
+      window.shopify.toast.show('Transportadora criada com sucesso!');
+      //window.location.href = "/app";
     }
   }, [actionData]);
 
@@ -100,7 +95,7 @@ export default function CreateCarrier() {
   };
 
   const addRateRow = () => {
-    setRates([...rates, { id: Date.now(), country: "", weight: "", boxSize: "", price: "", deliveryTime: "" }]);
+    setRates([...rates, { id: Date.now(), groupName: "", weight: "", boxSize: "", price: "", deliveryTime: "" }]);
   };
 
   const handleSave = useCallback(() => {
@@ -226,7 +221,7 @@ export default function CreateCarrier() {
                       <BlockStack gap="300">
                         <Text variant="headingSm" as="h3">Regra #{index + 1}</Text>
                         <InlineGrid columns={3} gap="400">
-                          <TextField label="País" value={rate.country} onChange={(v) => updateRate(rate.id, 'country', v)} autoComplete="off" />
+                          <TextField label="Zona" value={rate.groupName} onChange={(v) => updateRate(rate.id, 'groupName', v)} autoComplete="off" />
                           <TextField label="Peso Máx (kg)" type="number" value={rate.weight} onChange={(v) => updateRate(rate.id, 'weight', v)} autoComplete="off" />
                           <TextField label="Tamanho da caixa" value={rate.boxSize} onChange={(v) => updateRate(rate.id, 'boxSize', v)} autoComplete="off" />
                         </InlineGrid>
