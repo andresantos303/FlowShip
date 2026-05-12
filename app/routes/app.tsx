@@ -21,11 +21,10 @@ export default function App() {
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
-        <Link to="/app" rel="home">
-          Home
-        </Link>
+        <Link to="/app" rel="home">Home</Link>
         <Link to="/app/newCarrier">Criar Transportadora</Link>
         <Link to="/app/adicionalRules">Regras Adicionais</Link>
+        <Link to="/app/zones">Zonas</Link>
         <Link to="/app/orders">Encomendas</Link>
       </NavMenu>
       <Outlet />
@@ -37,6 +36,7 @@ export default function App() {
 export function ErrorBoundary() {
   return boundary.error(useRouteError());
 }
+
 
 export const headers: HeadersFunction = (headersArgs) => {
   return boundary.headers(headersArgs);

@@ -1,13 +1,13 @@
-import { type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
+import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSubmit, useNavigation, useActionData } from "@remix-run/react";
 import {
-  Page, Layout, Card, BlockStack, FormLayout, TextField, Select, Checkbox, Text
+  Page, Layout, Card, BlockStack, FormLayout, TextField,
+  Select, Checkbox, Text, InlineGrid, Divider
 } from "@shopify/polaris";
 import { useState, useCallback, useEffect } from "react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
-// Fetch the store configuration from the database
 export async function loader({ request }: LoaderFunctionArgs) {
   const { session } = await authenticate.admin(request);
 
@@ -15,32 +15,48 @@ export async function loader({ request }: LoaderFunctionArgs) {
     where: { shopDomain: session.shop },
   });
 
-  // Create default config if it doesn't exist for the shop
   if (!config) {
-    console.log(`Creating default config for shop: ${session.shop}`);
     config = await prisma.storeConfig.create({
-      data: {
-        shopDomain: session.shop,
-      }
+      data: { shopDomain: session.shop }
     });
   }
 
-  return { config };
+  return json({ config });
 }
 
-// Update the store configuration in the database
 export async function action({ request }: ActionFunctionArgs) {
   const { session } = await authenticate.admin(request);
   const formData = await request.formData();
-  const freeShippingThreshold = Number(formData.get("freeShippingThreshold"));
 
   await prisma.storeConfig.update({
     where: { shopDomain: session.shop },
     data: {
-      freeShippingThreshold,
+      markupType: formData.get("markupType") as string,
+      markupValue: Number(formData.get("markupValue")),
+      freeShippingThreshold: Number(formData.get("freeShippingThreshold")),
+      isActiveCTT: formData.get("isActiveCTT") === "true",
+      isActiveGLS: formData.get("isActiveGLS") === "true",
+      isActiveFedEx: formData.get("isActiveFedEx") === "true",
+      
+      // Atualização das caixas
+      boxSmallMaxWeight: Number(formData.get("boxSmallMaxWeight")),
+      boxSmallLength: Number(formData.get("boxSmallLength")),
+      boxSmallWidth: Number(formData.get("boxSmallWidth")),
+      boxSmallHeight: Number(formData.get("boxSmallHeight")),
+      
+      boxMediumMaxWeight: Number(formData.get("boxMediumMaxWeight")),
+      boxMediumLength: Number(formData.get("boxMediumLength")),
+      boxMediumWidth: Number(formData.get("boxMediumWidth")),
+      boxMediumHeight: Number(formData.get("boxMediumHeight")),
+      
+      boxLargeMaxWeight: Number(formData.get("boxLargeMaxWeight")),
+      boxLargeLength: Number(formData.get("boxLargeLength")),
+      boxLargeWidth: Number(formData.get("boxLargeWidth")),
+      boxLargeHeight: Number(formData.get("boxLargeHeight")),
     },
   });
-  return { success: true };
+
+  return json({ success: true });
 }
 
 export default function AdditionalRules() {
@@ -50,40 +66,60 @@ export default function AdditionalRules() {
   const navigation = useNavigation();
   const isSaving = navigation.state === "submitting";
 
+  // Estados gerais
   const [threshold, setThreshold] = useState(String(config.freeShippingThreshold));
+  
+  // Estados das caixas
+  const [boxSmall, setBoxSmall] = useState({
+    weight: String(config.boxSmallMaxWeight), l: String(config.boxSmallLength), w: String(config.boxSmallWidth), h: String(config.boxSmallHeight)
+  });
+  const [boxMedium, setBoxMedium] = useState({
+    weight: String(config.boxMediumMaxWeight), l: String(config.boxMediumLength), w: String(config.boxMediumWidth), h: String(config.boxMediumHeight)
+  });
+  const [boxLarge, setBoxLarge] = useState({
+    weight: String(config.boxLargeMaxWeight), l: String(config.boxLargeLength), w: String(config.boxLargeWidth), h: String(config.boxLargeHeight)
+  });
 
   useEffect(() => {
     if (actionData?.success) {
-      shopify.toast.show('Configurações guardadas com sucesso!',{
-        duration: 3000,
-      });
+      (window as any).shopify.toast.show('Configurações guardadas com sucesso!');
     }
-  }, [isSaving]);
+  }, [actionData]);
 
   const handleSave = useCallback(() => {
     const formData = new FormData();
     formData.append("freeShippingThreshold", threshold);
+    formData.append("boxSmallMaxWeight", boxSmall.weight);
+    formData.append("boxSmallLength", boxSmall.l);
+    formData.append("boxSmallWidth", boxSmall.w);
+    formData.append("boxSmallHeight", boxSmall.h);
+    
+    formData.append("boxMediumMaxWeight", boxMedium.weight);
+    formData.append("boxMediumLength", boxMedium.l);
+    formData.append("boxMediumWidth", boxMedium.w);
+    formData.append("boxMediumHeight", boxMedium.h);
+
+    formData.append("boxLargeMaxWeight", boxLarge.weight);
+    formData.append("boxLargeLength", boxLarge.l);
+    formData.append("boxLargeWidth", boxLarge.w);
+    formData.append("boxLargeHeight", boxLarge.h);
 
     submit(formData, { method: "post" });
-  }, [threshold, submit]);
+  }, [threshold, boxSmall, boxMedium, boxLarge, submit]);
 
   return (
     <Page
-      title="Regras Adicionais"
-      primaryAction={{
-        content: 'Guardar',
-        onAction: handleSave,
-        loading: isSaving,
-      }}
+      title="Regras Adicionais e Caixas"
+      primaryAction={{ content: 'Guardar', onAction: handleSave, loading: isSaving }}
     >
       <Layout>
         <Layout.Section>
           <BlockStack gap="500">
+            {/* Secção de Caixas */}
             <Card>
               <BlockStack gap="400">
-                <Text variant="headingMd" as="h2">Margem de Lucro e Portes</Text>
-                <FormLayout>
-                  <TextField
+                <Text variant="headingMd" as="h2">Regras adicionais</Text>
+                <TextField
                     label="Valor mínimo para portes grátis"
                     type="number"
                     value={threshold}
@@ -91,7 +127,40 @@ export default function AdditionalRules() {
                     autoComplete="off"
                     helpText="Valor na unidade base (ex: 10000 para 100.00€ se usares cêntimos)."
                   />
-                </FormLayout>
+                <Text variant="headingMd" as="h2">Definição do tamanho de caixas</Text>
+                <Text variant="bodyMd" as="p">
+                  O tamanho da caixa é definido automaticamente pelo peso total do carrinho. 
+                  Estas medidas são enviadas para a <i>API</i> das transportadoras.
+                </Text>
+
+                <Divider />
+                
+                {/* Caixa Pequena */}
+                <Text variant="headingSm" as="h3">Caixa Pequena (Small)</Text>
+                <InlineGrid columns={4} gap="400">
+                  <TextField label="Peso Máximo (kg)" value={boxSmall.weight} onChange={(v) => setBoxSmall({...boxSmall, weight: v})} autoComplete="off" />
+                  <TextField label="Comprimento (cm)" value={boxSmall.l} onChange={(v) => setBoxSmall({...boxSmall, l: v})} autoComplete="off" />
+                  <TextField label="Largura (cm)" value={boxSmall.w} onChange={(v) => setBoxSmall({...boxSmall, w: v})} autoComplete="off" />
+                  <TextField label="Altura (cm)" value={boxSmall.h} onChange={(v) => setBoxSmall({...boxSmall, h: v})} autoComplete="off" />
+                </InlineGrid>
+
+                {/* Caixa Média */}
+                <Text variant="headingSm" as="h3">Caixa Média (Medium)</Text>
+                <InlineGrid columns={4} gap="400">
+                  <TextField label="Peso Máximo (kg)" value={boxMedium.weight} onChange={(v) => setBoxMedium({...boxMedium, weight: v})} autoComplete="off" />
+                  <TextField label="Comprimento (cm)" value={boxMedium.l} onChange={(v) => setBoxMedium({...boxMedium, l: v})} autoComplete="off" />
+                  <TextField label="Largura (cm)" value={boxMedium.w} onChange={(v) => setBoxMedium({...boxMedium, w: v})} autoComplete="off" />
+                  <TextField label="Altura (cm)" value={boxMedium.h} onChange={(v) => setBoxMedium({...boxMedium, h: v})} autoComplete="off" />
+                </InlineGrid>
+
+                 {/* Caixa Grande */}
+                 <Text variant="headingSm" as="h3">Caixa Grande (Large)</Text>
+                <InlineGrid columns={4} gap="400">
+                  <TextField label="Peso Máximo (kg)" value={boxLarge.weight} onChange={(v) => setBoxLarge({...boxLarge, weight: v})} autoComplete="off" />
+                  <TextField label="Comprimento (cm)" value={boxLarge.l} onChange={(v) => setBoxLarge({...boxLarge, l: v})} autoComplete="off" />
+                  <TextField label="Largura (cm)" value={boxLarge.w} onChange={(v) => setBoxLarge({...boxLarge, w: v})} autoComplete="off" />
+                  <TextField label="Altura (cm)" value={boxLarge.h} onChange={(v) => setBoxLarge({...boxLarge, h: v})} autoComplete="off" />
+                </InlineGrid>
               </BlockStack>
             </Card>
           </BlockStack>

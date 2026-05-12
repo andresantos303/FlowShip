@@ -45,10 +45,8 @@ export async function action({ request }: ActionFunctionArgs) {
       rates: calculationMethod === 'TABLE' ? {
         create: ratesData.map((rate: any) => ({
           countryCode: rate.country,
-          postalCodeStart: rate.postalStart,
-          postalCodeEnd: rate.postalEnd,
           maxWeight: Number(rate.weight),
-          maxVolume: Number(rate.volume),
+          boxSize: String(rate.boxSize),
           price: Number(rate.price),
           deliveryTime: Number(rate.deliveryTime)
         }))
@@ -80,7 +78,7 @@ export default function CreateCarrier() {
 
   // Table state (Dynamic rows)
   const [rates, setRates] = useState([
-    { id: Date.now(), country: "PT", postalStart: "", postalEnd: "", weight: "", volume: "", price: "", deliveryTime: "" }
+    { id: Date.now(), country: "PT", weight: "", boxSize: "", price: "", deliveryTime: "" }
   ]);
 
   // Show success toast
@@ -102,7 +100,7 @@ export default function CreateCarrier() {
   };
 
   const addRateRow = () => {
-    setRates([...rates, { id: Date.now(), country: "", postalStart: "", postalEnd: "", weight: "", volume: "", price: "", deliveryTime: "" }]);
+    setRates([...rates, { id: Date.now(), country: "", weight: "", boxSize: "", price: "", deliveryTime: "" }]);
   };
 
   const handleSave = useCallback(() => {
@@ -229,16 +227,12 @@ export default function CreateCarrier() {
                         <Text variant="headingSm" as="h3">Regra #{index + 1}</Text>
                         <InlineGrid columns={3} gap="400">
                           <TextField label="País" value={rate.country} onChange={(v) => updateRate(rate.id, 'country', v)} autoComplete="off" />
-                          <TextField label="Cód. Postal (Início)" value={rate.postalStart} onChange={(v) => updateRate(rate.id, 'postalStart', v)} autoComplete="off" />
-                          <TextField label="Cód. Postal (Fim)" value={rate.postalEnd} onChange={(v) => updateRate(rate.id, 'postalEnd', v)} autoComplete="off" />
-                        </InlineGrid>
-                        <InlineGrid columns={3} gap="400">
                           <TextField label="Peso Máx (kg)" type="number" value={rate.weight} onChange={(v) => updateRate(rate.id, 'weight', v)} autoComplete="off" />
-                          <TextField label="Volume Máx (cm³)" type="number" value={rate.volume} onChange={(v) => updateRate(rate.id, 'volume', v)} autoComplete="off" />
-                          <TextField label="Preço (€)" type="number" value={rate.price} onChange={(v) => updateRate(rate.id, 'price', v)} autoComplete="off" />
+                          <TextField label="Tamanho da caixa" value={rate.boxSize} onChange={(v) => updateRate(rate.id, 'boxSize', v)} autoComplete="off" />
                         </InlineGrid>
                         <InlineGrid columns={3} gap="400">
-                          <TextField label="Tempo de entrega (dias)" type="number" value={rate.weight} onChange={(v) => updateRate(rate.id, 'weight', v)} autoComplete="off" />
+                          <TextField label="Preço (€)" type="number" value={rate.price} onChange={(v) => updateRate(rate.id, 'price', v)} autoComplete="off" />
+                          <TextField label="Tempo de entrega (dias)" type="number" value={rate.deliveryTime} onChange={(v) => updateRate(rate.id, 'deliveryTime', v)} autoComplete="off" />
                         </InlineGrid>
                       </BlockStack>
                     </div>

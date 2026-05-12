@@ -82,9 +82,21 @@ export async function action({ request }: ActionFunctionArgs) {
       totalWeightGrams += item.grams * item.quantity;
       cartTotalCents += item.price * item.quantity;
     });
-
     const totalWeightKg = totalWeightGrams / 1000;
-    //const isNacional = rate.destination.country === 'PT';
+
+    let boxSize = "LARGE";
+    let boxDimensions = { length: config.boxLargeLength, width: config.boxLargeWidth, height: config.boxLargeHeight };
+
+    if (totalWeightKg <= config.boxSmallMaxWeight) {
+      boxSize = "SMALL";
+      boxDimensions = { length: config.boxSmallLength, width: config.boxSmallWidth, height: config.boxSmallHeight };
+    } else if (totalWeightKg <= config.boxMediumMaxWeight) {
+      boxSize = "MEDIUM";
+      boxDimensions = { length: config.boxMediumLength, width: config.boxMediumWidth, height: config.boxMediumHeight };
+    }
+
+    // const groupName = countryGroupData ? countryGroupData.groupName : "Rest of World";
+
 
     const rateRequestInfo = {
       ShipFrom: {
@@ -100,19 +112,12 @@ export async function action({ request }: ActionFunctionArgs) {
         Weight: totalWeightKg
       },
       currency: rate.currency,
-      country: rate.destination.country
+      country: rate.destination.country,
+      boxSize,
     };
 
     logger.info("Processing Shipping Rates with available carriers...");
     const finalRate = await fetchFinalRate(rateRequestInfo, config);
-    /* if (isNacional) {
-      logger.info("Processing national shipping");
-      const liveNacionalRates = await fetchAllNacionalRates(rateRequestInfo, config);
-      finalRates = calculateFreeShipping(liveNacionalRates, cartTotalCents,config);
-    } else {
-      logger.info("Processing international shipping");
-      finalRates = await fetchAllInternacionalRates(rateRequestInfo, config);
-    } */
 
     return json({rates: finalRate});
 

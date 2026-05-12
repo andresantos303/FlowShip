@@ -3,6 +3,7 @@ import type { CarrierRate } from '../utils/rateHelpers';
 import { calculateTableRates } from '../utils/rates/tableRates';
 import prisma from '../db.server';
 import { getDeliveryDate } from '../utils/DeliveryDate';
+import { calculateAPIRates } from '../utils/rates/APIRates';
 
 const FALLBACK_RATE = {
   service_name: "Entrega Standard",
@@ -38,7 +39,7 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
       }
     });
     const tableRates = await calculateTableRates(rateRequestInfo,activeTableCarriers);
-    //const apiRates = await calculateAPIRates(rateRequestInfo, activeAPICarriers);
+    // const apiRates = await calculateAPIRates(rateRequestInfo, activeAPICarriers);
 
     const allRates = [...tableRates/* , ...apiRates */];
     if (allRates.length > 0) {

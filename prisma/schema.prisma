@@ -32,11 +32,35 @@ model StoreConfig {
   shopDomain            String   @unique
   freeShippingActive    Boolean  @default(true)
   freeShippingThreshold Int      @default(10000)
-  packageLength         Int      @default(10)
-  packageWidth          Int      @default(5)
-  packageHeight         Int      @default(5)
+  // Configurações da Caixa Pequena
+  boxSmallMaxWeight     Float    @default(2.0)
+  boxSmallLength        Int      @default(20)
+  boxSmallWidth         Int      @default(15)
+  boxSmallHeight        Int      @default(10)
+
+  // Configurações da Caixa Média
+  boxMediumMaxWeight    Float    @default(5.0)
+  boxMediumLength       Int      @default(30)
+  boxMediumWidth        Int      @default(20)
+  boxMediumHeight       Int      @default(15)
+
+  // Configurações da Caixa Grande
+  boxLargeMaxWeight     Float    @default(30.0)
+  boxLargeLength        Int      @default(50)
+  boxLargeWidth         Int      @default(40)
+  boxLargeHeight        Int      @default(30)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+model CountryGroup {
+  id          String   @id @default(uuid())
+  shopDomain  String
+  countryName String
+  countryCode String   // Ex: 'PT', 'ES', 'FR'
+  groupName   String   // Ex: 'Nacional', 'Europa 1'
+
+  @@unique([shopDomain, countryCode])
 }
 
 model Carrier {
@@ -69,11 +93,9 @@ model CarrierRate {
   carrierId       String
   carrier         Carrier @relation(fields: [carrierId], references: [id], onDelete: Cascade)
   
-  countryCode     String
-  postalCodeStart String? // e.g., '1000'
-  postalCodeEnd   String? // e.g., '1999'
-  maxWeight       Float   // Maximum weight for this price tier
-  maxVolume       Float?  // Maximum volume (optional)
+  groupName       String  @default("PT")
+  boxSize         String  @default("SMALL")// "SMALL", "MEDIUM" ou "LARGE"
+  maxWeight       Int     @default(10)
   price           Float   // The agreed price
   deliveryTime    Int     @default(3)
 

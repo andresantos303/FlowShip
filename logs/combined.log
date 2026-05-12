@@ -250,3 +250,12 @@
 {"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"11-05-2026 16:17:02"}
 {"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"11-05-2026 16:17:02"}
 {"level":"info","message":"Cheapest rate selected: CTT Expresso at 10.00 Operado por CTT","timestamp":"11-05-2026 16:17:02"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"11-05-2026 16:44:50"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"11-05-2026 16:44:50"}
+{"level":"info","message":"Cheapest rate selected: CTT Expresso at 10.00","timestamp":"11-05-2026 16:44:50"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"11-05-2026 16:44:51"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"11-05-2026 16:44:51"}
+{"level":"info","message":"Cheapest rate selected: CTT Expresso at 10.00","timestamp":"11-05-2026 16:44:51"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"11-05-2026 16:52:19"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"11-05-2026 16:52:19"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"11-05-2026 16:52:19"}
