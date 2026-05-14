@@ -6,13 +6,10 @@ import prisma from '../../db.server';
 async function getGLSToken(): Promise<string> {
   const url = `${process.env.GLS_BASE_URL}/oauth2/v2/token`;
   
-  const clientId = process.env.GLS_API_KEY as string;
-  const clientSecret = process.env.GLS_SECRET_KEY as string;
-
   const params = new URLSearchParams();
   params.append('grant_type', 'client_credentials');
-  params.append('client_id', clientId);
-  params.append('client_secret', clientSecret);
+  params.append('client_id', process.env.GLS_API_KEY as string);
+  params.append('client_secret', process.env.GLS_SECRET_KEY as string);
 
   try {
     const response = await fetch(url, {

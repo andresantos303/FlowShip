@@ -24,13 +24,13 @@ export const calculateAPIRates = async (rateRequestInfo: any, activeAPICarriers:
         if (matchingRate) {
           availableRates.push({
             service_name: carrier.name,
-            service_code: `${carrier.name}-api`,
-            total_price: Math.round(matchingRate.price * 100), // Shopify expects price in cents
+            service_code: `${carrier.name}-table`,
+            total_price: Math.round(matchingRate.price * 100),
             currency: rateRequestInfo.currency,
             description: carrier.description,
             category: carrier.category,
             min_delivery_date: getDeliveryDate(matchingRate.deliveryTime),
-            max_delivery_date: getDeliveryDate(matchingRate.deliveryTime+2)
+            max_delivery_date: getDeliveryDate(matchingRate.deliveryTime + 2)
           });
           console.log(`Added API rate for carrier ${carrier.name}: ${matchingRate.price} ${rateRequestInfo.currency}`);
         } else {

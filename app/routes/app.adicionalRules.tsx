@@ -1,8 +1,6 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSubmit, useNavigation, useActionData } from "@remix-run/react";
-import {
-  Page, Layout, Card, BlockStack, TextField, Text, InlineGrid, Divider
-} from "@shopify/polaris";
+import { Page, Layout, Card, BlockStack, TextField, Text, InlineGrid, Divider } from "@shopify/polaris";
 import { useState, useCallback, useEffect } from "react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";

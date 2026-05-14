@@ -11,7 +11,6 @@ import {
   Button,
   Text,
   InlineGrid,
-  ChoiceList,
   Divider,
   Checkbox,
 } from "@shopify/polaris";
@@ -31,7 +30,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Response("Transportadora não encontrada", { status: 404 });
   }
 
-  return json({ carrier });
+  // Fetch distinct groupNames (zones) for the current shop
+  const countryGroups = await prisma.countryGroup.findMany({
+    where: { shopDomain: session.shop },
+    select: { groupName: true },
+    distinct: ['groupName']
+  });
+  const zones = countryGroups.map(cg => cg.groupName);
+
+  return json({ carrier, zones });
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -88,6 +95,7 @@ export default function EditCarrier() {
   const submit = useSubmit();
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
+  const { zones } = useLoaderData<typeof loader>();
   const isSaving = navigation.state === "submitting";
 
   const [name, setName] = useState(carrier.name);
@@ -102,6 +110,12 @@ export default function EditCarrier() {
   const [apiUrlAvailability, setApiUrlAvailability] = useState(carrier.apiUrlAvailability || "");
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
   const [markupValue, setMarkupValue] = useState(String(carrier.markupValue || 0));
+
+  // Format zones for Shopify Polaris Select
+  const zoneOptions = [
+    { label: "Selecione uma zona", value: "" },
+    ...zones.map((zone: string) => ({ label: zone, value: zone }))
+  ];
 
   const [rates, setRates] = useState(
     carrier.rates.map((r) => ({
@@ -173,7 +187,15 @@ export default function EditCarrier() {
                 <FormLayout>
                   <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" />
                   <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
-                  <TextField label="Categoria" value={category} onChange={setCategory} autoComplete="off" />
+                  <Select
+                    label="Categoria"
+                    options={[
+                      { label: "Nacional", value: "NATIONAL" },
+                      { label: "Internacional", value: "INTERNATIONAL" },
+                    ]}
+                    value={category}
+                    onChange={setCategory}
+                  />                  
                   <Divider />
                   <Checkbox
                     label="Transportadora ativa"
@@ -230,9 +252,22 @@ export default function EditCarrier() {
                     <div key={rate.id} style={{ padding: "12px", background: "#f4f6f8", borderRadius: "8px" }}>
                       <BlockStack gap="200">
                         <InlineGrid columns={3} gap="400">
-                          <TextField label="Zona" value={rate.groupName} onChange={(v) => updateRate(rate.id, "groupName", v)} autoComplete="off" />
-                          <TextField label="Peso Máx (kg)" type="number" value={rate.maxWeight} onChange={(v) => updateRate(rate.id, "maxWeight", v)} autoComplete="off" />
-                          <TextField label="Tamanho da caixa" value={rate.boxSize} onChange={(v) => updateRate(rate.id, "boxSize", v)} autoComplete="off" />
+                          <Select
+                            label="Zona"
+                            options={zoneOptions}
+                            value={rate.groupName}
+                            onChange={(v) => updateRate(rate.id, 'groupName', v)}
+                          />                          <TextField label="Peso Máx (kg)" type="number" value={rate.maxWeight} onChange={(v) => updateRate(rate.id, "maxWeight", v)} autoComplete="off" />
+                          <Select
+                            label="Tamanho da caixa"
+                            options={[
+                              { label: "Pequeno", value: "SMALL" },
+                              { label: "Médio", value: "MEDIUM" },
+                              { label: "Grande", value: "LARGE" },
+                            ]}
+                            value={rate.boxSize}
+                            onChange={(v) => updateRate(rate.id, "boxSize", v)}
+                          />
                         </InlineGrid>
                         <InlineGrid columns={4} gap="400">
                           <TextField label="Preço (€)" type="number" value={rate.price} onChange={(v) => updateRate(rate.id, "price", v)} autoComplete="off" />

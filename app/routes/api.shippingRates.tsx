@@ -33,6 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return json({ message: "Not authorized" }, { status: 401 });
   }
 
+  // Generate HMAC hash using the raw body and compare with the header
   const generatedHash = crypto
     .createHmac("sha256", process.env.SHOPIFY_API_SECRET || "")
     .update(rawBody, "utf8")
@@ -112,6 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
       currency: rate.currency,
       country: rate.destination.country,
       boxSize,
+      cartTotal: cartTotalCents
     };
 
     logger.info("Processing Shipping Rates with available carriers...");

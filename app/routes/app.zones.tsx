@@ -17,12 +17,15 @@ import {
   Box
 } from "@shopify/polaris";
 import { DeleteIcon, PlusIcon } from '@shopify/polaris-icons';
+import { authenticate } from "../shopify.server";
 import { useState, useCallback, useEffect } from "react";
 import prisma from "../db.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
+    const { session } = await authenticate.admin(request);
 
   const countryGroups = await prisma.countryGroup.findMany({
+    where: { shopDomain: session.shop },
     orderBy: { groupName: 'asc' },
   });
 
@@ -36,6 +39,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  const { session } = await authenticate.admin(request);
   const formData = await request.formData();
   const intent = formData.get("intent");
 
@@ -47,10 +51,14 @@ export async function action({ request }: ActionFunctionArgs) {
     try {
       await prisma.countryGroup.upsert({
         where: {
-          countryCode: countryCode,
+          shopDomain_countryCode: {
+            shopDomain: session.shop,
+            countryCode: countryCode,
+          },
         },
         update: { groupName, countryName },
         create: {
+          shopDomain: session.shop,
           countryCode,
           countryName,
           groupName,

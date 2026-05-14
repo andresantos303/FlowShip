@@ -3,13 +3,16 @@ import logger from '../logger';
 import type { CarrierRate } from '../rateHelpers';
 import prisma from '../../db.server';
 
-export const calculateTableRates = async (rateRequestInfo: any, activeTableCarriers: any[]): Promise<CarrierRate[]> => {
+export const calculateTableRates = async (rateRequestInfo: any, activeTableCarriers: any[], shopDomain: string): Promise<CarrierRate[]> => {
     const availableRates: CarrierRate[] = [];
 
     // Fetch the zone (groupName) based only on the country code
-    const countryGroup = await prisma.countryGroup.findFirst({
+    const countryGroup = await prisma.countryGroup.findUnique({
         where: {
-            countryCode: rateRequestInfo.country
+            shopDomain_countryCode: {
+                shopDomain: shopDomain,
+                countryCode: rateRequestInfo.country
+            }
         }
     });
 
@@ -23,10 +26,10 @@ export const calculateTableRates = async (rateRequestInfo: any, activeTableCarri
     for (const carrier of activeTableCarriers) {
         // Find a matching rate based on zone and box size
         const matchingRate = carrier.rates.find((r: any) => {
-            const isSameZone = r.groupName === targetZone;
-            const isSameBoxSize = r.boxSize === rateRequestInfo.boxSize;
-            
-            return isSameZone && isSameBoxSize;
+        const isSameZone = r.groupName === targetZone;
+        const isSameBoxSize = r.boxSize === rateRequestInfo.boxSize;
+        
+        return isSameZone && isSameBoxSize;
         });
 
         if (matchingRate) {

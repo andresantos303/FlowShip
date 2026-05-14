@@ -55,11 +55,12 @@ model StoreConfig {
 
 model CountryGroup {
   id          String   @id @default(uuid())
+  shopDomain  String
   countryName String
   countryCode String   // Ex: 'PT', 'ES', 'FR'
   groupName   String   // Ex: 'Nacional', 'Europa 1'
 
-  @@unique([countryCode])
+  @@unique([shopDomain,countryCode])
 }
 
 model Carrier {

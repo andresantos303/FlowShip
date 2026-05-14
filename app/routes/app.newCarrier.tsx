@@ -1,12 +1,27 @@
-import { json, type ActionFunctionArgs } from "@remix-run/node";
-import { useActionData, useSubmit, useNavigation } from "@remix-run/react";
+import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
+import { useActionData, useSubmit, useNavigation, useNavigate, useLoaderData } from "@remix-run/react";
 import {
   Page, Layout, Card, BlockStack, FormLayout, TextField,
   Select, Button, Text, InlineGrid, Divider, ChoiceList
 } from "@shopify/polaris";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
+
+// Loader to fetch available zones from the database
+export async function loader({ request }: LoaderFunctionArgs) {
+  const { session } = await authenticate.admin(request);
+
+  // Fetch distinct groupNames (zones) for the current shop
+  const countryGroups = await prisma.countryGroup.findMany({
+    where: { shopDomain: session.shop },
+    select: { groupName: true },
+    distinct: ['groupName']
+  });
+
+  const zones = countryGroups.map(cg => cg.groupName);
+  return json({ zones });
+}
 
 // Action to save the new carrier to the database
 export async function action({ request }: ActionFunctionArgs) {
@@ -22,10 +37,12 @@ export async function action({ request }: ActionFunctionArgs) {
   const apiKey = formData.get("apiKey") as string | null;
   const apiSecret = formData.get("apiSecret") as string | null;
   const apiAccountNumber = formData.get("apiAccountNumber") as string | null;
+  const apiUrlRates = formData.get("apiUrlRates") as string | null;
+  const apiUrlAvailability = formData.get("apiUrlAvailability") as string | null;
   const markupType = formData.get("markupType") as string;
   const markupValue = Number(formData.get("markupValue") || 0);
 
-  // Extract Table fields (simplified array parsing for this example)
+  // Extract Table fields
   const rawRates = formData.get("ratesData") as string;
   const ratesData = rawRates ? JSON.parse(rawRates) : [];
 
@@ -40,6 +57,8 @@ export async function action({ request }: ActionFunctionArgs) {
       apiKey: calculationMethod === 'API' ? apiKey : null,
       apiSecret: calculationMethod === 'API' ? apiSecret : null,
       apiAccountNumber: calculationMethod === 'API' ? apiAccountNumber : null,
+      apiUrlRates: calculationMethod === 'API' ? apiUrlRates : null,
+      apiUrlAvailability: calculationMethod === 'API' ? apiUrlAvailability : null,
       markupType: calculationMethod === 'API' ? markupType : null,
       markupValue: calculationMethod === 'API' ? markupValue : null,
       rates: calculationMethod === 'TABLE' ? {
@@ -60,32 +79,57 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function CreateCarrier() {
   const submit = useSubmit();
   const navigation = useNavigation();
+  const navigate = useNavigate();
   const actionData = useActionData<typeof action>();
+  const { zones } = useLoaderData<typeof loader>();
   const isSaving = navigation.state === "submitting";
+
+  // Format zones for Shopify Polaris Select
+  const zoneOptions = [
+    { label: "Selecione uma zona", value: "" },
+    ...zones.map((zone: string) => ({ label: zone, value: zone }))
+  ];
 
   // General state
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [method, setMethod] = useState(["TABLE"]); // Default to Table
+  const [method, setMethod] = useState(["TABLE"]);
 
   // API state
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
   const [apiAccountNumber, setApiAccountNumber] = useState("");
+  const [apiUrlRates, setApiUrlRates] = useState("");
+  const [apiUrlAvailability, setApiUrlAvailability] = useState("");
   const [markupType, setMarkupType] = useState("PERCENTAGE");
   const [markupValue, setMarkupValue] = useState("");
 
-  // Table state (Dynamic rows)
   const [rates, setRates] = useState([
-    { id: Date.now(), groupName: "", weight: "", boxSize: "", price: "", deliveryTime: "" }
+    { id: Date.now(), groupName: "", weight: "", boxSize: "SMALL", price: "", deliveryTime: "" }
   ]);
 
-  // Show success toast
+  const isFormValid = useMemo(() => {
+    const hasBaseInfo = name !== "" && description !== "" && category !== "";
+    
+    if (!hasBaseInfo) return false;
+
+    if (method[0] === 'API') {
+      return apiKey.trim() !== "" && apiSecret.trim() !== "" && apiUrlRates !== "" && apiUrlAvailability !== "" && markupValue !== "";
+    } else {
+      return rates.length > 0 && rates.every(rate => 
+        rate.groupName !== "" && 
+        rate.weight !== "" && 
+        rate.price !== "" && 
+        rate.deliveryTime !== ""
+      );
+    }
+  }, [name, description, category, method, apiKey, apiSecret, apiUrlRates, apiUrlAvailability, markupValue, rates]);
+
   useEffect(() => {
     if (actionData?.success) {
       window.shopify.toast.show('Transportadora criada com sucesso!');
-      //window.location.href = "/app";
+      navigate("/app");
     }
   }, [actionData]);
 
@@ -94,7 +138,7 @@ export default function CreateCarrier() {
   };
 
   const addRateRow = () => {
-    setRates([...rates, { id: Date.now(), groupName: "", weight: "", boxSize: "", price: "", deliveryTime: "" }]);
+    setRates([...rates, { id: Date.now(), groupName: "", weight: "", boxSize: "SMALL", price: "", deliveryTime: "" }]);
   };
 
   const handleSave = useCallback(() => {
@@ -108,6 +152,8 @@ export default function CreateCarrier() {
       formData.append("apiKey", apiKey);
       formData.append("apiSecret", apiSecret);
       formData.append("apiAccountNumber", apiAccountNumber);
+      formData.append("apiUrlRates", apiUrlRates);
+      formData.append("apiUrlAvailability", apiUrlAvailability);
       formData.append("markupType", markupType);
       formData.append("markupValue", markupValue);
     } else {
@@ -115,17 +161,17 @@ export default function CreateCarrier() {
     }
 
     submit(formData, { method: "post" });
-  }, [name, description, category, method, apiKey, apiSecret, apiAccountNumber, markupType, markupValue, rates, submit]);
+  }, [name, description, category, method, apiKey, apiSecret, apiAccountNumber, apiUrlRates, apiUrlAvailability, markupType, markupValue, rates, submit]);
 
   return (
     <Page
       title="Criar Nova Transportadora"
       backAction={{ content: 'Voltar', url: '/app' }}
       primaryAction={{
-        content: 'Guardar Transportadora',
+        content: 'Criar Transportadora',
         onAction: handleSave,
         loading: isSaving,
-        disabled: !name
+        disabled: !isFormValid
       }}
     >
       <Layout>
@@ -140,7 +186,7 @@ export default function CreateCarrier() {
                     value={name}
                     onChange={setName}
                     autoComplete="off"
-                    placeholder="Ex: CTT Expresso"
+                    placeholder="Ex: CTT"
                   />
                   <ChoiceList
                     title="Método de Cálculo de Tarifas"
@@ -158,12 +204,14 @@ export default function CreateCarrier() {
                     autoComplete="off"
                     placeholder="Ex: Transporte expresso"
                   />
-                  <TextField
+                  <Select
                     label="Categoria"
+                    options={[
+                      { label: "Nacional", value: "NATIONAL" },
+                      { label: "Internacional", value: "INTERNATIONAL" },
+                    ]}
                     value={category}
                     onChange={setCategory}
-                    autoComplete="off"
-                    placeholder="Ex: Nacional"
                   />
                 </FormLayout>
               </BlockStack>
@@ -177,7 +225,8 @@ export default function CreateCarrier() {
                     <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
                     <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
                     <TextField label="API Account Number" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
-                    
+                    <TextField label="URL para Taxas" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
+                    <TextField label="URL para Disponibilidade" value={apiUrlAvailability} onChange={setApiUrlAvailability} autoComplete="off" />
                     <Divider />
                     
                     <Text variant="headingSm" as="h3">Margem de Lucro (Markup)</Text>
@@ -217,9 +266,23 @@ export default function CreateCarrier() {
                       <BlockStack gap="300">
                         <Text variant="headingSm" as="h3">Regra #{index + 1}</Text>
                         <InlineGrid columns={3} gap="400">
-                          <TextField label="Zona" value={rate.groupName} onChange={(v) => updateRate(rate.id, 'groupName', v)} autoComplete="off" />
+                          <Select
+                            label="Zona"
+                            options={zoneOptions}
+                            value={rate.groupName}
+                            onChange={(v) => updateRate(rate.id, 'groupName', v)}
+                          />
                           <TextField label="Peso Máx (kg)" type="number" value={rate.weight} onChange={(v) => updateRate(rate.id, 'weight', v)} autoComplete="off" />
-                          <TextField label="Tamanho da caixa" value={rate.boxSize} onChange={(v) => updateRate(rate.id, 'boxSize', v)} autoComplete="off" />
+                          <Select
+                            label="Tamanho da caixa"
+                            options={[
+                              { label: "Pequeno", value: "SMALL" },
+                              { label: "Médio", value: "MEDIUM" },
+                              { label: "Grande", value: "LARGE" },
+                            ]}
+                            value={rate.boxSize}
+                            onChange={(v) => updateRate(rate.id, "boxSize", v)}
+                          />
                         </InlineGrid>
                         <InlineGrid columns={3} gap="400">
                           <TextField label="Preço (€)" type="number" value={rate.price} onChange={(v) => updateRate(rate.id, 'price', v)} autoComplete="off" />

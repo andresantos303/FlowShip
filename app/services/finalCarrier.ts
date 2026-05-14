@@ -3,7 +3,7 @@ import type { CarrierRate } from '../utils/rateHelpers';
 import { calculateTableRates } from '../utils/rates/tableRates';
 import prisma from '../db.server';
 import { getDeliveryDate } from '../utils/DeliveryDate';
-import { calculateAPIRates } from '../utils/rates/APIRates';
+import { calculateAPIRates } from '../utils/rates/apiRates';
 
 const FALLBACK_RATE = {
   service_name: "Entrega Standard",
@@ -38,7 +38,7 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
         isActive: true 
       }
     });
-    const tableRates = await calculateTableRates(rateRequestInfo,activeTableCarriers);
+    const tableRates = await calculateTableRates(rateRequestInfo,activeTableCarriers, prismaStoreConfig.shopDomain);
     // const apiRates = await calculateAPIRates(rateRequestInfo, activeAPICarriers);
 
     const allRates = [...tableRates/* , ...apiRates */];
@@ -46,6 +46,10 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
       const cheapestRate = allRates.reduce((prev, curr) =>
         prev.total_price < curr.total_price ? prev : curr
       );
+      if (rateRequestInfo.cartTotal > prismaStoreConfig.freeShippingThreshold * 100) {
+        cheapestRate.total_price = 0;
+        cheapestRate.description = "Free shipping for orders over " + prismaStoreConfig.freeShippingThreshold + " " + cheapestRate.currency;
+      }
       bestrate.push(cheapestRate);
       logger.info(`Cheapest rate selected: ${cheapestRate.service_name} at ${(cheapestRate.total_price / 100).toFixed(2)}`);
     } else {
