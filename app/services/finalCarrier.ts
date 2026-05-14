@@ -46,7 +46,7 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
       const cheapestRate = allRates.reduce((prev, curr) =>
         prev.total_price < curr.total_price ? prev : curr
       );
-      if (rateRequestInfo.cartTotal > prismaStoreConfig.freeShippingThreshold * 100) {
+      if (prismaStoreConfig.freeShippingActive && rateRequestInfo.cartTotal > prismaStoreConfig.freeShippingThreshold * 100) {
         cheapestRate.total_price = 0;
         cheapestRate.description = "Free shipping for orders over " + prismaStoreConfig.freeShippingThreshold + " " + cheapestRate.currency;
       }

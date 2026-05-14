@@ -257,12 +257,13 @@ export default function EditCarrier() {
                             options={zoneOptions}
                             value={rate.groupName}
                             onChange={(v) => updateRate(rate.id, 'groupName', v)}
-                          />                          <TextField label="Peso Máx (kg)" type="number" value={rate.maxWeight} onChange={(v) => updateRate(rate.id, "maxWeight", v)} autoComplete="off" />
+                          />                          
+                          <TextField label="Peso Máx (kg)" type="number" value={rate.maxWeight} onChange={(v) => updateRate(rate.id, "maxWeight", v)} autoComplete="off" />
                           <Select
                             label="Tamanho da caixa"
                             options={[
-                              { label: "Pequeno", value: "SMALL" },
-                              { label: "Médio", value: "MEDIUM" },
+                              { label: "Pequena", value: "SMALL" },
+                              { label: "Média", value: "MEDIUM" },
                               { label: "Grande", value: "LARGE" },
                             ]}
                             value={rate.boxSize}

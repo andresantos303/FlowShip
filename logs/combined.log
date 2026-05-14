@@ -403,3 +403,53 @@
 {"level":"info","message":"Added table rate for carrier CTT Expresso: 8 EUR","timestamp":"14-05-2026 09:47:14"}
 {"level":"info","message":"Added table rate for carrier GLS Tabela: 5 EUR","timestamp":"14-05-2026 09:47:14"}
 {"level":"info","message":"Cheapest rate selected: GLS Tabela at 5.00","timestamp":"14-05-2026 09:47:14"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 12:14:52"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 12:14:52"}
+{"level":"info","message":"No matching table rate found for carrier CTT Expresso in zone Europa 1","timestamp":"14-05-2026 12:14:52"}
+{"level":"info","message":"No matching table rate found for carrier GLS Tabela in zone Europa 1","timestamp":"14-05-2026 12:14:52"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"14-05-2026 12:14:52"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 12:16:11"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 12:16:11"}
+{"level":"info","message":"No matching table rate found for carrier CTT Expresso in zone Europa 1","timestamp":"14-05-2026 12:16:11"}
+{"level":"info","message":"Added table rate for carrier GLS Tabela: 15 EUR","timestamp":"14-05-2026 12:16:11"}
+{"level":"info","message":"Cheapest rate selected: GLS Tabela at 15.00","timestamp":"14-05-2026 12:16:11"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 12:16:52"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 12:16:52"}
+{"level":"info","message":"Added table rate for carrier CTT Expresso: 8 EUR","timestamp":"14-05-2026 12:16:52"}
+{"level":"info","message":"Added table rate for carrier GLS Tabela: 5 EUR","timestamp":"14-05-2026 12:16:52"}
+{"level":"info","message":"Cheapest rate selected: GLS Tabela at 5.00","timestamp":"14-05-2026 12:16:52"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 12:59:56"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 12:59:56"}
+{"level":"info","message":"Added table rate for carrier CTT Expresso: 8 EUR","timestamp":"14-05-2026 12:59:56"}
+{"level":"info","message":"Added table rate for carrier GLS Tabela: 5 EUR","timestamp":"14-05-2026 12:59:56"}
+{"level":"info","message":"Cheapest rate selected: GLS Tabela at 5.00","timestamp":"14-05-2026 12:59:56"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 12:59:57"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 12:59:57"}
+{"level":"info","message":"Added table rate for carrier CTT Expresso: 8 EUR","timestamp":"14-05-2026 12:59:57"}
+{"level":"info","message":"Added table rate for carrier GLS Tabela: 5 EUR","timestamp":"14-05-2026 12:59:57"}
+{"level":"info","message":"Cheapest rate selected: GLS Tabela at 5.00","timestamp":"14-05-2026 12:59:57"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 13:00:42"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 13:00:42"}
+{"level":"info","message":"Added table rate for carrier CTT Expresso: 15 EUR","timestamp":"14-05-2026 13:00:42"}
+{"level":"info","message":"No matching table rate found for carrier GLS Tabela in zone Nacional","timestamp":"14-05-2026 13:00:42"}
+{"level":"info","message":"Cheapest rate selected: CTT Expresso at 15.00","timestamp":"14-05-2026 13:00:42"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 13:00:43"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 13:00:43"}
+{"level":"info","message":"Added table rate for carrier CTT Expresso: 15 EUR","timestamp":"14-05-2026 13:00:43"}
+{"level":"info","message":"No matching table rate found for carrier GLS Tabela in zone Nacional","timestamp":"14-05-2026 13:00:43"}
+{"level":"info","message":"Cheapest rate selected: CTT Expresso at 15.00","timestamp":"14-05-2026 13:00:43"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 13:00:45"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 13:00:45"}
+{"level":"info","message":"Added table rate for carrier CTT Expresso: 15 EUR","timestamp":"14-05-2026 13:00:45"}
+{"level":"info","message":"No matching table rate found for carrier GLS Tabela in zone Nacional","timestamp":"14-05-2026 13:00:45"}
+{"level":"info","message":"Cheapest rate selected: CTT Expresso at 15.00","timestamp":"14-05-2026 13:00:45"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 13:03:35"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 13:03:35"}
+{"level":"info","message":"Added table rate for carrier CTT Expresso: 8 EUR","timestamp":"14-05-2026 13:03:35"}
+{"level":"info","message":"Added table rate for carrier GLS Tabela: 5 EUR","timestamp":"14-05-2026 13:03:35"}
+{"level":"info","message":"Cheapest rate selected: GLS Tabela at 0.00","timestamp":"14-05-2026 13:03:35"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"14-05-2026 13:03:36"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"14-05-2026 13:03:36"}
+{"level":"info","message":"Added table rate for carrier CTT Expresso: 8 EUR","timestamp":"14-05-2026 13:03:36"}
+{"level":"info","message":"Added table rate for carrier GLS Tabela: 5 EUR","timestamp":"14-05-2026 13:03:36"}
+{"level":"info","message":"Cheapest rate selected: GLS Tabela at 0.00","timestamp":"14-05-2026 13:03:36"}

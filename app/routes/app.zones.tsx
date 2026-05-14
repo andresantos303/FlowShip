@@ -180,11 +180,10 @@ export default function CountryGroups() {
                   <Box padding="400">
                     <InlineStack align="space-between">
                       <Text variant="headingMd" as="h3">{groupName}</Text>
-                      <Badge tone="info">{groups[groupName].length} Países</Badge>
+                      <Badge tone="info">{`${groups[groupName].length} Países`}</Badge>
                     </InlineStack>
                   </Box>
                   <ResourceList
-                    resourceName={{ singular: 'país', plural: 'países' }}
                     items={groups[groupName]}
                     renderItem={(item: any) => {
                       const { id, countryName, countryCode } = item;

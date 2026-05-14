@@ -276,8 +276,8 @@ export default function CreateCarrier() {
                           <Select
                             label="Tamanho da caixa"
                             options={[
-                              { label: "Pequeno", value: "SMALL" },
-                              { label: "Médio", value: "MEDIUM" },
+                              { label: "Pequena", value: "SMALL" },
+                              { label: "Média", value: "MEDIUM" },
                               { label: "Grande", value: "LARGE" },
                             ]}
                             value={rate.boxSize}
