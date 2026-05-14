@@ -453,3 +453,13 @@
 {"level":"info","message":"Added table rate for carrier CTT Expresso: 8 EUR","timestamp":"14-05-2026 13:03:36"}
 {"level":"info","message":"Added table rate for carrier GLS Tabela: 5 EUR","timestamp":"14-05-2026 13:03:36"}
 {"level":"info","message":"Cheapest rate selected: GLS Tabela at 0.00","timestamp":"14-05-2026 13:03:36"}
+{"level":"info","message":"Normalized zip code: original='4000-123', normalized='4000123'","timestamp":"14-05-2026 16:09:33"}
+{"level":"warn","message":"No shipping zone found for country code: PT and postal code: 4000-123","timestamp":"14-05-2026 16:09:33"}
+{"level":"info","message":"Normalized zip code: original='9000-100', normalized='9000100'","timestamp":"14-05-2026 16:09:33"}
+{"level":"warn","message":"No shipping zone found for country code: PT and postal code: 9000-100","timestamp":"14-05-2026 16:09:33"}
+{"level":"info","message":"Normalized zip code: original='4000-123', normalized='4000123'","timestamp":"14-05-2026 16:14:43"}
+{"level":"info","message":"Matched RANGE rule for zone: PT_CONTINENTAL","timestamp":"14-05-2026 16:14:43"}
+{"level":"info","message":"Added table rate for carrier Transportadora Teste: 5 EUR","timestamp":"14-05-2026 16:14:43"}
+{"level":"info","message":"Normalized zip code: original='9000-100', normalized='9000100'","timestamp":"14-05-2026 16:14:43"}
+{"level":"info","message":"Matched PREFIX rule for zone: PT_ILHAS","timestamp":"14-05-2026 16:14:43"}
+{"level":"info","message":"Added table rate for carrier Transportadora Teste: 15 EUR","timestamp":"14-05-2026 16:14:43"}

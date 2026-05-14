@@ -1,291 +1,276 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useSubmit, useNavigation, useActionData } from "@remix-run/react";
+import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
 import {
   Page,
   Layout,
   Card,
-  BlockStack,
   FormLayout,
   TextField,
   Select,
   Button,
+  BlockStack,
   Text,
-  InlineGrid,
+  IndexTable,
+  InlineStack,
+  Banner,
   Divider,
-  Checkbox,
+  InlineGrid
 } from "@shopify/polaris";
-import { useState, useCallback, useEffect } from "react";
-import { authenticate } from "../shopify.server";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import prisma from "../db.server";
+import { authenticate } from "../shopify.server";
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
-  
+  const { id } = params;
+
   const carrier = await prisma.carrier.findUnique({
-    where: { id: params.id },
-    include: { rates: true },
+    where: { id, shopDomain: session.shop },
+    include: { rates: true }
   });
 
-  if (!carrier || carrier.shopDomain !== session.shop) {
-    throw new Response("Transportadora não encontrada", { status: 404 });
+  if (!carrier) {
+    throw new Response("Carrier not found", { status: 404 });
   }
 
-  // Fetch distinct groupNames (zones) for the current shop
-  const countryGroups = await prisma.countryGroup.findMany({
+  const zones = await prisma.postalRule.findMany({
     where: { shopDomain: session.shop },
     select: { groupName: true },
-    distinct: ['groupName']
+    distinct: ['groupName'],
   });
-  const zones = countryGroups.map(cg => cg.groupName);
 
   return json({ carrier, zones });
-}
+};
 
-export async function action({ request, params }: ActionFunctionArgs) {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const { session } = await authenticate.admin(request);
+  const { id: carrierId } = params;
   const formData = await request.formData();
+  const actionType = formData.get("actionType");
 
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-  const category = formData.get("category") as string;
-  const calculationMethod = formData.get("calculationMethod") as string;
-  const apiKey = formData.get("apiKey") as string | null;
-  const apiSecret = formData.get("apiSecret") as string | null;
-  const apiAccountNumber = formData.get("apiAccountNumber") as string | null;
-  const apiUrlRates = formData.get("apiUrlRates") as string | null;
-  const apiUrlAvailability = formData.get("apiUrlAvailability") as string | null;
-  const markupType = formData.get("markupType") as string;
-  const markupValue = Number(formData.get("markupValue") || 0);
-  const rawRates = formData.get("ratesData") as string;
-  const ratesData = rawRates ? JSON.parse(rawRates) : [];
-  const isActive = formData.get("isActive") === "true";
+  if (actionType === "UPDATE_CARRIER") {
+    const calculationMethod = formData.get("calculationMethod") as string;
+    
+    await prisma.carrier.update({
+      where: { id: carrierId, shopDomain: session.shop },
+      data: {
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+        isActive: formData.get("isActive") === "true",
+        // Campos de API (apenas se o método for API)
+        apiKey: formData.get("apiKey") as string || null,
+        apiSecret: formData.get("apiSecret") as string || null,
+        apiAccountNumber: formData.get("apiAccountNumber") as string || null,
+        apiUrlRates: formData.get("apiUrlRates") as string || null,
+        apiUrlAvailability: formData.get("apiUrlAvailability") as string || null,
+        markupType: formData.get("markupType") as string || null,
+        markupValue: formData.get("markupValue") ? parseFloat(formData.get("markupValue") as string) : null,
+      }
+    });
+  }
 
-  await prisma.carrier.update({
-    where: { id: params.id },
-    data: {
-      name,
-      description,
-      category,
-      calculationMethod,
-      isActive,
-      apiKey: calculationMethod === "API" ? apiKey : null,
-      apiSecret: calculationMethod === "API" ? apiSecret : null,
-      apiAccountNumber: calculationMethod === "API" ? apiAccountNumber : null,
-      apiUrlRates: calculationMethod === "API" ? apiUrlRates : null,
-      apiUrlAvailability: calculationMethod === "API" ? apiUrlAvailability : null,
-      markupType: calculationMethod === "API" ? markupType : null,
-      markupValue: calculationMethod === "API" ? markupValue : null,
-      rates: {
-        deleteMany: {}, // Remoção das tarifas anteriores para evitar duplicados
-        create: calculationMethod === "TABLE" ? ratesData.map((rate: any) => ({
-          groupName: rate.groupName,
-          maxWeight: Number(rate.maxWeight),
-          boxSize: String(rate.boxSize),
-          price: Number(rate.price),
-          deliveryTime: Number(rate.deliveryTime)
-        })) : [],
-      },
-    },
-  });
+  if (actionType === "ADD_RATE") {
+    await prisma.carrierRate.create({
+      data: {
+        carrierId: carrierId!,
+        groupName: formData.get("groupName") as string,
+        maxWeight: parseFloat(formData.get("maxWeight") as string),
+        price: parseFloat(formData.get("price") as string),
+        deliveryTime: parseInt(formData.get("deliveryTime") as string, 10),
+      }
+    });
+  }
+
+  if (actionType === "DELETE_RATE") {
+    await prisma.carrierRate.delete({
+      where: { id: formData.get("rateId") as string }
+    });
+  }
 
   return json({ success: true });
-}
+};
 
-export default function EditCarrier() {
-  const { carrier } = useLoaderData<typeof loader>();
+export default function CarrierDetails() {
+  const { carrier, zones } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigation = useNavigation();
-  const actionData = useActionData<typeof action>();
-  const { zones } = useLoaderData<typeof loader>();
-  const isSaving = navigation.state === "submitting";
+  const isSubmitting = navigation.state === "submitting";
 
+  // Estado da Transportadora
   const [name, setName] = useState(carrier.name);
   const [description, setDescription] = useState(carrier.description);
-  const [category, setCategory] = useState(carrier.category);
-  const [isActive, setIsActive] = useState(carrier.isActive);
-  const [method, setMethod] = useState([carrier.calculationMethod]);
+  const [isActive, setIsActive] = useState(carrier.isActive ? "true" : "false");
+
+  // Estado da API
   const [apiKey, setApiKey] = useState(carrier.apiKey || "");
   const [apiSecret, setApiSecret] = useState(carrier.apiSecret || "");
   const [apiAccountNumber, setApiAccountNumber] = useState(carrier.apiAccountNumber || "");
   const [apiUrlRates, setApiUrlRates] = useState(carrier.apiUrlRates || "");
   const [apiUrlAvailability, setApiUrlAvailability] = useState(carrier.apiUrlAvailability || "");
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
-  const [markupValue, setMarkupValue] = useState(String(carrier.markupValue || 0));
+  const [markupValue, setMarkupValue] = useState(carrier.markupValue?.toString() || "0");
 
-  // Format zones for Shopify Polaris Select
-  const zoneOptions = [
-    { label: "Selecione uma zona", value: "" },
-    ...zones.map((zone: string) => ({ label: zone, value: zone }))
-  ];
+  // Estado para novas tarifas (apenas para o método TABLE)
+  const [selectedZone, setSelectedZone] = useState("");
+  const [maxWeight, setMaxWeight] = useState("");
+  const [price, setPrice] = useState("");
+  const [deliveryTime, setDeliveryTime] = useState("3");
 
-  const [rates, setRates] = useState(
-    carrier.rates.map((r) => ({
-      id: r.id,
-      groupName: r.groupName,
-      maxWeight: String(r.maxWeight),
-      boxSize: String(r.boxSize),
-      price: String(r.price),
-      deliveryTime: String(r.deliveryTime),
-    })) || [],
-  );
+  const zoneOptions = useMemo(() => [
+    { label: 'Selecionar Zona', value: '' },
+    ...zones.map(z => ({ label: z.groupName, value: z.groupName }))
+  ], [zones]);
 
-  useEffect(() => {
-    if (actionData?.success) {
-      shopify.toast.show("Transportadora atualizada com sucesso");
-    }
-  }, [actionData]);
-
-  const updateRate = (id: string | number, field: string, value: string) => {
-    setRates(rates.map((rate) => (rate.id === id ? { ...rate, [field]: value } : rate)));
-  };
-
-  const addRateRow = () => {
-    setRates([
-      ...rates,
-      { id: Date.now().toString(), groupName: "", maxWeight: "", boxSize: "", price: "", deliveryTime: "" },
-    ]);
-  };
-
-  const removeRateRow = (id: string | number) => {
-    setRates(rates.filter((rate) => rate.id !== id));
-  };
-
-  const handleSave = useCallback(() => {
+  const handleUpdateCarrier = () => {
     const formData = new FormData();
+    formData.append("actionType", "UPDATE_CARRIER");
     formData.append("name", name);
     formData.append("description", description);
-    formData.append("category", category);
-    formData.append("isActive", String(isActive));
-    formData.append("calculationMethod", method[0]);
-    formData.append("apiKey", apiKey);
-    formData.append("apiSecret", apiSecret);
-    formData.append("apiAccountNumber", apiAccountNumber);
-    formData.append("apiUrlRates", apiUrlRates);
-    formData.append("apiUrlAvailability", apiUrlAvailability);
-    formData.append("markupType", markupType);
-    formData.append("markupValue", markupValue);
-    formData.append("ratesData", JSON.stringify(rates));
+    formData.append("isActive", isActive);
+    formData.append("calculationMethod", carrier.calculationMethod);
+    
+    if (carrier.calculationMethod === 'API') {
+      formData.append("apiKey", apiKey);
+      formData.append("apiSecret", apiSecret);
+      formData.append("apiAccountNumber", apiAccountNumber);
+      formData.append("apiUrlRates", apiUrlRates);
+      formData.append("apiUrlAvailability", apiUrlAvailability);
+      formData.append("markupType", markupType);
+      formData.append("markupValue", markupValue);
+    }
+    
+    submit(formData, { method: "POST" });
+  };
 
-    submit(formData, { method: "post" });
-  }, [name, description, category, method, isActive, apiKey, apiSecret, apiAccountNumber, apiUrlRates, apiUrlAvailability, markupType, markupValue, rates, submit]);
+  const handleAddRate = () => {
+    const formData = new FormData();
+    formData.append("actionType", "ADD_RATE");
+    formData.append("groupName", selectedZone);
+    formData.append("maxWeight", maxWeight);
+    formData.append("price", price);
+    formData.append("deliveryTime", deliveryTime);
+    submit(formData, { method: "POST" });
+    setPrice("");
+    setMaxWeight("");
+  };
 
   return (
-    <Page
+    <Page 
       title={`Editar: ${carrier.name}`}
-      backAction={{ content: "Lista de Transportadoras", url: "/app" }}
+      backAction={{ content: 'Transportadoras', url: '/app' }}
       primaryAction={{
-        content: "Guardar alterações",
-        onAction: handleSave,
-        loading: isSaving,
+        content: 'Guardar Alterações',
+        onAction: handleUpdateCarrier,
+        loading: isSubmitting
       }}
     >
       <Layout>
         <Layout.Section>
-          <BlockStack gap="500">
+          <Card>
+            <BlockStack gap="400">
+              <Text variant="headingMd" as="h2">Configurações Gerais</Text>
+              <FormLayout>
+                <TextField label="Nome" value={name} onChange={setName} autoComplete="off" />
+                <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
+                <Select
+                  label="Estado"
+                  options={[{label: 'Ativo', value: 'true'}, {label: 'Inativo', value: 'false'}]}
+                  value={isActive}
+                  onChange={setIsActive}
+                />
+              </FormLayout>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        {carrier.calculationMethod === 'API' ? (
+          <Layout.Section>
             <Card>
               <BlockStack gap="400">
-                <Text variant="headingMd" as="h2">Configuração Geral</Text>
+                <Text variant="headingMd" as="h2">Configurações da API</Text>
                 <FormLayout>
-                  <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" />
-                  <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
-                  <Select
-                    label="Categoria"
-                    options={[
-                      { label: "Nacional", value: "NATIONAL" },
-                      { label: "Internacional", value: "INTERNATIONAL" },
-                    ]}
-                    value={category}
-                    onChange={setCategory}
-                  />                  
+                  <FormLayout.Group>
+                    <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
+                    <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
+                  </FormLayout.Group>
+                  <TextField label="Account Number" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
+                  <TextField label="URL de Cálculo (Rates)" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
+                  <TextField label="URL de Disponibilidade" value={apiUrlAvailability} onChange={setApiUrlAvailability} autoComplete="off" />
+                  
                   <Divider />
-                  <Checkbox
-                    label="Transportadora ativa"
-                    checked={isActive}
-                    onChange={setIsActive}
-                    helpText="Se desativada, esta transportadora não será considerada no cálculo de portes no checkout."
-                  />
-                  {/* <ChoiceList
-                    title="Método de Cálculo"
-                    choices={[
-                      { label: "Tabela de Preços Manual", value: "TABLE" },
-                      { label: "Cálculo via API", value: "API" },
-                    ]}
-                    selected={method}
-                    onChange={setMethod}
-                  /> */}
+                  <Text variant="headingSm" as="h3">Margem de Lucro (*Markup*)</Text>
+                  <FormLayout.Group>
+                    <Select
+                      label="Tipo de Taxa"
+                      options={[{label: 'Percentagem (%)', value: 'PERCENTAGE'}, {label: 'Valor Fixo (€)', value: 'ABSOLUTE'}]}
+                      value={markupType}
+                      onChange={setMarkupType}
+                    />
+                    <TextField label="Valor" type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" />
+                  </FormLayout.Group>
                 </FormLayout>
               </BlockStack>
             </Card>
-            {method[0] === "API" && (
+          </Layout.Section>
+        ) : (
+          <>
+            <Layout.Section>
               <Card>
                 <BlockStack gap="400">
-                  <Text variant="headingMd" as="h2">Dados da Integração</Text>
+                  <Text variant="headingMd" as="h2">Adicionar Escalão de Preço</Text>
+                  {zones.length === 0 && (
+                    <Banner tone="warning">
+                      <p>Cria zonas primeiro na página de Gestão de Zonas.</p>
+                    </Banner>
+                  )}
                   <FormLayout>
-                    <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
-                    <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
-                    <TextField label="API Account Number" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
-                    <TextField label="API URL para obtenção de tarifas" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
-                    <TextField label="API URL para verificação de disponibilidade" value={apiUrlAvailability} onChange={setApiUrlAvailability} autoComplete="off" />
-                    <Divider />
-                    <Text variant="headingSm" as="h3">Margem de Lucro (*Markup*)</Text>
-                    <FormLayout.Group>
-                      <Select
-                        label="Tipo"
-                        options={[
-                          { label: "%", value: "PERCENTAGE" },
-                          { label: "Valor Fixo (€)", value: "ABSOLUTE" },
-                        ]}
-                        value={markupType}
-                        onChange={setMarkupType}
-                      />
-                      <TextField label="Valor" type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" />
-                    </FormLayout.Group>
+                    <InlineGrid columns={2} gap="400">
+                      <Select label="Zona" options={zoneOptions} value={selectedZone} onChange={setSelectedZone} />
+                      <TextField label="Peso Máximo (Kg)" type="number" value={maxWeight} onChange={setMaxWeight} autoComplete="off" />
+                    </InlineGrid>
+                    <InlineGrid columns={2} gap="400">
+                      <TextField label="Preço (€)" type="number" value={price} onChange={setPrice} autoComplete="off" prefix="€" />
+                      <TextField label="Entrega (Dias)" type="number" value={deliveryTime} onChange={setDeliveryTime} autoComplete="off" />
+                    </InlineGrid>
+                    <InlineStack align="end">
+                      <Button variant="primary" onClick={handleAddRate} disabled={!selectedZone || !price || !maxWeight}>
+                        Adicionar Tarifa
+                      </Button>
+                    </InlineStack>
                   </FormLayout>
                 </BlockStack>
               </Card>
-            )}
+            </Layout.Section>
 
-            {method[0] === "TABLE" && (
-              <Card>
-                <BlockStack gap="400">
-                  <Text variant="headingMd" as="h2">Tabela de Tarifas</Text>
-                  {rates.map((rate) => (
-                    <div key={rate.id} style={{ padding: "12px", background: "#f4f6f8", borderRadius: "8px" }}>
-                      <BlockStack gap="200">
-                        <InlineGrid columns={3} gap="400">
-                          <Select
-                            label="Zona"
-                            options={zoneOptions}
-                            value={rate.groupName}
-                            onChange={(v) => updateRate(rate.id, 'groupName', v)}
-                          />                          
-                          <TextField label="Peso Máx (kg)" type="number" value={rate.maxWeight} onChange={(v) => updateRate(rate.id, "maxWeight", v)} autoComplete="off" />
-                          <Select
-                            label="Tamanho da caixa"
-                            options={[
-                              { label: "Pequena", value: "SMALL" },
-                              { label: "Média", value: "MEDIUM" },
-                              { label: "Grande", value: "LARGE" },
-                            ]}
-                            value={rate.boxSize}
-                            onChange={(v) => updateRate(rate.id, "boxSize", v)}
-                          />
-                        </InlineGrid>
-                        <InlineGrid columns={4} gap="400">
-                          <TextField label="Preço (€)" type="number" value={rate.price} onChange={(v) => updateRate(rate.id, "price", v)} autoComplete="off" />
-                          <TextField label="Tempo de Entrega (dias)" type="number" value={rate.deliveryTime} onChange={(v) => updateRate(rate.id, "deliveryTime", v)} autoComplete="off" />
-                          <div style={{ alignSelf: "end" }}>
-                            <Button tone="critical" onClick={() => removeRateRow(rate.id)}>Remover</Button>
-                          </div>
-                        </InlineGrid>
-                      </BlockStack>
-                    </div>
+            <Layout.Section>
+              <Card padding="0">
+                <IndexTable
+                  resourceName={{ singular: "tarifa", plural: "tarifas" }}
+                  itemCount={carrier.rates.length}
+                  headings={[{ title: "Zona" }, { title: "Peso Máx" }, { title: "Preço" }, { title: "Entrega" }, { title: "" }]}
+                  selectable={false}
+                >
+                  {carrier.rates.map((rate, index) => (
+                    <IndexTable.Row id={rate.id} key={rate.id} position={index}>
+                      <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{rate.groupName}</Text></IndexTable.Cell>
+                      <IndexTable.Cell>{rate.maxWeight} kg</IndexTable.Cell>
+                      <IndexTable.Cell>{rate.price} €</IndexTable.Cell>
+                      <IndexTable.Cell>{rate.deliveryTime} dias</IndexTable.Cell>
+                      <IndexTable.Cell>
+                        <Button tone="critical" variant="plain" onClick={() => {
+                          const formData = new FormData();
+                          formData.append("actionType", "DELETE_RATE");
+                          formData.append("rateId", rate.id);
+                          submit(formData, { method: "POST" });
+                        }}>Eliminar</Button>
+                      </IndexTable.Cell>
+                    </IndexTable.Row>
                   ))}
-                  <Button onClick={addRateRow}>Adicionar linha de tarifa</Button>
-                </BlockStack>
+                </IndexTable>
               </Card>
-            )}
-          </BlockStack>
-        </Layout.Section>
+            </Layout.Section>
+          </>
+        )}
       </Layout>
     </Page>
   );

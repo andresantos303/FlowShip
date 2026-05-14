@@ -85,18 +85,6 @@ export async function action({ request }: ActionFunctionArgs) {
     });
     const totalWeightKg = totalWeightGrams / 1000;
 
-    let boxSize = "LARGE";
-    let boxDimensions = { length: config.boxLargeLength, width: config.boxLargeWidth, height: config.boxLargeHeight };
-
-    if (totalWeightKg <= config.boxSmallMaxWeight) {
-      boxSize = "SMALL";
-      boxDimensions = { length: config.boxSmallLength, width: config.boxSmallWidth, height: config.boxSmallHeight };
-    } else if (totalWeightKg <= config.boxMediumMaxWeight) {
-      boxSize = "MEDIUM";
-      boxDimensions = { length: config.boxMediumLength, width: config.boxMediumWidth, height: config.boxMediumHeight };
-    }
-
-
     const rateRequestInfo = {
       ShipFrom: {
         PostalCode: rate.origin.postal_code,
@@ -112,7 +100,6 @@ export async function action({ request }: ActionFunctionArgs) {
       },
       currency: rate.currency,
       country: rate.destination.country,
-      boxSize,
       cartTotal: cartTotalCents
     };
 

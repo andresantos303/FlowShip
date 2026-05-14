@@ -1,29 +1,42 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { useActionData, useSubmit, useNavigation, useNavigate, useLoaderData } from "@remix-run/react";
 import {
-  Page, Layout, Card, BlockStack, FormLayout, TextField,
-  Select, Button, Text, InlineGrid, Divider, ChoiceList
+  Page,
+  Layout,
+  Card,
+  BlockStack,
+  FormLayout,
+  TextField,
+  Select,
+  Button,
+  Text,
+  Divider,
+  ChoiceList,
+  InlineStack,
+  Banner,
+  IndexTable,
+  Icon,
+  InlineGrid
 } from "@shopify/polaris";
+import { DeleteIcon } from "@shopify/polaris-icons";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { authenticate } from "../shopify.server";
 import prisma from "../db.server";
 
-// Loader to fetch available zones from the database
 export async function loader({ request }: LoaderFunctionArgs) {
   const { session } = await authenticate.admin(request);
 
-  // Fetch distinct groupNames (zones) for the current shop
-  const countryGroups = await prisma.countryGroup.findMany({
+  // Procura as zonas únicas (groupNames) configuradas na tabela PostalRule
+  const rules = await prisma.postalRule.findMany({
     where: { shopDomain: session.shop },
     select: { groupName: true },
     distinct: ['groupName']
   });
 
-  const zones = countryGroups.map(cg => cg.groupName);
+  const zones = rules.map(r => r.groupName);
   return json({ zones });
 }
 
-// Action to save the new carrier to the database
 export async function action({ request }: ActionFunctionArgs) {
   const { session } = await authenticate.admin(request);
   const formData = await request.formData();
@@ -33,7 +46,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const category = formData.get("category") as string;
   const calculationMethod = formData.get("calculationMethod") as string;
   
-  // Extract API fields
   const apiKey = formData.get("apiKey") as string | null;
   const apiSecret = formData.get("apiSecret") as string | null;
   const apiAccountNumber = formData.get("apiAccountNumber") as string | null;
@@ -42,11 +54,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const markupType = formData.get("markupType") as string;
   const markupValue = Number(formData.get("markupValue") || 0);
 
-  // Extract Table fields
   const rawRates = formData.get("ratesData") as string;
   const ratesData = rawRates ? JSON.parse(rawRates) : [];
 
-  // Create the carrier in Prisma
   await prisma.carrier.create({
     data: {
       shopDomain: session.shop,
@@ -54,6 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
       description,
       category,
       calculationMethod,
+      isActive: true,
       apiKey: calculationMethod === 'API' ? apiKey : null,
       apiSecret: calculationMethod === 'API' ? apiSecret : null,
       apiAccountNumber: calculationMethod === 'API' ? apiAccountNumber : null,
@@ -65,7 +76,6 @@ export async function action({ request }: ActionFunctionArgs) {
         create: ratesData.map((rate: any) => ({
           groupName: rate.groupName,
           maxWeight: Number(rate.weight),
-          boxSize: String(rate.boxSize),
           price: Number(rate.price),
           deliveryTime: Number(rate.deliveryTime)
         }))
@@ -84,19 +94,18 @@ export default function CreateCarrier() {
   const { zones } = useLoaderData<typeof loader>();
   const isSaving = navigation.state === "submitting";
 
-  // Format zones for Shopify Polaris Select
-  const zoneOptions = [
-    { label: "Selecione uma zona", value: "" },
+  const zoneOptions = useMemo(() => [
+    { label: "Selecionar zona", value: "" },
     ...zones.map((zone: string) => ({ label: zone, value: zone }))
-  ];
+  ], [zones]);
 
-  // General state
+  // Estado Geral
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("NATIONAL");
   const [method, setMethod] = useState(["TABLE"]);
 
-  // API state
+  // Estado da API
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
   const [apiAccountNumber, setApiAccountNumber] = useState("");
@@ -105,40 +114,45 @@ export default function CreateCarrier() {
   const [markupType, setMarkupType] = useState("PERCENTAGE");
   const [markupValue, setMarkupValue] = useState("");
 
-  const [rates, setRates] = useState([
-    { id: Date.now(), groupName: "", weight: "", boxSize: "SMALL", price: "", deliveryTime: "" }
-  ]);
+  // Estado das Tarifas (Tabela)
+  const [rates, setRates] = useState<any[]>([]);
+  const [tempZone, setTempZone] = useState("");
+  const [tempWeight, setTempWeight] = useState("");
+  const [tempPrice, setTempPrice] = useState("");
+  const [tempTime, setTempTime] = useState("3");
 
   const isFormValid = useMemo(() => {
-    const hasBaseInfo = name !== "" && description !== "" && category !== "";
-    
-    if (!hasBaseInfo) return false;
-
+    if (!name || !description) return false;
     if (method[0] === 'API') {
-      return apiKey.trim() !== "" && apiSecret.trim() !== "" && apiUrlRates !== "" && apiUrlAvailability !== "" && markupValue !== "";
-    } else {
-      return rates.length > 0 && rates.every(rate => 
-        rate.groupName !== "" && 
-        rate.weight !== "" && 
-        rate.price !== "" && 
-        rate.deliveryTime !== ""
-      );
+      return apiKey && apiSecret && apiUrlRates;
     }
-  }, [name, description, category, method, apiKey, apiSecret, apiUrlRates, apiUrlAvailability, markupValue, rates]);
+    return rates.length > 0;
+  }, [name, description, method, apiKey, apiSecret, apiUrlRates, rates]);
 
   useEffect(() => {
     if (actionData?.success) {
       window.shopify.toast.show('Transportadora criada com sucesso!');
       navigate("/app");
     }
-  }, [actionData]);
+  }, [actionData, navigate]);
 
-  const updateRate = (id: number, field: string, value: string) => {
-    setRates(rates.map(rate => rate.id === id ? { ...rate, [field]: value } : rate));
-  };
+  const addRateToTable = useCallback(() => {
+    if (!tempZone || !tempWeight || !tempPrice) return;
+    
+    setRates([...rates, {
+      id: Date.now(),
+      groupName: tempZone,
+      weight: tempWeight,
+      price: tempPrice,
+      deliveryTime: tempTime
+    }]);
 
-  const addRateRow = () => {
-    setRates([...rates, { id: Date.now(), groupName: "", weight: "", boxSize: "SMALL", price: "", deliveryTime: "" }]);
+    setTempWeight("");
+    setTempPrice("");
+  }, [tempZone, tempWeight, tempPrice, tempTime, rates]);
+
+  const removeRate = (id: number) => {
+    setRates(rates.filter(r => r.id !== id));
   };
 
   const handleSave = useCallback(() => {
@@ -165,7 +179,7 @@ export default function CreateCarrier() {
 
   return (
     <Page
-      title="Criar Nova Transportadora"
+      title="Nova Transportadora"
       backAction={{ content: 'Voltar', url: '/app' }}
       primaryAction={{
         content: 'Criar Transportadora',
@@ -176,33 +190,21 @@ export default function CreateCarrier() {
     >
       <Layout>
         <Layout.Section>
-          <BlockStack gap="500">
-            <Card>
-              <BlockStack gap="400">
-                <Text variant="headingMd" as="h2">Detalhes da Transportadora</Text>
-                <FormLayout>
-                  <TextField
-                    label="Nome da Transportadora"
-                    value={name}
-                    onChange={setName}
-                    autoComplete="off"
-                    placeholder="Ex: CTT"
-                  />
+          <Card>
+            <BlockStack gap="400">
+              <Text variant="headingMd" as="h2">Configurações Gerais</Text>
+              <FormLayout>
+                <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" placeholder="Ex: CTT Expresso" />
+                <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
+                <FormLayout.Group>
                   <ChoiceList
-                    title="Método de Cálculo de Tarifas"
+                    title="Método de Cálculo"
                     choices={[
-                      { label: 'Tabela de Preços Manual', value: 'TABLE' },
-                      { label: 'Cálculo Dinâmico (Via API)', value: 'API' },
+                      { label: 'Tabela Manual', value: 'TABLE' },
+                      { label: 'API Dinâmica', value: 'API' },
                     ]}
                     selected={method}
                     onChange={setMethod}
-                  />
-                  <TextField
-                    label="Descrição"
-                    value={description}
-                    onChange={setDescription}
-                    autoComplete="off"
-                    placeholder="Ex: Transporte expresso"
                   />
                   <Select
                     label="Categoria"
@@ -213,91 +215,98 @@ export default function CreateCarrier() {
                     value={category}
                     onChange={setCategory}
                   />
+                </FormLayout.Group>
+              </FormLayout>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
+
+        {method[0] === 'API' ? (
+          <Layout.Section>
+            <Card>
+              <BlockStack gap="400">
+                <Text variant="headingMd" as="h2">Credenciais de Integração</Text>
+                <FormLayout>
+                  <FormLayout.Group>
+                    <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
+                    <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiKey} autoComplete="off" />
+                  </FormLayout.Group>
+                  <TextField label="URL de Cálculo (Rates)" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
+                  <Divider />
+                  <Text variant="headingSm" as="h3">Margem de Lucro (*Markup*)</Text>
+                  <FormLayout.Group>
+                    <Select
+                      label="Tipo"
+                      options={[{ label: 'Percentagem (%)', value: 'PERCENTAGE' }, { label: 'Fixo (€)', value: 'ABSOLUTE' }]}
+                      value={markupType}
+                      onChange={setMarkupType}
+                    />
+                    <TextField label="Valor" type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" />
+                  </FormLayout.Group>
                 </FormLayout>
               </BlockStack>
             </Card>
-
-            {method[0] === 'API' && (
+          </Layout.Section>
+        ) : (
+          <>
+            <Layout.Section>
               <Card>
                 <BlockStack gap="400">
-                  <Text variant="headingMd" as="h2">Credenciais da API</Text>
+                  <Text variant="headingMd" as="h2">Adicionar Escalão de Preço</Text>
+                  {zones.length === 0 && (
+                    <Banner tone="warning">
+                      <p>Deve configurar as zonas na página de Gestão de Zonas antes de adicionar preços.</p>
+                    </Banner>
+                  )}
                   <FormLayout>
-                    <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
-                    <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
-                    <TextField label="API Account Number" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
-                    <TextField label="URL para Taxas" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
-                    <TextField label="URL para Disponibilidade" value={apiUrlAvailability} onChange={setApiUrlAvailability} autoComplete="off" />
-                    <Divider />
-                    
-                    <Text variant="headingSm" as="h3">Margem de Lucro (Markup)</Text>
-                    <FormLayout.Group>
-                      <Select
-                        label="Tipo de Taxa"
-                        options={[
-                          { label: 'Percentagem (%)', value: 'PERCENTAGE' },
-                          { label: 'Valor Fixo (€)', value: 'ABSOLUTE' },
-                        ]}
-                        value={markupType}
-                        onChange={setMarkupType}
-                      />
-                      <TextField
-                        label="Valor"
-                        type="number"
-                        value={markupValue}
-                        onChange={setMarkupValue}
-                        autoComplete="off"
-                      />
-                    </FormLayout.Group>
+                    <InlineGrid columns={2} gap="400">
+                      <Select label="Zona de Destino" options={zoneOptions} value={tempZone} onChange={setTempZone} />
+                      <TextField label="Peso Máximo (Kg)" type="number" value={tempWeight} onChange={setTempWeight} autoComplete="off" />
+                    </InlineGrid>
+                    <InlineGrid columns={2} gap="400">
+                      <TextField label="Preço (€)" type="number" value={tempPrice} onChange={setTempPrice} autoComplete="off" prefix="€" />
+                      <TextField label="Entrega (Dias)" type="number" value={tempTime} onChange={setTempTime} autoComplete="off" />
+                    </InlineGrid>
+                    <InlineStack align="end">
+                      <Button onClick={addRateToTable} disabled={!tempZone || !tempWeight || !tempPrice}>
+                        Adicionar à Lista
+                      </Button>
+                    </InlineStack>
                   </FormLayout>
                 </BlockStack>
               </Card>
-            )}
+            </Layout.Section>
 
-            {method[0] === 'TABLE' && (
-              <Card>
-                <BlockStack gap="400">
-                  <Text variant="headingMd" as="h2">Tabela de Preços Acordados</Text>
-                  <Text variant="bodyMd" as="p">
-                    Define as regras de preço baseadas no destino, peso e volume.
-                  </Text>
-                  
+            <Layout.Section>
+              <Card padding="0">
+                <IndexTable
+                  resourceName={{ singular: "tarifa", plural: "tarifas" }}
+                  itemCount={rates.length}
+                  headings={[
+                    { title: "Zona" },
+                    { title: "Peso Máx" },
+                    { title: "Preço" },
+                    { title: "Entrega" },
+                    { title: "" }
+                  ]}
+                  selectable={false}
+                >
                   {rates.map((rate, index) => (
-                    <div key={rate.id} style={{ padding: '16px', background: '#f4f6f8', borderRadius: '8px' }}>
-                      <BlockStack gap="300">
-                        <Text variant="headingSm" as="h3">Regra #{index + 1}</Text>
-                        <InlineGrid columns={3} gap="400">
-                          <Select
-                            label="Zona"
-                            options={zoneOptions}
-                            value={rate.groupName}
-                            onChange={(v) => updateRate(rate.id, 'groupName', v)}
-                          />
-                          <TextField label="Peso Máx (kg)" type="number" value={rate.weight} onChange={(v) => updateRate(rate.id, 'weight', v)} autoComplete="off" />
-                          <Select
-                            label="Tamanho da caixa"
-                            options={[
-                              { label: "Pequena", value: "SMALL" },
-                              { label: "Média", value: "MEDIUM" },
-                              { label: "Grande", value: "LARGE" },
-                            ]}
-                            value={rate.boxSize}
-                            onChange={(v) => updateRate(rate.id, "boxSize", v)}
-                          />
-                        </InlineGrid>
-                        <InlineGrid columns={3} gap="400">
-                          <TextField label="Preço (€)" type="number" value={rate.price} onChange={(v) => updateRate(rate.id, 'price', v)} autoComplete="off" />
-                          <TextField label="Tempo de entrega (dias)" type="number" value={rate.deliveryTime} onChange={(v) => updateRate(rate.id, 'deliveryTime', v)} autoComplete="off" />
-                        </InlineGrid>
-                      </BlockStack>
-                    </div>
+                    <IndexTable.Row id={String(rate.id)} key={rate.id} position={index}>
+                      <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{rate.groupName}</Text></IndexTable.Cell>
+                      <IndexTable.Cell>{rate.weight} kg</IndexTable.Cell>
+                      <IndexTable.Cell>{rate.price} €</IndexTable.Cell>
+                      <IndexTable.Cell>{rate.deliveryTime} dias</IndexTable.Cell>
+                      <IndexTable.Cell>
+                        <Button tone="critical" variant="plain" onClick={() => removeRate(rate.id)} icon={DeleteIcon} />
+                      </IndexTable.Cell>
+                    </IndexTable.Row>
                   ))}
-                  
-                  <Button onClick={addRateRow}>Adicionar Nova Regra</Button>
-                </BlockStack>
+                </IndexTable>
               </Card>
-            )}
-          </BlockStack>
-        </Layout.Section>
+            </Layout.Section>
+          </>
+        )}
       </Layout>
     </Page>
   );

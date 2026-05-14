@@ -32,35 +32,23 @@ model StoreConfig {
   shopDomain            String   @unique
   freeShippingActive    Boolean  @default(true)
   freeShippingThreshold Int      @default(10000)
-  // Configurações da Caixa Pequena
-  boxSmallMaxWeight     Float    @default(2.0)
-  boxSmallLength        Int      @default(20)
-  boxSmallWidth         Int      @default(15)
-  boxSmallHeight        Int      @default(10)
-
-  // Configurações da Caixa Média
-  boxMediumMaxWeight    Float    @default(5.0)
-  boxMediumLength       Int      @default(30)
-  boxMediumWidth        Int      @default(20)
-  boxMediumHeight       Int      @default(15)
-
-  // Configurações da Caixa Grande
-  boxLargeMaxWeight     Float    @default(30.0)
-  boxLargeLength        Int      @default(50)
-  boxLargeWidth         Int      @default(40)
-  boxLargeHeight        Int      @default(30)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }
 
-model CountryGroup {
+model PostalRule {
   id          String   @id @default(uuid())
   shopDomain  String
-  countryName String
-  countryCode String   // Ex: 'PT', 'ES', 'FR'
-  groupName   String   // Ex: 'Nacional', 'Europa 1'
+  countryCode String   // e.g., 'PT', 'ES', 'GB'
+  groupName   String   // The Zone name, e.g., 'PT Continental', 'Ilhas', 'Europa'
+  matchType   String   // Expected values: 'ALL', 'EXACT', 'PREFIX', 'RANGE'
+  valueMin    String   // Stores exact value, prefix, or the start of a range. Empty if 'ALL'
+  valueMax    String?  // Stores the end of the range (if matchType is 'RANGE')
 
-  @@unique([shopDomain,countryCode])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([shopDomain, countryCode])
 }
 
 model Carrier {
@@ -96,9 +84,8 @@ model CarrierRate {
   carrier         Carrier @relation(fields: [carrierId], references: [id], onDelete: Cascade)
   
   groupName       String  @default("PT")
-  boxSize         String  @default("SMALL")// "SMALL", "MEDIUM" ou "LARGE"
-  maxWeight       Int     @default(10)
-  price           Float   // The agreed price
+  maxWeight       Float     
+  price           Float
   deliveryTime    Int     @default(3)
 
   @@index([carrierId])
