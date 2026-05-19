@@ -1,22 +1,10 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
 import {
-  Page,
-  Layout,
-  Card,
-  FormLayout,
-  TextField,
-  Select,
-  Button,
-  BlockStack,
-  Text,
-  IndexTable,
-  InlineStack,
-  Banner,
-  Divider,
-  InlineGrid
+  Page, Layout, Card, FormLayout, TextField, Select, Button,
+  BlockStack, Text, IndexTable, InlineStack, Badge, Divider, Box
 } from "@shopify/polaris";
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
 
@@ -26,20 +14,16 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   const carrier = await prisma.carrier.findUnique({
     where: { id, shopDomain: session.shop },
-    include: { rates: true }
+    include: {
+      zones: {
+        include: { rules: true, rates: true }
+      }
+    }
   });
 
-  if (!carrier) {
-    throw new Response("Carrier not found", { status: 404 });
-  }
+  if (!carrier) throw new Response("Not Found", { status: 404 });
 
-  const zones = await prisma.postalRule.findMany({
-    where: { shopDomain: session.shop },
-    select: { groupName: true },
-    distinct: ['groupName'],
-  });
-
-  return json({ carrier, zones });
+  return json({ carrier });
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
@@ -48,32 +32,60 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 
+  // 1. Atualizar Transportadora (Geral + API)
   if (actionType === "UPDATE_CARRIER") {
-    const calculationMethod = formData.get("calculationMethod") as string;
-    
     await prisma.carrier.update({
       where: { id: carrierId, shopDomain: session.shop },
       data: {
         name: formData.get("name") as string,
         description: formData.get("description") as string,
         isActive: formData.get("isActive") === "true",
-        // Campos de API (apenas se o método for API)
         apiKey: formData.get("apiKey") as string || null,
         apiSecret: formData.get("apiSecret") as string || null,
-        apiAccountNumber: formData.get("apiAccountNumber") as string || null,
         apiUrlRates: formData.get("apiUrlRates") as string || null,
-        apiUrlAvailability: formData.get("apiUrlAvailability") as string || null,
-        markupType: formData.get("markupType") as string || null,
-        markupValue: formData.get("markupValue") ? parseFloat(formData.get("markupValue") as string) : null,
+        markupType: formData.get("markupType") as string || "PERCENTAGE",
+        markupValue: parseFloat(formData.get("markupValue") as string || "0"),
       }
     });
   }
 
-  if (actionType === "ADD_RATE") {
+  // 2. Gestão de Zonas
+  if (actionType === "CREATE_ZONE") {
+    await prisma.zone.create({
+      data: {
+        carrierId: carrierId!,
+        name: formData.get("zoneName") as string,
+      }
+    });
+  }
+
+  if (actionType === "DELETE_ZONE") {
+    await prisma.zone.delete({ where: { id: formData.get("zoneId") as string } });
+  }
+
+  // 3. Gestão de Regras Postais
+  if (actionType === "CREATE_RULE") {
+    await prisma.postalRule.create({
+      data: {
+        zoneId: formData.get("zoneId") as string,
+        countryCode: (formData.get("countryCode") as string).toUpperCase(),
+        matchType: formData.get("matchType") as string,
+        valueMin: formData.get("valueMin") as string,
+        valueMax: formData.get("valueMax") as string || null,
+      }
+    });
+  }
+
+  if (actionType === "DELETE_RULE") {
+    await prisma.postalRule.delete({ where: { id: formData.get("ruleId") as string } });
+  }
+
+  // 4. Gestão de Tarifas
+  if (actionType === "CREATE_RATE") {
     await prisma.carrierRate.create({
       data: {
         carrierId: carrierId!,
-        groupName: formData.get("groupName") as string,
+        zoneId: formData.get("zoneId") as string,
         maxWeight: parseFloat(formData.get("maxWeight") as string),
         price: parseFloat(formData.get("price") as string),
         deliveryTime: parseInt(formData.get("deliveryTime") as string, 10),
@@ -82,191 +94,181 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   }
 
   if (actionType === "DELETE_RATE") {
-    await prisma.carrierRate.delete({
-      where: { id: formData.get("rateId") as string }
-    });
+    await prisma.carrierRate.delete({ where: { id: formData.get("rateId") as string } });
   }
 
   return json({ success: true });
 };
 
-export default function CarrierDetails() {
-  const { carrier, zones } = useLoaderData<typeof loader>();
+export default function CarrierEdit() {
+  const { carrier } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
-  // Estado da Transportadora
+  // Estados Gerais
   const [name, setName] = useState(carrier.name);
   const [description, setDescription] = useState(carrier.description);
   const [isActive, setIsActive] = useState(carrier.isActive ? "true" : "false");
 
-  // Estado da API
+  // Estados API
   const [apiKey, setApiKey] = useState(carrier.apiKey || "");
   const [apiSecret, setApiSecret] = useState(carrier.apiSecret || "");
-  const [apiAccountNumber, setApiAccountNumber] = useState(carrier.apiAccountNumber || "");
   const [apiUrlRates, setApiUrlRates] = useState(carrier.apiUrlRates || "");
-  const [apiUrlAvailability, setApiUrlAvailability] = useState(carrier.apiUrlAvailability || "");
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
   const [markupValue, setMarkupValue] = useState(carrier.markupValue?.toString() || "0");
 
-  // Estado para novas tarifas (apenas para o método TABLE)
-  const [selectedZone, setSelectedZone] = useState("");
-  const [maxWeight, setMaxWeight] = useState("");
-  const [price, setPrice] = useState("");
-  const [deliveryTime, setDeliveryTime] = useState("3");
+  // Estados para Criação (Zonas, Regras, Preços)
+  const [newZoneName, setNewZoneName] = useState("");
+  const [ruleData, setRuleData] = useState({ zoneId: "", country: "PT", type: "", min: "", max: "" });
+  const [rateData, setRateData] = useState({ zoneId: "", weight: "", price: "", time: "3" });
 
-  const zoneOptions = useMemo(() => [
-    { label: 'Selecionar Zona', value: '' },
-    ...zones.map(z => ({ label: z.groupName, value: z.groupName }))
-  ], [zones]);
-
-  const handleUpdateCarrier = () => {
-    const formData = new FormData();
-    formData.append("actionType", "UPDATE_CARRIER");
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("isActive", isActive);
-    formData.append("calculationMethod", carrier.calculationMethod);
-    
-    if (carrier.calculationMethod === 'API') {
-      formData.append("apiKey", apiKey);
-      formData.append("apiSecret", apiSecret);
-      formData.append("apiAccountNumber", apiAccountNumber);
-      formData.append("apiUrlRates", apiUrlRates);
-      formData.append("apiUrlAvailability", apiUrlAvailability);
-      formData.append("markupType", markupType);
-      formData.append("markupValue", markupValue);
-    }
-    
-    submit(formData, { method: "POST" });
-  };
-
-  const handleAddRate = () => {
-    const formData = new FormData();
-    formData.append("actionType", "ADD_RATE");
-    formData.append("groupName", selectedZone);
-    formData.append("maxWeight", maxWeight);
-    formData.append("price", price);
-    formData.append("deliveryTime", deliveryTime);
-    submit(formData, { method: "POST" });
-    setPrice("");
-    setMaxWeight("");
+  const handleAction = (type: string, data: any) => {
+    const fd = new FormData();
+    fd.append("actionType", type);
+    Object.entries(data).forEach(([k, v]) => fd.append(k, v as string));
+    submit(fd, { method: "POST" });
   };
 
   return (
-    <Page 
-      title={`Editar: ${carrier.name}`}
-      backAction={{ content: 'Transportadoras', url: '/app' }}
-      primaryAction={{
-        content: 'Guardar Alterações',
-        onAction: handleUpdateCarrier,
-        loading: isSubmitting
-      }}
-    >
+    <Page title={`Configurar: ${carrier.name}`} backAction={{ url: "/app" }}>
       <Layout>
+        {/* SECÇÃO 1: DADOS GERAIS E API */}
         <Layout.Section>
           <Card>
             <BlockStack gap="400">
-              <Text variant="headingMd" as="h2">Configurações Gerais</Text>
+              <Text variant="headingMd" as="h2">Informação Base</Text>
               <FormLayout>
-                <TextField label="Nome" value={name} onChange={setName} autoComplete="off" />
+                <FormLayout.Group>
+                  <TextField label="Nome" value={name} onChange={setName} autoComplete="off" />
+                  <Select label="Estado" options={[{label:'Ativo',value:'true'},{label:'Inativo',value:'false'}]} value={isActive} onChange={setIsActive} />
+                </FormLayout.Group>
                 <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
-                <Select
-                  label="Estado"
-                  options={[{label: 'Ativo', value: 'true'}, {label: 'Inativo', value: 'false'}]}
-                  value={isActive}
-                  onChange={setIsActive}
-                />
+                
+                {carrier.calculationMethod === "API" && (
+                  <>
+                    <Divider />
+                    <Text variant="headingSm" as="h3">Configuração API</Text>
+                    <FormLayout.Group>
+                      <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
+                      <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
+                    </FormLayout.Group>
+                    <TextField label="Endpoint Rates" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
+                    <FormLayout.Group>
+                      <Select label="Markup" options={[{label:'%',value:'PERCENTAGE'},{label:'€',value:'ABSOLUTE'}]} value={markupType} onChange={setMarkupType} />
+                      <TextField label="Valor Markup" type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" />
+                    </FormLayout.Group>
+                  </>
+                )}
+                <InlineStack align="end">
+                  <Button variant="primary" onClick={() => handleAction("UPDATE_CARRIER", { name, description, isActive, apiKey, apiSecret, apiUrlRates, markupType, markupValue })} loading={isSubmitting}>Guardar Geral</Button>
+                </InlineStack>
               </FormLayout>
             </BlockStack>
           </Card>
         </Layout.Section>
 
-        {carrier.calculationMethod === 'API' ? (
-          <Layout.Section>
-            <Card>
-              <BlockStack gap="400">
-                <Text variant="headingMd" as="h2">Configurações da API</Text>
-                <FormLayout>
-                  <FormLayout.Group>
-                    <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
-                    <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
-                  </FormLayout.Group>
-                  <TextField label="Account Number" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
-                  <TextField label="URL de Cálculo (Rates)" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
-                  <TextField label="URL de Disponibilidade" value={apiUrlAvailability} onChange={setApiUrlAvailability} autoComplete="off" />
-                  
-                  <Divider />
-                  <Text variant="headingSm" as="h3">Margem de Lucro (*Markup*)</Text>
-                  <FormLayout.Group>
-                    <Select
-                      label="Tipo de Taxa"
-                      options={[{label: 'Percentagem (%)', value: 'PERCENTAGE'}, {label: 'Valor Fixo (€)', value: 'ABSOLUTE'}]}
-                      value={markupType}
-                      onChange={setMarkupType}
-                    />
-                    <TextField label="Valor" type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" />
-                  </FormLayout.Group>
-                </FormLayout>
-              </BlockStack>
-            </Card>
-          </Layout.Section>
-        ) : (
+        {/* SECÇÃO 2: GESTÃO DE ZONAS (Apenas para TABLE) */}
+        {carrier.calculationMethod === "TABLE" && (
           <>
             <Layout.Section>
               <Card>
                 <BlockStack gap="400">
-                  <Text variant="headingMd" as="h2">Adicionar Escalão de Preço</Text>
-                  {zones.length === 0 && (
-                    <Banner tone="warning">
-                      <p>Cria zonas primeiro na página de Gestão de Zonas.</p>
-                    </Banner>
-                  )}
+                  <Text variant="headingMd" as="h2">Zonas de Destino</Text>
                   <FormLayout>
-                    <InlineGrid columns={2} gap="400">
-                      <Select label="Zona" options={zoneOptions} value={selectedZone} onChange={setSelectedZone} />
-                      <TextField label="Peso Máximo (Kg)" type="number" value={maxWeight} onChange={setMaxWeight} autoComplete="off" />
-                    </InlineGrid>
-                    <InlineGrid columns={2} gap="400">
-                      <TextField label="Preço (€)" type="number" value={price} onChange={setPrice} autoComplete="off" prefix="€" />
-                      <TextField label="Entrega (Dias)" type="number" value={deliveryTime} onChange={setDeliveryTime} autoComplete="off" />
-                    </InlineGrid>
-                    <InlineStack align="end">
-                      <Button variant="primary" onClick={handleAddRate} disabled={!selectedZone || !price || !maxWeight}>
-                        Adicionar Tarifa
+                    <FormLayout.Group>
+                      <TextField label="Novo Nome de Zona (ex: Continental)" value={newZoneName} onChange={setNewZoneName} autoComplete="off" />
+                      <div style={{ alignSelf: 'end' }}>
+                        <Button onClick={() => { handleAction("CREATE_ZONE", { zoneName: newZoneName }); setNewZoneName(""); }}>Criar Zona</Button>
+                      </div>
+                    </FormLayout.Group>
+                  </FormLayout>
+
+                  <IndexTable resourceName={{singular:'zona',plural:'zonas'}} itemCount={carrier.zones.length} headings={[{title:'Nome'},{title:'Regras'},{title:'Preços'},{title:'Ações'}]} selectable={false}>
+                    {carrier.zones.map((zone, i) => (
+                      <IndexTable.Row id={zone.id} key={zone.id} position={i}>
+                        <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{zone.name}</Text></IndexTable.Cell>
+                        <IndexTable.Cell>{zone.rules.length} regras</IndexTable.Cell>
+                        <IndexTable.Cell>{zone.rates.length} escalões</IndexTable.Cell>
+                        <IndexTable.Cell>
+                          <Button tone="critical" variant="plain" onClick={() => handleAction("DELETE_ZONE", { zoneId: zone.id })}>Remover</Button>
+                        </IndexTable.Cell>
+                      </IndexTable.Row>
+                    ))}
+                  </IndexTable>
+                </BlockStack>
+              </Card>
+            </Layout.Section>
+
+            {/* SECÇÃO 3: REGRAS POSTAIS POR ZONA */}
+            <Layout.Section>
+              <Card>
+                <BlockStack gap="400">
+                  <Text variant="headingMd" as="h2">Regras de Correspondência (Códigos Postais)</Text>
+                  <FormLayout>
+                    <FormLayout.Group>
+                      <Select 
+                        label="Zona Destino" 
+                        options={[{label: 'Selecionar Zona', value: ''}, ...carrier.zones.map(z => ({label: z.name, value: z.id}))]} 
+                        value={ruleData.zoneId} 
+                        onChange={(v)=>setRuleData({...ruleData, zoneId:v})} 
+                      />
+                      <TextField label="País (ISO)" value={ruleData.country} onChange={(v)=>setRuleData({...ruleData, country:v})} autoComplete="off" maxLength={2} />
+                    </FormLayout.Group>
+                    <FormLayout.Group>
+                      <Select label="Tipo" options={[{label:'Selecionar Tipo',value:''},{label:'Tudo',value:'ALL'},{label:'Intervalo',value:'RANGE'},{label:'Prefixo',value:'PREFIX'}]} value={ruleData.type} onChange={(v)=>setRuleData({...ruleData, type:v})} />
+                      <TextField label="Valor Min/Prefixo" value={ruleData.min} onChange={(v)=>setRuleData({...ruleData, min:v})} autoComplete="off" disabled={ruleData.type==='ALL'} />
+                      {ruleData.type === 'RANGE' && <TextField label="Valor Máx" value={ruleData.max} onChange={(v)=>setRuleData({...ruleData, max:v})} autoComplete="off" />}
+                    </FormLayout.Group>
+                    <div style={{ alignSelf: 'end' }}>
+                      <Button 
+                        disabled={!ruleData.zoneId || (ruleData.type !== 'ALL' && !ruleData.min)} 
+                        onClick={() => {
+                          handleAction("CREATE_RULE", { zoneId: ruleData.zoneId, countryCode: ruleData.country, matchType: ruleData.type, valueMin: ruleData.min, valueMax: ruleData.max });
+                          setRuleData({...ruleData, min: "", max: ""}); // Clean inputs after add
+                        }}
+                      >
+                        Adicionar Regra
                       </Button>
-                    </InlineStack>
+                    </div>
                   </FormLayout>
                 </BlockStack>
               </Card>
             </Layout.Section>
 
+            {/* SECÇÃO 4: PREÇOS POR ZONA */}
             <Layout.Section>
-              <Card padding="0">
-                <IndexTable
-                  resourceName={{ singular: "tarifa", plural: "tarifas" }}
-                  itemCount={carrier.rates.length}
-                  headings={[{ title: "Zona" }, { title: "Peso Máx" }, { title: "Preço" }, { title: "Entrega" }, { title: "" }]}
-                  selectable={false}
-                >
-                  {carrier.rates.map((rate, index) => (
-                    <IndexTable.Row id={rate.id} key={rate.id} position={index}>
-                      <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{rate.groupName}</Text></IndexTable.Cell>
-                      <IndexTable.Cell>{rate.maxWeight} kg</IndexTable.Cell>
-                      <IndexTable.Cell>{rate.price} €</IndexTable.Cell>
-                      <IndexTable.Cell>{rate.deliveryTime} dias</IndexTable.Cell>
-                      <IndexTable.Cell>
-                        <Button tone="critical" variant="plain" onClick={() => {
-                          const formData = new FormData();
-                          formData.append("actionType", "DELETE_RATE");
-                          formData.append("rateId", rate.id);
-                          submit(formData, { method: "POST" });
-                        }}>Eliminar</Button>
-                      </IndexTable.Cell>
-                    </IndexTable.Row>
-                  ))}
-                </IndexTable>
+              <Card>
+                <BlockStack gap="400">
+                  <Text variant="headingMd" as="h2">Tabela de Preços (Escalões de Peso)</Text>
+                  <FormLayout>
+                    <FormLayout.Group>
+                      <Select 
+                        label="Zona" 
+                        options={[{label: 'Selecionar Zona', value: ''}, ...carrier.zones.map(z => ({label: z.name, value: z.id}))]} 
+                        value={rateData.zoneId} 
+                        onChange={(v)=>setRateData({...rateData, zoneId:v})} 
+                      />
+                      <TextField label="Até (Kg)" type="number" value={rateData.weight} onChange={(v)=>setRateData({...rateData, weight:v})} autoComplete="off" />
+                    </FormLayout.Group>
+                    <FormLayout.Group>
+                      <TextField label="Preço (€)" type="number" value={rateData.price} onChange={(v)=>setRateData({...rateData, price:v})} autoComplete="off" prefix="€" />
+                      <TextField label="Entrega (Dias)" type="number" value={rateData.time} onChange={(v)=>setRateData({...rateData, time:v})} autoComplete="off" />
+                    </FormLayout.Group>
+                    <div style={{ alignSelf: 'end' }}>
+                      <Button 
+                        variant="primary" 
+                        disabled={!rateData.zoneId || !rateData.weight || !rateData.price} 
+                        onClick={() => {
+                          handleAction("CREATE_RATE", { zoneId: rateData.zoneId, maxWeight: rateData.weight, price: rateData.price, deliveryTime: rateData.time });
+                          setRateData({...rateData, weight: "", price: ""}); // Clean inputs after add
+                        }}
+                      >
+                        Adicionar Preço
+                      </Button>
+                    </div>
+                  </FormLayout>
+                </BlockStack>
               </Card>
             </Layout.Section>
           </>

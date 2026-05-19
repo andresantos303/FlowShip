@@ -63,6 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     logger.info(`Secure request received from: ${shopDomain}`);
+    console.log(rate);
 
     // Fetch Store Config
     let config = await prisma.storeConfig.findUnique({

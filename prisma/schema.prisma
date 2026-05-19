@@ -36,41 +36,23 @@ model StoreConfig {
   updatedAt             DateTime @updatedAt
 }
 
-model PostalRule {
-  id          String   @id @default(uuid())
-  shopDomain  String
-  countryCode String   // e.g., 'PT', 'ES', 'GB'
-  groupName   String   // The Zone name, e.g., 'PT Continental', 'Ilhas', 'Europa'
-  matchType   String   // Expected values: 'ALL', 'EXACT', 'PREFIX', 'RANGE'
-  valueMin    String   // Stores exact value, prefix, or the start of a range. Empty if 'ALL'
-  valueMax    String?  // Stores the end of the range (if matchType is 'RANGE')
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([shopDomain, countryCode])
-}
-
 model Carrier {
   id                  String   @id @default(uuid())
   shopDomain          String
   name                String
   description         String   @default("")
-  category            String   @default("Nacional")// "Nacional" or "International"
-  calculationMethod   String   // "API" or "TABLE"
+  calculationMethod   String   
   isActive            Boolean  @default(true)
   
-  // Fields for API integration
   apiKey              String?
   apiSecret           String?
   apiAccountNumber    String?
   apiUrlRates         String?
   apiUrlAvailability  String?
-  markupType          String?  @default("PERCENTAGE")
+  markupType          String  @default("PERCENTAGE")
   markupValue         Float?   @default(0)
 
-  // Relation to manual rates (for TABLE method)
-  rates             CarrierRate[]
+  rules             Rule[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -78,15 +60,22 @@ model Carrier {
   @@index([shopDomain])
 }
 
-model CarrierRate {
-  id              String  @id @default(uuid())
-  carrierId       String
-  carrier         Carrier @relation(fields: [carrierId], references: [id], onDelete: Cascade)
-  
-  groupName       String  @default("PT")
-  maxWeight       Float     
-  price           Float
-  deliveryTime    Int     @default(3)
+model Rule {
+  id              String     @id @default(uuid())
+  carrierId       Int
+  country         String
+  countryCode     String
+  matchType       String     // "RANGE", "PREFIX", "EXACT"
+  postalCodeRange String     // e.g., "4***", "9***", "SW"
+  carrier         Carrier  @relation(fields: [carrierId], references: [id])
+  rates           Rate[]
+}
 
-  @@index([carrierId])
+model Rate {
+  id              Int    @id @default(uuid())
+  ruleId          Int
+  maxWeight       Float
+  price           Float
+  deliveryTime    Int
+  rule      Rule   @relation(fields: [ruleId], references: [id])
 }
