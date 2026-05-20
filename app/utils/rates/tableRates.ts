@@ -1,103 +1,109 @@
-import { getDeliveryDate } from '../DeliveryDate'; 
+import { getDeliveryDate, normalizePostalCode } from '../rateHelpers'; 
 import logger from '../logger';
 import type { CarrierRate } from '../rateHelpers';
-import prisma from '../../db.server';
 
-// Helper function to normalize postal codes
-function normalizePostalCode(postalCode: string): string {
-    const normalized = postalCode.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-    logger.info(`Normalized zip code: original='${postalCode}', normalized='${normalized}'`);
-    return normalized;
-}
-
-export const calculateTableRates = async (rateRequestInfo: any, activeTableCarriers: any[], shopDomain: string): Promise<CarrierRate[]> => {
+export const calculateTableRates = async (rateRequestInfo: any, activeTableCarriers: any[]): Promise<CarrierRate[]> => {
     const availableRates: CarrierRate[] = [];
-    const destinationCountry = rateRequestInfo.ShipTo.Country;
+    const destinationCountryCode = rateRequestInfo.ShipTo.Country;
     const rawPostalCode = rateRequestInfo.ShipTo.PostalCode || "";
+    const packageWeight = rateRequestInfo.PackageWeight.Weight;
     
     const normalizedZip = normalizePostalCode(rawPostalCode);
 
-    // Fetch all active postal rules for this specific country and shop
-    const countryRules = await prisma.postalRule.findMany({
-        where: {
-            shopDomain: shopDomain,
-            countryCode: destinationCountry
-        }
-    });
+    // Mensagens de diagnóstico no terminal do servidor
+    console.log(`\n--- [CÁLCULO DE TARIFAS] Novo Processamento ---`);
+    console.log(`[INFO] Código Postal: ${rawPostalCode} (Normalizado: ${normalizedZip})`);
+    console.log(`[INFO] País: ${destinationCountryCode} | Peso: ${packageWeight}Kg`);
+    console.log(`[INFO] Transportadoras ativas recebidas da BD: ${activeTableCarriers.length}`);
 
-    let targetZone: string | null = null;
+    for (const carrier of activeTableCarriers) {
+        let matchedRule = null;
+        
+        console.log(`\n[AVALIAÇÃO] Transportadora: ${carrier.name} (ID: ${carrier.id})`);
+        console.log(`[AVALIAÇÃO] Total de regras associadas na BD: ${carrier.rules?.length || 0}`);
 
-    // Evaluate rules to find the matching zone
-    for (const rule of countryRules) {
-        if (rule.matchType === 'ALL') {
-            targetZone = rule.groupName;
-            logger.info(`Matched ALL rule for zone: ${targetZone}`);
-            break;
-        }
-
-        if (rule.matchType === 'EXACT' && normalizedZip === rule.valueMin.toUpperCase()) {
-            targetZone = rule.groupName;
-            logger.info(`Matched EXACT rule for zone: ${targetZone}`);
-            break;
+        if (!carrier.rules || carrier.rules.length === 0) {
+            console.log(`[AVALIAÇÃO] Ignorada: Esta transportadora não possui regras na base de dados.`);
+            continue;
         }
 
-        if (rule.matchType === 'PREFIX' && normalizedZip.startsWith(rule.valueMin.toUpperCase())) {
-            targetZone = rule.groupName;
-            logger.info(`Matched PREFIX rule for zone: ${targetZone}`);
-            break;
-        }
+        for (const rule of carrier.rules) {
+            if (rule.countryCode !== destinationCountryCode) {
+                console.log(`[REGRA REJEITADA] ID: ${rule.id} - País não coincide (${rule.countryCode} vs ${destinationCountryCode})`);
+                continue;
+            }
 
-        if (rule.matchType === 'RANGE' && rule.valueMax) {
-            const zipNum = parseInt(normalizedZip, 10);
-            const minNum = parseInt(rule.valueMin, 10);
-            const maxNum = parseInt(rule.valueMax, 10);
-
-            if (!isNaN(zipNum) && !isNaN(minNum) && !isNaN(maxNum)) {
-                if (zipNum >= minNum && zipNum <= maxNum) {
-                    targetZone = rule.groupName;
-                    logger.info(`Matched RANGE rule for zone: ${targetZone}`);
+            if (rule.matchType === 'EXACT') {
+                const exactVal = normalizePostalCode(rule.postalCodeRange);
+                if (normalizedZip === exactVal) {
+                    matchedRule = rule;
+                    console.log(`[REGRA COMPATÍVEL] Tipo EXACT correspondido para: ${rule.postalCodeRange}`);
                     break;
                 }
             }
+
+            if (rule.matchType === 'PREFIX') {
+                const prefix = rule.postalCodeRange.replace(/\*/g, '').toUpperCase();
+                if (normalizedZip.startsWith(prefix)) {
+                    matchedRule = rule;
+                    console.log(`[REGRA COMPATÍVEL] Tipo PREFIX correspondido para: ${rule.postalCodeRange}`);
+                    break;
+                }
+            }
+
+            if (rule.matchType === 'RANGE') {
+                const parts = rule.postalCodeRange.split('-');
+                if (parts.length === 2) {
+                    const minStr = normalizePostalCode(parts[0]);
+                    const maxStr = normalizePostalCode(parts[1]);
+                    
+                    // Adjust the length of the zip code to compare based on the length of the min/max in the rule
+                    const lengthToCompare = minStr.length;
+                    const zipToCompare = normalizedZip.substring(0, lengthToCompare);
+
+                    const zipNum = parseInt(zipToCompare, 10);
+                    const minNum = parseInt(minStr, 10);
+                    const maxNum = parseInt(maxStr, 10);
+
+                    if (!isNaN(zipNum) && !isNaN(minNum) && !isNaN(maxNum)) {
+                        if (zipNum >= minNum && zipNum <= maxNum) {
+                            matchedRule = rule;
+                            console.log(`[REGRA COMPATÍVEL] Tipo RANGE correspondido para: ${rule.postalCodeRange}`);
+                            break;
+                        }
+                    }
+                }
+            }
         }
-    }
 
-    if (!targetZone) {
-        logger.warn(`No shipping zone found for country code: ${destinationCountry} and postal code: ${rawPostalCode}`);
-        return availableRates;
-    }
+        // If found a matching rule, now need to check the weight brackets
+        if (matchedRule) {
+            console.log(`[TARIFAS] A analisar ${matchedRule.rates?.length || 0} escalões de peso para a regra encontrada.`);
+            const applicableRates = matchedRule.rates.filter((r: any) => packageWeight <= r.maxWeight);
+            console.log(`[TARIFAS] Escalões que suportam o peso de ${packageWeight}Kg: ${applicableRates.length}`);
 
-    for (const carrier of activeTableCarriers) {
-        // Filtrar tarifas pela zona de destino E onde o peso máximo suporta a encomenda
-        const applicableRates = carrier.rates.filter((r: any) => {
-            const isSameZone = r.groupName === targetZone;
-            const weightFits = rateRequestInfo.PackageWeight.Weight <= r.maxWeight;
-            
-            return isSameZone && weightFits;
-        });
+            if (applicableRates.length > 0) {
+                applicableRates.sort((a: any, b: any) => a.maxWeight - b.maxWeight);
+                const bestRate = applicableRates[0];
 
-        if (applicableRates.length > 0) {
-            // Ordenar as tarifas elegíveis pelo peso (do menor escalão para o maior)
-            applicableRates.sort((a: any, b: any) => a.maxWeight - b.maxWeight);
-            
-            // Escolher o primeiro escalão (o mais ajustado ao peso real)
-            const bestRate = applicableRates[0];
-
-            availableRates.push({
-                service_name: carrier.name,
-                service_code: `${carrier.name}-table`,
-                total_price: Math.round(bestRate.price * 100),
-                currency: rateRequestInfo.currency,
-                description: carrier.description,
-                category: carrier.category,
-                min_delivery_date: getDeliveryDate(bestRate.deliveryTime),
-                max_delivery_date: getDeliveryDate(bestRate.deliveryTime + 2)
-            });
-            logger.info(`Added table rate for carrier ${carrier.name}: ${bestRate.price} ${rateRequestInfo.currency}`);
+                availableRates.push({
+                    service_name: carrier.name,
+                    service_code: `${carrier.name}-table`,
+                    total_price: Math.round(bestRate.price * 100),
+                    currency: rateRequestInfo.currency,
+                    description: carrier.description,
+                    min_delivery_date: getDeliveryDate(bestRate.deliveryTime),
+                    max_delivery_date: getDeliveryDate(bestRate.deliveryTime + 2)
+                });
+                logger.info(`Transportadora ${carrier.name} aplicou regra para o postal ${rawPostalCode}`);
+            } else {
+                console.log(`[TARIFAS] Nenhuma tarifa serve para o peso de ${packageWeight}Kg nesta transportadora.`);
+            }
         } else {
-            logger.info(`No matching table rate found for carrier ${carrier.name} in zone ${targetZone} for weight ${rateRequestInfo.PackageWeight.Weight}kg`);
+            console.log(`[AVALIAÇÃO] Nenhuma regra geográfica serviu para a transportadora ${carrier.name}.`);
         }
     }
     
+    console.log(`--- [CÁLCULO DE TARIFAS] Fim do Processo. Retornadas ${availableRates.length} opções ---\n`);
     return availableRates;
 };

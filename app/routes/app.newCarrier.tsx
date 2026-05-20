@@ -51,8 +51,11 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   });
 
-  // Redireciona imediatamente para a página de edição para configurar Zonas/Preços
-  return redirect(`/app/carrier/${newCarrier.id}`);
+  if (calculationMethod === 'TABLE') {
+    return redirect(`/app/carrier/${newCarrier.id}`);
+  }else {
+    return redirect(`/app`);
+  }
 }
 
 export default function CreateCarrier() {
@@ -65,7 +68,6 @@ export default function CreateCarrier() {
   const [description, setDescription] = useState("");
   const [method, setMethod] = useState(["TABLE"]);
 
-  // Estado da API
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
   const [apiAccountNumber, setApiAccountNumber] = useState("");
@@ -79,7 +81,7 @@ export default function CreateCarrier() {
     if (method[0] === 'API') {
       return apiKey && apiSecret && apiUrlRates;
     }
-    return true; // Se for TABLE, basta o nome e a descrição para avançar
+    return true;
   }, [name, description, method, apiKey, apiSecret, apiUrlRates]);
 
   const handleSave = useCallback(() => {
@@ -106,7 +108,7 @@ export default function CreateCarrier() {
       title="Nova Transportadora"
       backAction={{ content: 'Voltar', url: '/app' }}
       primaryAction={{
-        content: 'Continuar para Zonas e Preços',
+        content: method[0] === 'API' ? 'Guardar' : 'Continuar para Regras de Envio',
         onAction: handleSave,
         loading: isSaving,
         disabled: !isFormValid
@@ -117,9 +119,7 @@ export default function CreateCarrier() {
           <Card>
             <BlockStack gap="400">
               <Text variant="headingMd" as="h2">Configurações Gerais</Text>
-              <Text variant="bodyMd" as="p">
-                Defina os dados base. Após guardar, será redirecionado para configurar as Zonas de Envio e a Tabela de Preços.
-              </Text>
+              
               <FormLayout>
                 <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" placeholder="Ex: CTT Expresso" />
                 <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />

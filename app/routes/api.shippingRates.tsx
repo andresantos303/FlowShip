@@ -3,7 +3,7 @@ import { ActionFunctionArgs, json } from "@remix-run/node";
 import crypto from "crypto";
 import logger from "../utils/logger";
 import { fetchFinalRate } from "../services/finalCarrier";
-import { getDeliveryDate } from "../utils/DeliveryDate";
+import { getDeliveryDate } from "../utils/rateHelpers";
 import prisma from "../db.server";
 
 const FALLBACK_RATE = {
@@ -61,10 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
     if (!rate || !rate.destination || !rate.items) {
       throw new Error("Shopify payload is missing required fields.");
     }
-
     logger.info(`Secure request received from: ${shopDomain}`);
-    console.log(rate);
-
     // Fetch Store Config
     let config = await prisma.storeConfig.findUnique({
       where: { shopDomain: shopDomain as string }
@@ -79,11 +76,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Business Logic Calculation
     let totalWeightGrams = 0;
+    let totalVolumeCubicCm = 0;
     let cartTotalCents = 0;
     rate.items.forEach((item: any) => {
       totalWeightGrams += item.grams * item.quantity;
+      totalVolumeCubicCm += (item.properties._length * item.properties._width * item.properties._height) * item.quantity;
       cartTotalCents += item.price * item.quantity;
     });
+    console.log("Total Volume (cubic cm):", totalVolumeCubicCm);
     const totalWeightKg = totalWeightGrams / 1000;
 
     const rateRequestInfo = {
@@ -96,8 +96,9 @@ export async function action({ request }: ActionFunctionArgs) {
         Country: rate.destination.country
       },
       PackageWeight: {
-        UnitOfMeasurement: { Code: "KG" },
-        Weight: totalWeightKg
+        UnitOfMeasurement: "KG",
+        Weight: totalWeightKg,
+        totalVolumeCubicCm
       },
       currency: rate.currency,
       country: rate.destination.country,

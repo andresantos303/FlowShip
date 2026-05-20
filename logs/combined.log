@@ -471,3 +471,137 @@
 {"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 10:32:59"}
 {"level":"info","message":"Normalized zip code: original='4505-141', normalized='4505141'","timestamp":"19-05-2026 10:32:59"}
 {"clientVersion":"6.19.3","level":"error","message":"Critical error fetching Rates: \nInvalid `prisma.postalRule.findMany()` invocation:\n\n{\n  where: {\n    shopDomain: \"academy-dev-store-2088.myshopify.com\",\n    ~~~~~~~~~~\n    countryCode: \"PT\",\n?   AND?: PostalRuleWhereInput | PostalRuleWhereInput[],\n?   OR?: PostalRuleWhereInput[],\n?   NOT?: PostalRuleWhereInput | PostalRuleWhereInput[],\n?   id?: StringFilter | String,\n?   zoneId?: StringFilter | String,\n?   matchType?: StringFilter | String,\n?   valueMin?: StringFilter | String,\n?   valueMax?: StringNullableFilter | String | Null,\n?   createdAt?: DateTimeFilter | DateTime,\n?   updatedAt?: DateTimeFilter | DateTime,\n?   zone?: ZoneScalarRelationFilter | ZoneWhereInput\n  }\n}\n\nUnknown argument `shopDomain`. Available options are marked with ?.","name":"PrismaClientValidationError","stack":"PrismaClientValidationError: \nInvalid `prisma.postalRule.findMany()` invocation:\n\n{\n  where: {\n    shopDomain: \"academy-dev-store-2088.myshopify.com\",\n    ~~~~~~~~~~\n    countryCode: \"PT\",\n?   AND?: PostalRuleWhereInput | PostalRuleWhereInput[],\n?   OR?: PostalRuleWhereInput[],\n?   NOT?: PostalRuleWhereInput | PostalRuleWhereInput[],\n?   id?: StringFilter | String,\n?   zoneId?: StringFilter | String,\n?   matchType?: StringFilter | String,\n?   valueMin?: StringFilter | String,\n?   valueMax?: StringNullableFilter | String | Null,\n?   createdAt?: DateTimeFilter | DateTime,\n?   updatedAt?: DateTimeFilter | DateTime,\n?   zone?: ZoneScalarRelationFilter | ZoneWhereInput\n  }\n}\n\nUnknown argument `shopDomain`. Available options are marked with ?.\n    at throwValidationException (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@prisma/client/src/runtime/core/errorRendering/throwValidationException.ts:45:9)\n    at ei.handleRequestError (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@prisma/client/src/runtime/RequestHandler.ts:202:7)\n    at ei.handleAndLogRequestError (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)\n    at ei.request (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)\n    at a (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)\n    at calculateTableRates (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/utils/rates/tableRates.ts:17:24)\n    at fetchFinalRate (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/services/finalCarrier.ts:40:24)\n    at action (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/routes/api.shippingRates.tsx:85:23)\n    at Object.callRouteAction (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/data.js:36:16)\n    at /Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4936:19\n    at callLoaderOrAction (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:5000:16)\n    at async Promise.all (index 0)\n    at defaultDataStrategy (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4809:17)\n    at callDataStrategyImpl (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4872:17)\n    at callDataStrategy (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4029:19)\n    at submit (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3792:21)\n    at queryImpl (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3721:22)\n    at Object.queryRoute (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3666:18)\n    at handleResourceRequest (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/server.js:444:20)\n    at requestHandler (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/server.js:167:18)\n    at nodeHandler (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/dev/dist/vite/plugin.js:859:27)\n    at /Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/dev/dist/vite/plugin.js:862:15","timestamp":"19-05-2026 10:32:59"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:04:19"}
+{"level":"info","message":"New store registered: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:04:19"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:04:19"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:04:19"}
+{"level":"info","message":"Cheapest rate selected: CTT at 3.00","timestamp":"19-05-2026 15:04:19"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:04:20"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:04:20"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:04:20"}
+{"level":"info","message":"Cheapest rate selected: CTT at 3.00","timestamp":"19-05-2026 15:04:20"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:07:43"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:07:43"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:07:43"}
+{"level":"info","message":"Cheapest rate selected: CTT at 3.00","timestamp":"19-05-2026 15:07:43"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:12:38"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:12:38"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:12:38"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"19-05-2026 15:12:38"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:14:27"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:14:27"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:14:27"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"19-05-2026 15:14:27"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:26:57"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:26:57"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:26:57"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:26:57"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"19-05-2026 15:26:57"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:35:07"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:35:07"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"19-05-2026 15:35:07"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:36:57"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:36:57"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"19-05-2026 15:36:57"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:38:50"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:38:50"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 28005","timestamp":"19-05-2026 15:38:50"}
+{"level":"info","message":"Cheapest rate selected: GLS at 12.00","timestamp":"19-05-2026 15:38:50"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:39:31"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:39:31"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"19-05-2026 15:39:31"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:40:50"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:40:50"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal N17 0BX","timestamp":"19-05-2026 15:40:50"}
+{"level":"info","message":"Cheapest rate selected: GLS at 17.00","timestamp":"19-05-2026 15:40:50"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:41:29"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:41:29"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal N17","timestamp":"19-05-2026 15:41:29"}
+{"level":"info","message":"Cheapest rate selected: GLS at 17.00","timestamp":"19-05-2026 15:41:29"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:44:19"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:44:19"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:44:19"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:44:19"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"19-05-2026 15:44:19"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 15:45:52"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 15:45:52"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:45:52"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"19-05-2026 15:45:52"}
+{"level":"info","message":"Cheapest rate selected: GLS at 0.00","timestamp":"19-05-2026 15:45:52"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 16:48:03"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 16:48:03"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"19-05-2026 16:48:03"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 16:48:29"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 16:48:29"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal N17 0BX","timestamp":"19-05-2026 16:48:29"}
+{"level":"info","message":"Cheapest rate selected: GLS at 17.00","timestamp":"19-05-2026 16:48:29"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 16:50:40"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 16:50:40"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"19-05-2026 16:50:40"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 16:53:42"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 16:53:42"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal N17 0BX","timestamp":"19-05-2026 16:53:42"}
+{"level":"info","message":"Cheapest rate selected: GLS at 17.00","timestamp":"19-05-2026 16:53:42"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 16:56:51"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 16:56:51"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal N17 0BX","timestamp":"19-05-2026 16:56:51"}
+{"level":"info","message":"Cheapest rate selected: GLS at 15.00","timestamp":"19-05-2026 16:56:51"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"19-05-2026 17:37:35"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"19-05-2026 17:37:35"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"19-05-2026 17:37:35"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"19-05-2026 17:37:35"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"19-05-2026 17:37:35"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 10:42:30"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 10:42:30"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 9004-532","timestamp":"20-05-2026 10:42:30"}
+{"level":"info","message":"Cheapest rate selected: GLS at 10.00","timestamp":"20-05-2026 10:42:30"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 10:54:36"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 10:54:36"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 10:54:36"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 10:54:36"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 10:54:36"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 10:54:37"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 10:54:37"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 10:54:37"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 10:54:37"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 10:54:37"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 11:10:35"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 11:10:35"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 11:10:35"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 11:10:35"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 11:10:35"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 11:41:58"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 11:41:58"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 11:41:58"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 11:41:58"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 11:41:58"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 11:44:13"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 11:44:13"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 11:44:13"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 11:44:13"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 11:44:13"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 12:20:20"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 12:20:20"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:20:20"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:20:20"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 12:20:20"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 12:29:33"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 12:29:33"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:29:33"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:29:33"}
+{"level":"info","message":"Cheapest rate selected: GLS at 5.00","timestamp":"20-05-2026 12:29:33"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 12:29:34"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 12:29:34"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:29:34"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:29:34"}
+{"level":"info","message":"Cheapest rate selected: GLS at 5.00","timestamp":"20-05-2026 12:29:34"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 12:31:38"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 12:31:38"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:31:38"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:31:38"}
+{"level":"info","message":"Cheapest rate selected: GLS at 0.00","timestamp":"20-05-2026 12:31:38"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 12:32:31"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 12:32:31"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:32:31"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:32:31"}
+{"level":"info","message":"Cheapest rate selected: GLS at 0.00","timestamp":"20-05-2026 12:32:31"}

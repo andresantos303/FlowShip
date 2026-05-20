@@ -1,4 +1,4 @@
-import { getDeliveryDate } from '../DeliveryDate';
+import { getDeliveryDate } from '../rateHelpers';
 import logger from '../logger';
 import type { CarrierRate } from '../rateHelpers.ts';
 
@@ -81,7 +81,6 @@ export const getFedExOptions = async (rateRequestInfo: any): Promise<CarrierRate
           service_code: rateOption.serviceType,
           total_price: priceInCents,
           currency: shipmentDetails.currency,
-          category: 'INTERNATIONAL',
           description: `Operated by ${rateOption.serviceName}`,
           min_delivery_date: getDeliveryDate(15),
           max_delivery_date: getDeliveryDate(30),

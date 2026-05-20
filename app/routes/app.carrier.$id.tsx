@@ -2,9 +2,9 @@ import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-r
 import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
 import {
   Page, Layout, Card, FormLayout, TextField, Select, Button,
-  BlockStack, Text, IndexTable, InlineStack, Badge, Divider, Box
+  BlockStack, Text, IndexTable, InlineStack, Divider
 } from "@shopify/polaris";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
 
@@ -15,8 +15,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const carrier = await prisma.carrier.findUnique({
     where: { id, shopDomain: session.shop },
     include: {
-      zones: {
-        include: { rules: true, rates: true }
+      rules: {
+        include: { rates: true }
       }
     }
   });
@@ -32,7 +32,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const actionType = formData.get("actionType");
 
-  // 1. Atualizar Transportadora (Geral + API)
   if (actionType === "UPDATE_CARRIER") {
     await prisma.carrier.update({
       where: { id: carrierId, shopDomain: session.shop },
@@ -49,52 +48,20 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     });
   }
 
-  // 2. Gestão de Zonas
-  if (actionType === "CREATE_ZONE") {
-    await prisma.zone.create({
+  if (actionType === "CREATE_RULE") {
+    await prisma.rule.create({
       data: {
         carrierId: carrierId!,
-        name: formData.get("zoneName") as string,
-      }
-    });
-  }
-
-  if (actionType === "DELETE_ZONE") {
-    await prisma.zone.delete({ where: { id: formData.get("zoneId") as string } });
-  }
-
-  // 3. Gestão de Regras Postais
-  if (actionType === "CREATE_RULE") {
-    await prisma.postalRule.create({
-      data: {
-        zoneId: formData.get("zoneId") as string,
+        country: formData.get("country") as string,
         countryCode: (formData.get("countryCode") as string).toUpperCase(),
         matchType: formData.get("matchType") as string,
-        valueMin: formData.get("valueMin") as string,
-        valueMax: formData.get("valueMax") as string || null,
+        postalCodeRange: formData.get("postalCodeRange") as string,
       }
     });
   }
 
   if (actionType === "DELETE_RULE") {
-    await prisma.postalRule.delete({ where: { id: formData.get("ruleId") as string } });
-  }
-
-  // 4. Gestão de Tarifas
-  if (actionType === "CREATE_RATE") {
-    await prisma.carrierRate.create({
-      data: {
-        carrierId: carrierId!,
-        zoneId: formData.get("zoneId") as string,
-        maxWeight: parseFloat(formData.get("maxWeight") as string),
-        price: parseFloat(formData.get("price") as string),
-        deliveryTime: parseInt(formData.get("deliveryTime") as string, 10),
-      }
-    });
-  }
-
-  if (actionType === "DELETE_RATE") {
-    await prisma.carrierRate.delete({ where: { id: formData.get("rateId") as string } });
+    await prisma.rule.delete({ where: { id: formData.get("ruleId") as string } });
   }
 
   return json({ success: true });
@@ -106,22 +73,19 @@ export default function CarrierEdit() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
-  // Estados Gerais
   const [name, setName] = useState(carrier.name);
   const [description, setDescription] = useState(carrier.description);
   const [isActive, setIsActive] = useState(carrier.isActive ? "true" : "false");
 
-  // Estados API
   const [apiKey, setApiKey] = useState(carrier.apiKey || "");
   const [apiSecret, setApiSecret] = useState(carrier.apiSecret || "");
   const [apiUrlRates, setApiUrlRates] = useState(carrier.apiUrlRates || "");
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
   const [markupValue, setMarkupValue] = useState(carrier.markupValue?.toString() || "0");
 
-  // Estados para Criação (Zonas, Regras, Preços)
-  const [newZoneName, setNewZoneName] = useState("");
-  const [ruleData, setRuleData] = useState({ zoneId: "", country: "PT", type: "", min: "", max: "" });
-  const [rateData, setRateData] = useState({ zoneId: "", weight: "", price: "", time: "3" });
+  const [ruleData, setRuleData] = useState({ country: "", countryCode: "", type: "", postalCodeRange: "" });
+  
+  const [searchCountry, setSearchCountry] = useState("");
 
   const handleAction = (type: string, data: any) => {
     const fd = new FormData();
@@ -130,10 +94,16 @@ export default function CarrierEdit() {
     submit(fd, { method: "POST" });
   };
 
+  const filteredRules = useMemo(() => {
+    if (!searchCountry) return carrier.rules;
+    return carrier.rules.filter((rule) =>
+      rule.country.toLowerCase().includes(searchCountry.toLowerCase())
+    );
+  }, [carrier.rules, searchCountry]);
+
   return (
     <Page title={`Configurar: ${carrier.name}`} backAction={{ url: "/app" }}>
       <Layout>
-        {/* SECÇÃO 1: DADOS GERAIS E API */}
         <Layout.Section>
           <Card>
             <BlockStack gap="400">
@@ -168,110 +138,84 @@ export default function CarrierEdit() {
           </Card>
         </Layout.Section>
 
-        {/* SECÇÃO 2: GESTÃO DE ZONAS (Apenas para TABLE) */}
         {carrier.calculationMethod === "TABLE" && (
-          <>
-            <Layout.Section>
-              <Card>
-                <BlockStack gap="400">
-                  <Text variant="headingMd" as="h2">Zonas de Destino</Text>
-                  <FormLayout>
-                    <FormLayout.Group>
-                      <TextField label="Novo Nome de Zona (ex: Continental)" value={newZoneName} onChange={setNewZoneName} autoComplete="off" />
-                      <div style={{ alignSelf: 'end' }}>
-                        <Button onClick={() => { handleAction("CREATE_ZONE", { zoneName: newZoneName }); setNewZoneName(""); }}>Criar Zona</Button>
-                      </div>
-                    </FormLayout.Group>
-                  </FormLayout>
+          <Layout.Section>
+            <Card>
+              <BlockStack gap="400">
+                <Text variant="headingMd" as="h2">Regras de Código Postal</Text>
+                <Text variant="bodyMd" as="p">Defina as áreas geográficas. Clique em "Gerir Tarifas" para configurar os preços associados.</Text>
+                <FormLayout>
+                  <FormLayout.Group>
+                    <TextField label="País" value={ruleData.country} onChange={(v)=>setRuleData({...ruleData, country:v})} autoComplete="off" placeholder="Ex: Portugal" />
+                    <TextField label="Código País (ISO)" value={ruleData.countryCode} onChange={(v)=>setRuleData({...ruleData, countryCode:v})} autoComplete="off" maxLength={2} placeholder="Ex: PT" />
+                  </FormLayout.Group>
+                  <FormLayout.Group>
+                    <Select label="Tipo de Correspondência" options={[{label:'Intervalo (Range)',value:'RANGE'},{label:'Prefixo',value:'PREFIX'},{label:'Exato',value:'EXACT'}]} value={ruleData.type} onChange={(v)=>setRuleData({...ruleData, type:v})} />
+                    <TextField label="Códigos Postais" value={ruleData.postalCodeRange} onChange={(v)=>setRuleData({...ruleData, postalCodeRange:v})} autoComplete="off" placeholder="Ex: 4000-4999, 4*** ou SW" />
+                  </FormLayout.Group>
+                  <div style={{ alignSelf: 'end' }}>
+                    <Button 
+                      disabled={!ruleData.postalCodeRange} 
+                      onClick={() => {
+                        handleAction("CREATE_RULE", { country: ruleData.country, countryCode: ruleData.countryCode, matchType: ruleData.type, postalCodeRange: ruleData.postalCodeRange });
+                        setRuleData({...ruleData, postalCodeRange: ""});
+                      }}
+                    >
+                      Adicionar Regra
+                    </Button>
+                  </div>
+                </FormLayout>
 
-                  <IndexTable resourceName={{singular:'zona',plural:'zonas'}} itemCount={carrier.zones.length} headings={[{title:'Nome'},{title:'Regras'},{title:'Preços'},{title:'Ações'}]} selectable={false}>
-                    {carrier.zones.map((zone, i) => (
-                      <IndexTable.Row id={zone.id} key={zone.id} position={i}>
-                        <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{zone.name}</Text></IndexTable.Cell>
-                        <IndexTable.Cell>{zone.rules.length} regras</IndexTable.Cell>
-                        <IndexTable.Cell>{zone.rates.length} escalões</IndexTable.Cell>
-                        <IndexTable.Cell>
-                          <Button tone="critical" variant="plain" onClick={() => handleAction("DELETE_ZONE", { zoneId: zone.id })}>Remover</Button>
-                        </IndexTable.Cell>
-                      </IndexTable.Row>
-                    ))}
-                  </IndexTable>
-                </BlockStack>
-              </Card>
-            </Layout.Section>
-
-            {/* SECÇÃO 3: REGRAS POSTAIS POR ZONA */}
-            <Layout.Section>
-              <Card>
-                <BlockStack gap="400">
-                  <Text variant="headingMd" as="h2">Regras de Correspondência (Códigos Postais)</Text>
-                  <FormLayout>
-                    <FormLayout.Group>
-                      <Select 
-                        label="Zona Destino" 
-                        options={[{label: 'Selecionar Zona', value: ''}, ...carrier.zones.map(z => ({label: z.name, value: z.id}))]} 
-                        value={ruleData.zoneId} 
-                        onChange={(v)=>setRuleData({...ruleData, zoneId:v})} 
+                {carrier.rules.length > 0 && (
+                  <div style={{ marginTop: '20px' }}>
+                    <BlockStack gap="400">
+                      
+                      <TextField
+                        label="Pesquisar país"
+                        labelHidden
+                        value={searchCountry}
+                        onChange={setSearchCountry}
+                        placeholder="Pesquisar por país..."
+                        autoComplete="off"
+                        clearButton
+                        onClearButtonClick={() => setSearchCountry("")}
                       />
-                      <TextField label="País (ISO)" value={ruleData.country} onChange={(v)=>setRuleData({...ruleData, country:v})} autoComplete="off" maxLength={2} />
-                    </FormLayout.Group>
-                    <FormLayout.Group>
-                      <Select label="Tipo" options={[{label:'Selecionar Tipo',value:''},{label:'Tudo',value:'ALL'},{label:'Intervalo',value:'RANGE'},{label:'Prefixo',value:'PREFIX'}]} value={ruleData.type} onChange={(v)=>setRuleData({...ruleData, type:v})} />
-                      <TextField label="Valor Min/Prefixo" value={ruleData.min} onChange={(v)=>setRuleData({...ruleData, min:v})} autoComplete="off" disabled={ruleData.type==='ALL'} />
-                      {ruleData.type === 'RANGE' && <TextField label="Valor Máx" value={ruleData.max} onChange={(v)=>setRuleData({...ruleData, max:v})} autoComplete="off" />}
-                    </FormLayout.Group>
-                    <div style={{ alignSelf: 'end' }}>
-                      <Button 
-                        disabled={!ruleData.zoneId || (ruleData.type !== 'ALL' && !ruleData.min)} 
-                        onClick={() => {
-                          handleAction("CREATE_RULE", { zoneId: ruleData.zoneId, countryCode: ruleData.country, matchType: ruleData.type, valueMin: ruleData.min, valueMax: ruleData.max });
-                          setRuleData({...ruleData, min: "", max: ""}); // Clean inputs after add
-                        }}
-                      >
-                        Adicionar Regra
-                      </Button>
-                    </div>
-                  </FormLayout>
-                </BlockStack>
-              </Card>
-            </Layout.Section>
 
-            {/* SECÇÃO 4: PREÇOS POR ZONA */}
-            <Layout.Section>
-              <Card>
-                <BlockStack gap="400">
-                  <Text variant="headingMd" as="h2">Tabela de Preços (Escalões de Peso)</Text>
-                  <FormLayout>
-                    <FormLayout.Group>
-                      <Select 
-                        label="Zona" 
-                        options={[{label: 'Selecionar Zona', value: ''}, ...carrier.zones.map(z => ({label: z.name, value: z.id}))]} 
-                        value={rateData.zoneId} 
-                        onChange={(v)=>setRateData({...rateData, zoneId:v})} 
-                      />
-                      <TextField label="Até (Kg)" type="number" value={rateData.weight} onChange={(v)=>setRateData({...rateData, weight:v})} autoComplete="off" />
-                    </FormLayout.Group>
-                    <FormLayout.Group>
-                      <TextField label="Preço (€)" type="number" value={rateData.price} onChange={(v)=>setRateData({...rateData, price:v})} autoComplete="off" prefix="€" />
-                      <TextField label="Entrega (Dias)" type="number" value={rateData.time} onChange={(v)=>setRateData({...rateData, time:v})} autoComplete="off" />
-                    </FormLayout.Group>
-                    <div style={{ alignSelf: 'end' }}>
-                      <Button 
-                        variant="primary" 
-                        disabled={!rateData.zoneId || !rateData.weight || !rateData.price} 
-                        onClick={() => {
-                          handleAction("CREATE_RATE", { zoneId: rateData.zoneId, maxWeight: rateData.weight, price: rateData.price, deliveryTime: rateData.time });
-                          setRateData({...rateData, weight: "", price: ""}); // Clean inputs after add
-                        }}
+                      <IndexTable 
+                        resourceName={{singular:'regra',plural:'regras'}} 
+                        itemCount={filteredRules.length} 
+                        headings={[{title:'País'},{title:'Critério'},{title:'Tarifas'},{title:'Ações'}]} 
+                        selectable={false}
                       >
-                        Adicionar Preço
-                      </Button>
-                    </div>
-                  </FormLayout>
-                </BlockStack>
-              </Card>
-            </Layout.Section>
-          </>
+                        {filteredRules.map((rule, i) => (
+                          <IndexTable.Row id={rule.id} key={rule.id} position={i}>
+                            <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{rule.country} ({rule.countryCode})</Text></IndexTable.Cell>
+                            <IndexTable.Cell>{rule.matchType}: {rule.postalCodeRange}</IndexTable.Cell>
+                            <IndexTable.Cell>{rule.rates.length} escalões</IndexTable.Cell>
+                            <IndexTable.Cell>
+                              <InlineStack gap="200">
+                                <Button url={`/app/rule/${rule.id}`} variant="secondary">Gerir Tarifas</Button>
+                                <Button tone="critical" variant="plain" onClick={() => handleAction("DELETE_RULE", { ruleId: rule.id })}>Remover</Button>
+                              </InlineStack>
+                            </IndexTable.Cell>
+                          </IndexTable.Row>
+                        ))}
+                      </IndexTable>
+
+                      {filteredRules.length === 0 && searchCountry !== "" && (
+                        <div style={{ textAlign: 'center', padding: '20px' }}>
+                          <Text variant="bodyMd" as="p" tone="subdued">
+                            Nenhum país encontrado com o termo "{searchCountry}".
+                          </Text>
+                        </div>
+                      )}
+
+                    </BlockStack>
+                  </div>
+                )}
+              </BlockStack>
+            </Card>
+          </Layout.Section>
         )}
       </Layout>
     </Page>

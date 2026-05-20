@@ -2,7 +2,7 @@ import logger from '../utils/logger';
 import type { CarrierRate } from '../utils/rateHelpers';
 import { calculateTableRates } from '../utils/rates/tableRates';
 import prisma from '../db.server';
-import { getDeliveryDate } from '../utils/DeliveryDate';
+import { getDeliveryDate } from '../utils/rateHelpers';
 import { calculateAPIRates } from '../utils/rates/apiRates';
 
 const FALLBACK_RATE = {
@@ -28,7 +28,11 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
         isActive: true 
       },
       include: { 
-        rates: true 
+        rules: {
+          include: {
+            rates: true
+          }
+        }
       }
     });
     const activeAPICarriers = await prisma.carrier.findMany({
@@ -38,7 +42,7 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
         isActive: true 
       }
     });
-    const tableRates = await calculateTableRates(rateRequestInfo,activeTableCarriers, prismaStoreConfig.shopDomain);
+    const tableRates = await calculateTableRates(rateRequestInfo,activeTableCarriers);
     // const apiRates = await calculateAPIRates(rateRequestInfo, activeAPICarriers);
 
     const allRates = [...tableRates/* , ...apiRates */];

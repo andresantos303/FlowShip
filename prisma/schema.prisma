@@ -30,52 +30,55 @@ model Session {
 model StoreConfig {
   id                    String   @id @default(uuid())
   shopDomain            String   @unique
-  freeShippingActive    Boolean  @default(true)
+  freeShippingActive    Boolean  @default(false)
   freeShippingThreshold Int      @default(10000)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }
 
 model Carrier {
-  id                  String   @id @default(uuid())
-  shopDomain          String
-  name                String
-  description         String   @default("")
-  calculationMethod   String   
-  isActive            Boolean  @default(true)
+  id                 String   @id @default(uuid())
+  shopDomain         String
+  name               String
+  description        String   @default("")
+  calculationMethod  String  
+  isActive           Boolean  @default(true)
   
-  apiKey              String?
-  apiSecret           String?
-  apiAccountNumber    String?
-  apiUrlRates         String?
-  apiUrlAvailability  String?
-  markupType          String  @default("PERCENTAGE")
-  markupValue         Float?   @default(0)
+  apiKey             String?
+  apiSecret          String?
+  apiAccountNumber   String?
+  apiUrlRates        String?
+  apiUrlAvailability String?
+  markupType         String?   @default("PERCENTAGE")
+  markupValue        Float?   @default(0)
 
-  rules             Rule[]
+  rules              Rule[]
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@index([shopDomain])
 }
 
 model Rule {
-  id              String     @id @default(uuid())
-  carrierId       Int
+  id              String   @id @default(uuid())
+  carrierId       String   
   country         String
   countryCode     String
-  matchType       String     // "RANGE", "PREFIX", "EXACT"
-  postalCodeRange String     // e.g., "4***", "9***", "SW"
-  carrier         Carrier  @relation(fields: [carrierId], references: [id])
+  matchType       String   // "RANGE", "PREFIX", "EXACT"
+  postalCodeRange String   // e.g., "4***", "9***", "SW"
+  
+  carrier         Carrier  @relation(fields: [carrierId], references: [id], onDelete: Cascade)
+  
   rates           Rate[]
 }
 
 model Rate {
-  id              Int    @id @default(uuid())
-  ruleId          Int
+  id              String   @id @default(uuid())
+  ruleId          String   
   maxWeight       Float
   price           Float
   deliveryTime    Int
-  rule      Rule   @relation(fields: [ruleId], references: [id])
+  
+  rule            Rule     @relation(fields: [ruleId], references: [id], onDelete: Cascade)
 }
