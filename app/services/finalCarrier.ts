@@ -43,9 +43,9 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
       }
     });
     const tableRates = await calculateTableRates(rateRequestInfo,activeTableCarriers);
-    // const apiRates = await calculateAPIRates(rateRequestInfo, activeAPICarriers);
+    const apiRates = await calculateAPIRates(rateRequestInfo, activeAPICarriers);
 
-    const allRates = [...tableRates/* , ...apiRates */];
+    const allRates = [...tableRates, ...apiRates];
     if (allRates.length > 0) {
       const cheapestRate = allRates.reduce((prev, curr) =>
         prev.total_price < curr.total_price ? prev : curr

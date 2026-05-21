@@ -7,6 +7,7 @@ export const calculateTableRates = async (rateRequestInfo: any, activeTableCarri
     const destinationCountryCode = rateRequestInfo.ShipTo.Country;
     const rawPostalCode = rateRequestInfo.ShipTo.PostalCode || "";
     const packageWeight = rateRequestInfo.PackageWeight.Weight;
+    const totalVolumeCubicCm = rateRequestInfo.PackageWeight.totalVolumeCubicCm
     
     const normalizedZip = normalizePostalCode(rawPostalCode);
 
@@ -79,7 +80,14 @@ export const calculateTableRates = async (rateRequestInfo: any, activeTableCarri
         // If found a matching rule, now need to check the weight brackets
         if (matchedRule) {
             console.log(`[TARIFAS] A analisar ${matchedRule.rates?.length || 0} escalões de peso para a regra encontrada.`);
-            const applicableRates = matchedRule.rates.filter((r: any) => packageWeight <= r.maxWeight);
+
+            const volumetricDivisor = carrier.conversionFactor;
+            const volumetricWeight = totalVolumeCubicCm / volumetricDivisor;
+            
+            // Determine the taxable weight as the highest value between real and volumetric weight
+            const taxableWeight = Math.max(packageWeight, volumetricWeight);
+
+            const applicableRates = matchedRule.rates.filter((r: any) => taxableWeight <= r.maxWeight);
             console.log(`[TARIFAS] Escalões que suportam o peso de ${packageWeight}Kg: ${applicableRates.length}`);
 
             if (applicableRates.length > 0) {

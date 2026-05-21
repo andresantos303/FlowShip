@@ -43,6 +43,7 @@ model Carrier {
   description        String   @default("")
   calculationMethod  String  
   isActive           Boolean  @default(true)
+  conversionFactor   Int      @default(5000)
   
   apiKey             String?
   apiSecret          String?

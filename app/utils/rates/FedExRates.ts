@@ -2,12 +2,12 @@ import { getDeliveryDate } from '../rateHelpers';
 import logger from '../logger';
 import type { CarrierRate } from '../rateHelpers.ts';
 
-async function getFedExToken(): Promise<string> {
+async function getFedExToken(carrier: any): Promise<string> {
   const url = `${process.env.FEDEX_BASE_URL}/oauth/token`;
   const params = new URLSearchParams();
   params.append('grant_type', 'client_credentials');
-  params.append('client_id', process.env.FEDEX_API_KEY as string);
-  params.append('client_secret', process.env.FEDEX_SECRET_KEY as string);
+  params.append('client_id', carrier.apiKey as string);
+  params.append('client_secret', carrier.apiSecret as string);
 
   try {
     const response = await fetch(url, {
@@ -25,12 +25,12 @@ async function getFedExToken(): Promise<string> {
   }
 }
 
-export const getFedExOptions = async (rateRequestInfo: any): Promise<CarrierRate[]> => {
+export const getFedExOptions = async (rateRequestInfo: any, carrier: any): Promise<CarrierRate[]> => {
   try {
-    const token = await getFedExToken();
+    const token = await getFedExToken(carrier);
     
     const fedexPayload = {
-      accountNumber: { value: process.env.FEDEX_ACCOUNT_NUMBER },
+      accountNumber: { value: carrier.apiAccountNumber },
       requestedShipment: {
         shipper: {
           address: {
@@ -46,7 +46,7 @@ export const getFedExOptions = async (rateRequestInfo: any): Promise<CarrierRate
         },
         pickupType: "DROPOFF_AT_FEDEX_LOCATION",
         preferredCurrency: rateRequestInfo.currency,
-        rateRequestType: ["ACCOUNT", "PREFERRED"],
+        rateRequestType: ["PREFERRED"],
         requestedPackageLineItems: [
           { weight: { units: "KG", value: rateRequestInfo.PackageWeight.Weight } }
         ]
@@ -74,10 +74,10 @@ export const getFedExOptions = async (rateRequestInfo: any): Promise<CarrierRate
     if (fedexData.output && fedexData.output.rateReplyDetails) {
       for (const rateOption of fedexData.output.rateReplyDetails) {
         const shipmentDetails = rateOption.ratedShipmentDetails.find((d: any) => d.rateType === 'PREFERRED_CURRENCY' || d.rateType === 'ACCOUNT');
-        const priceInCents = Math.round(parseFloat(shipmentDetails.totalNetChargeWithDutiesAndTaxes) * 100);
+        const priceInCents = Math.round(parseFloat(shipmentDetails.totalNetCharge) * 100);
         
         parsedRates.push({
-          service_name: `FedEx ${rateOption.serviceName}`,
+          service_name: `${rateOption.serviceName}`,
           service_code: rateOption.serviceType,
           total_price: priceInCents,
           currency: shipmentDetails.currency,

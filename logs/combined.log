@@ -605,3 +605,100 @@
 {"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:32:31"}
 {"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 12:32:31"}
 {"level":"info","message":"Cheapest rate selected: GLS at 0.00","timestamp":"20-05-2026 12:32:31"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 14:50:32"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 14:50:32"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 14:50:32"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 14:50:32"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 14:50:32"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 15:02:42"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 15:02:42"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 15:02:42"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 15:02:42"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 15:02:42"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"20-05-2026 15:04:17"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"20-05-2026 15:04:17"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"20-05-2026 15:04:17"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"20-05-2026 15:04:17"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"20-05-2026 15:04:17"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 11:36:17"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 11:36:17"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal N17 0BX","timestamp":"21-05-2026 11:36:17"}
+{"level":"info","message":"Cheapest rate selected: GLS at 15.00","timestamp":"21-05-2026 11:36:17"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 12:52:30"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 12:52:30"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 5340","timestamp":"21-05-2026 12:52:30"}
+{"level":"info","message":"Cheapest rate selected: GLS at 15.00","timestamp":"21-05-2026 12:52:30"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 12:54:38"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 12:54:38"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"21-05-2026 12:54:38"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"21-05-2026 12:54:38"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"21-05-2026 12:54:38"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 12:54:39"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 12:54:39"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"21-05-2026 12:54:39"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"21-05-2026 12:54:39"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"21-05-2026 12:54:39"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 14:55:04"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 14:55:04"}
+{"level":"error","message":"Error returned by FedEx API:","timestamp":"21-05-2026 14:55:07"}
+{"level":"error","message":"No matching API rate found for carrier FedEx","timestamp":"21-05-2026 14:55:07"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"21-05-2026 14:55:07"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 15:08:52"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 15:08:52"}
+{"level":"error","message":"Error returned by FedEx API:","timestamp":"21-05-2026 15:08:53"}
+{"level":"error","message":"No matching API rate found for carrier FedEx","timestamp":"21-05-2026 15:08:53"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"21-05-2026 15:08:53"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 15:12:58"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 15:12:58"}
+{"level":"error","message":"Error returned by FedEx API:","timestamp":"21-05-2026 15:13:03"}
+{"level":"error","message":"No matching API rate found for carrier FedEx","timestamp":"21-05-2026 15:13:03"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"21-05-2026 15:13:03"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 15:17:45"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 15:17:45"}
+{"level":"info","message":"FedEx returned 6 rate options for ZIP 4505-141 in PT.","timestamp":"21-05-2026 15:17:47"}
+{"level":"info","message":"Added API rate for carrier FedEx: NaN EUR","timestamp":"21-05-2026 15:17:47"}
+{"level":"info","message":"Cheapest rate selected: FedEx FedEx Economy™ at NaN","timestamp":"21-05-2026 15:17:47"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 15:21:35"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 15:21:35"}
+{"level":"info","message":"FedEx returned 6 rate options for ZIP 4505-141 in PT.","timestamp":"21-05-2026 15:21:36"}
+{"level":"info","message":"Added API rate for carrier FedEx: 3116.4999999999995 EUR","timestamp":"21-05-2026 15:21:36"}
+{"level":"info","message":"Cheapest rate selected: FedEx FedEx Economy™ at 31.16","timestamp":"21-05-2026 15:21:36"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 15:50:06"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 15:50:06"}
+{"level":"error","message":"Error returned by FedEx API:","timestamp":"21-05-2026 15:50:08"}
+{"level":"error","message":"No matching API rate found for carrier FedEx","timestamp":"21-05-2026 15:50:08"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"21-05-2026 15:50:08"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 15:50:53"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 15:50:53"}
+{"level":"info","message":"FedEx returned 6 rate options for ZIP 4505-141 in PT.","timestamp":"21-05-2026 15:50:54"}
+{"level":"info","message":"Added API rate for carrier FedEx: 3116.4999999999995 EUR","timestamp":"21-05-2026 15:50:54"}
+{"level":"info","message":"Cheapest rate selected: FedEx Economy™ at 31.16","timestamp":"21-05-2026 15:50:54"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 15:54:24"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 15:54:24"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"21-05-2026 15:54:24"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"21-05-2026 15:54:24"}
+{"level":"info","message":"FedEx returned 6 rate options for ZIP 4505-141 in PT.","timestamp":"21-05-2026 15:54:25"}
+{"level":"info","message":"Added API rate for carrier FedEx: 3116.4999999999995 EUR","timestamp":"21-05-2026 15:54:25"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"21-05-2026 15:54:25"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 16:00:42"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 16:00:42"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4405-619","timestamp":"21-05-2026 16:00:42"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4405-619","timestamp":"21-05-2026 16:00:42"}
+{"level":"error","message":"Error in FedEx authentication: Error fetching FedEx token: 401","stack":"Error: Error fetching FedEx token: 401\n    at getFedExToken (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/utils/rates/FedExRates.ts:18:29)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at getFedExOptions (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/utils/rates/FedExRates.ts:28:19)\n    at calculateAPIRates (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/utils/rates/apiRates.ts:11:28)\n    at fetchFinalRate (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/services/finalCarrier.ts:46:22)\n    at action (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/routes/api.shippingRates.tsx:88:23)\n    at Object.callRouteAction (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/data.js:36:16)\n    at /Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4936:19\n    at callLoaderOrAction (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:5000:16)\n    at async Promise.all (index 0)\n    at defaultDataStrategy (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4809:17)\n    at callDataStrategyImpl (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4872:17)\n    at callDataStrategy (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4029:19)\n    at submit (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3792:21)\n    at queryImpl (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3721:22)\n    at Object.queryRoute (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3666:18)\n    at handleResourceRequest (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/server.js:444:20)\n    at requestHandler (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/server.js:167:18)\n    at nodeHandler (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/dev/dist/vite/plugin.js:859:27)\n    at /Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/dev/dist/vite/plugin.js:862:15","timestamp":"21-05-2026 16:00:43"}
+{"level":"error","message":"Error processing FedEx rates: Error fetching FedEx token: 401","stack":"Error: Error fetching FedEx token: 401\n    at getFedExToken (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/utils/rates/FedExRates.ts:18:29)\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at getFedExOptions (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/utils/rates/FedExRates.ts:28:19)\n    at calculateAPIRates (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/utils/rates/apiRates.ts:11:28)\n    at fetchFinalRate (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/services/finalCarrier.ts:46:22)\n    at action (/Users/skrey-andresantos/Documents/Projects/shipping-app/app/routes/api.shippingRates.tsx:88:23)\n    at Object.callRouteAction (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/data.js:36:16)\n    at /Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4936:19\n    at callLoaderOrAction (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:5000:16)\n    at async Promise.all (index 0)\n    at defaultDataStrategy (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4809:17)\n    at callDataStrategyImpl (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4872:17)\n    at callDataStrategy (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:4029:19)\n    at submit (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3792:21)\n    at queryImpl (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3721:22)\n    at Object.queryRoute (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/router/router.ts:3666:18)\n    at handleResourceRequest (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/server.js:444:20)\n    at requestHandler (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/server-runtime/dist/server.js:167:18)\n    at nodeHandler (/Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/dev/dist/vite/plugin.js:859:27)\n    at /Users/skrey-andresantos/Documents/Projects/shipping-app/node_modules/@remix-run/dev/dist/vite/plugin.js:862:15","timestamp":"21-05-2026 16:00:43"}
+{"level":"error","message":"No matching API rate found for carrier FedEx","timestamp":"21-05-2026 16:00:43"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"21-05-2026 16:00:43"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 16:02:14"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 16:02:14"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"21-05-2026 16:02:14"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"21-05-2026 16:02:14"}
+{"level":"error","message":"Error returned by FedEx API:","timestamp":"21-05-2026 16:02:15"}
+{"level":"error","message":"No matching API rate found for carrier FedEx","timestamp":"21-05-2026 16:02:15"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"21-05-2026 16:02:15"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"21-05-2026 16:03:02"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"21-05-2026 16:03:02"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"21-05-2026 16:03:02"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"21-05-2026 16:03:02"}
+{"level":"info","message":"FedEx returned 6 rate options for ZIP 4505-141 in PT.","timestamp":"21-05-2026 16:03:04"}
+{"level":"info","message":"Added API rate for carrier FedEx: 3116.4999999999995 EUR","timestamp":"21-05-2026 16:03:04"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"21-05-2026 16:03:04"}

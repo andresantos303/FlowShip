@@ -9,7 +9,7 @@ import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
+  const { session, admin } = await authenticate.admin(request);
   const { id } = params;
 
   const carrier = await prisma.carrier.findUnique({
@@ -23,7 +23,57 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
   if (!carrier) throw new Response("Not Found", { status: 404 });
 
-  return json({ carrier });
+  // Execute the GraphQL query to fetch active markets and their countries
+  const response = await admin.graphql(`
+    query getMarkets {
+      markets(first: 10) {
+        edges {
+          node {
+            name
+            status
+            regions(first: 50) {
+              edges {
+                node {
+                  name
+                  ... on MarketRegionCountry {
+                    code
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `);
+
+  const responseJson = await response.json();
+  const marketsData = responseJson.data?.markets?.edges || [];
+
+  const countriesList: { label: string; value: string }[] = [];
+  const seenCodes = new Set<string>();
+
+  // Parse the markets data and extract unique countries
+  marketsData.forEach((edge: any) => {
+    const market = edge.node;
+    
+    // Optional filter: if (market.status === "ACTIVE") to only allow enabled markets
+    market.regions?.edges?.forEach((regionEdge: any) => {
+      const region = regionEdge.node;
+      if (region.code && !seenCodes.has(region.code)) {
+        seenCodes.add(region.code);
+        countriesList.push({
+          label: region.name,
+          value: region.code
+        });
+      }
+    });
+  });
+
+  // Sort countries alphabetically by their label
+  countriesList.sort((a, b) => a.label.localeCompare(b.label));
+
+  return json({ carrier, countries: countriesList });
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
@@ -41,9 +91,10 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         isActive: formData.get("isActive") === "true",
         apiKey: formData.get("apiKey") as string || null,
         apiSecret: formData.get("apiSecret") as string || null,
-        apiUrlRates: formData.get("apiUrlRates") as string || null,
+        apiAccountNumber: formData.get("apiAccountNumber") as string || null,
         markupType: formData.get("markupType") as string || "PERCENTAGE",
         markupValue: parseFloat(formData.get("markupValue") as string || "0"),
+        conversionFactor: parseFloat(formData.get("conversionFactor") as string || "5000")
       }
     });
   }
@@ -68,7 +119,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 };
 
 export default function CarrierEdit() {
-  const { carrier } = useLoaderData<typeof loader>();
+  const { carrier, countries } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
@@ -76,16 +127,17 @@ export default function CarrierEdit() {
   const [name, setName] = useState(carrier.name);
   const [description, setDescription] = useState(carrier.description);
   const [isActive, setIsActive] = useState(carrier.isActive ? "true" : "false");
+  const [conversionFactor, setConversionFactor] = useState(carrier.conversionFactor.toString());
 
   const [apiKey, setApiKey] = useState(carrier.apiKey || "");
   const [apiSecret, setApiSecret] = useState(carrier.apiSecret || "");
-  const [apiUrlRates, setApiUrlRates] = useState(carrier.apiUrlRates || "");
+  const [apiAccountNumber, setApiAccountNumber] = useState(carrier.apiAccountNumber || "");
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
   const [markupValue, setMarkupValue] = useState(carrier.markupValue?.toString() || "0");
 
   const [ruleData, setRuleData] = useState({ country: "", countryCode: "", type: "", postalCodeRange: "" });
   
-  const [searchCountry, setSearchCountry] = useState("");
+  const [filterCountryCode, setFilterCountryCode] = useState("");
 
   const handleAction = (type: string, data: any) => {
     const fd = new FormData();
@@ -94,12 +146,45 @@ export default function CarrierEdit() {
     submit(fd, { method: "POST" });
   };
 
+  // Format the countries list received from the loader for the Polaris Select component
+  const countryOptions = useMemo(() => {
+    return [
+      { label: "Selecionar um país...", value: "" },
+      ...countries.map((c) => ({ label: c.label, value: c.value }))
+    ];
+  }, [countries]);
+
+  // Handle the selection change and update the existing ruleData state object
+  const handleCountryChange = (value: string) => {
+    // Find the matching country name based on the selected ISO code
+    const matchedCountry = countries.find((c) => c.value === value);
+
+    setRuleData((prev) => ({
+      ...prev,
+      countryCode: value,
+      country: matchedCountry ? matchedCountry.label : ""
+    }));
+  };
+
+  // Generate options for the filter dropdown, including a fallback to show all rules
+  const filterCountryOptions = useMemo(() => {
+    return [
+      { label: "Selecionar um país...", value: "" },
+      { label: "Mostrar todas as regras", value: "ALL" },
+      ...countries.map((c) => ({ label: c.label, value: c.value }))
+    ];
+  }, [countries]);
+
+  // Filter rules based on the selected country code
   const filteredRules = useMemo(() => {
-    if (!searchCountry) return carrier.rules;
-    return carrier.rules.filter((rule) =>
-      rule.country.toLowerCase().includes(searchCountry.toLowerCase())
-    );
-  }, [carrier.rules, searchCountry]);
+    if (!filterCountryCode) {
+      return [];
+    }
+    if (filterCountryCode === "ALL") {
+      return carrier.rules;
+    }
+    return carrier.rules.filter((rule: any) => rule.countryCode === filterCountryCode);
+  }, [carrier.rules, filterCountryCode]);
 
   return (
     <Page title={`Configurar: ${carrier.name}`} backAction={{ url: "/app" }}>
@@ -110,30 +195,40 @@ export default function CarrierEdit() {
               <Text variant="headingMd" as="h2">Informação Base</Text>
               <FormLayout>
                 <FormLayout.Group>
-                  <TextField label="Nome" value={name} onChange={setName} autoComplete="off" />
+                  {carrier.calculationMethod === "TABLE" ? (
+                    <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" placeholder="Ex: CTT Expresso" />
+                  ) : (
+                    <Select label="Nome da Transportadora" options={[{label:'Selecione o nome',value:''},{label:'FedEx',value:'FedEx'},{label:'GLS',value:'GLS'}]} value={name} onChange={setName} />
+                  )}
                   <Select label="Estado" options={[{label:'Ativo',value:'true'},{label:'Inativo',value:'false'}]} value={isActive} onChange={setIsActive} />
                 </FormLayout.Group>
-                <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
-                
+                <FormLayout.Group>
+                  <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
+                  {carrier.calculationMethod === "TABLE" && (
+                    <TextField label="Fator de Conversão para peso volumétrico" type="number" value={conversionFactor} onChange={setConversionFactor} autoComplete="off" />
+                  )}
+                </FormLayout.Group>
+              </FormLayout>
                 {carrier.calculationMethod === "API" && (
                   <>
                     <Divider />
-                    <Text variant="headingSm" as="h3">Configuração API</Text>
-                    <FormLayout.Group>
-                      <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
-                      <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
-                    </FormLayout.Group>
-                    <TextField label="Endpoint Rates" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
-                    <FormLayout.Group>
-                      <Select label="Markup" options={[{label:'%',value:'PERCENTAGE'},{label:'€',value:'ABSOLUTE'}]} value={markupType} onChange={setMarkupType} />
-                      <TextField label="Valor Markup" type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" />
-                    </FormLayout.Group>
+                    <FormLayout>
+                        <Text variant="headingSm" as="h3">Configuração API</Text>
+                        <TextField label="Número de Conta (opcional)" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
+                        <FormLayout.Group>
+                          <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
+                          <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
+                        </FormLayout.Group>
+                        <FormLayout.Group>
+                          <Select label="Markup" options={[{label:'%',value:'PERCENTAGE'},{label:'€',value:'ABSOLUTE'}]} value={markupType} onChange={setMarkupType} />
+                          <TextField label="Valor Markup" type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" />
+                        </FormLayout.Group> 
+                    </FormLayout>
                   </>
                 )}
                 <InlineStack align="end">
-                  <Button variant="primary" onClick={() => handleAction("UPDATE_CARRIER", { name, description, isActive, apiKey, apiSecret, apiUrlRates, markupType, markupValue })} loading={isSubmitting}>Guardar Geral</Button>
+                  <Button variant="primary" onClick={() => handleAction("UPDATE_CARRIER", { name, description, isActive, apiAccountNumber, apiKey, apiSecret, markupType, markupValue, conversionFactor })} loading={isSubmitting}>Guardar Geral</Button>
                 </InlineStack>
-              </FormLayout>
             </BlockStack>
           </Card>
         </Layout.Section>
@@ -146,12 +241,18 @@ export default function CarrierEdit() {
                 <Text variant="bodyMd" as="p">Defina as áreas geográficas. Clique em "Gerir Tarifas" para configurar os preços associados.</Text>
                 <FormLayout>
                   <FormLayout.Group>
-                    <TextField label="País" value={ruleData.country} onChange={(v)=>setRuleData({...ruleData, country:v})} autoComplete="off" placeholder="Ex: Portugal" />
-                    <TextField label="Código País (ISO)" value={ruleData.countryCode} onChange={(v)=>setRuleData({...ruleData, countryCode:v})} autoComplete="off" maxLength={2} placeholder="Ex: PT" />
+                    <Select
+                      label="País de Destino"
+                      options={countryOptions}
+                      onChange={handleCountryChange}
+                      value={ruleData.countryCode}
+                    />
+                    <TextField label="País" value={ruleData.country} onChange={(v)=>setRuleData({...ruleData, country:v})} autoComplete="off" disabled />
+                    <TextField label="Código País (ISO)" value={ruleData.countryCode} onChange={(v)=>setRuleData({...ruleData, countryCode:v})} autoComplete="off" maxLength={2} disabled />
                   </FormLayout.Group>
                   <FormLayout.Group>
-                    <Select label="Tipo de Correspondência" options={[{label:'Intervalo (Range)',value:'RANGE'},{label:'Prefixo',value:'PREFIX'},{label:'Exato',value:'EXACT'}]} value={ruleData.type} onChange={(v)=>setRuleData({...ruleData, type:v})} />
-                    <TextField label="Códigos Postais" value={ruleData.postalCodeRange} onChange={(v)=>setRuleData({...ruleData, postalCodeRange:v})} autoComplete="off" placeholder="Ex: 4000-4999, 4*** ou SW" />
+                    <Select label="Tipo de Correspondência" options={[{label:'Selecione o tipo',value:''},{label:'Intervalo',value:'RANGE'},{label:'Prefixo',value:'PREFIX'},{label:'Exato',value:'EXACT'}]} value={ruleData.type} onChange={(v)=>setRuleData({...ruleData, type:v})} />
+                    <TextField label="Código Postal" value={ruleData.postalCodeRange} onChange={(v)=>setRuleData({...ruleData, postalCodeRange:v})} autoComplete="off" placeholder="Ex: 4000-4999, 4*** ou SW" />
                   </FormLayout.Group>
                   <div style={{ alignSelf: 'end' }}>
                     <Button 
@@ -170,46 +271,59 @@ export default function CarrierEdit() {
                   <div style={{ marginTop: '20px' }}>
                     <BlockStack gap="400">
                       
-                      <TextField
-                        label="Pesquisar país"
-                        labelHidden
-                        value={searchCountry}
-                        onChange={setSearchCountry}
-                        placeholder="Pesquisar por país..."
-                        autoComplete="off"
-                        clearButton
-                        onClearButtonClick={() => setSearchCountry("")}
+                      <Select
+                        label="Filtrar regras por país"
+                        options={filterCountryOptions}
+                        onChange={(value) => setFilterCountryCode(value)}
+                        value={filterCountryCode}
                       />
 
-                      <IndexTable 
-                        resourceName={{singular:'regra',plural:'regras'}} 
-                        itemCount={filteredRules.length} 
-                        headings={[{title:'País'},{title:'Critério'},{title:'Tarifas'},{title:'Ações'}]} 
-                        selectable={false}
-                      >
-                        {filteredRules.map((rule, i) => (
-                          <IndexTable.Row id={rule.id} key={rule.id} position={i}>
-                            <IndexTable.Cell><Text variant="bodyMd" fontWeight="bold" as="span">{rule.country} ({rule.countryCode})</Text></IndexTable.Cell>
-                            <IndexTable.Cell>{rule.matchType}: {rule.postalCodeRange}</IndexTable.Cell>
-                            <IndexTable.Cell>{rule.rates.length} escalões</IndexTable.Cell>
-                            <IndexTable.Cell>
-                              <InlineStack gap="200">
-                                <Button url={`/app/rule/${rule.id}`} variant="secondary">Gerir Tarifas</Button>
-                                <Button tone="critical" variant="plain" onClick={() => handleAction("DELETE_RULE", { ruleId: rule.id })}>Remover</Button>
-                              </InlineStack>
-                            </IndexTable.Cell>
-                          </IndexTable.Row>
-                        ))}
-                      </IndexTable>
+                      <Divider />
 
-                      {filteredRules.length === 0 && searchCountry !== "" && (
-                        <div style={{ textAlign: 'center', padding: '20px' }}>
+                      {!filterCountryCode ? (
+                        <div style={{ textAlign: "center", padding: "20px" }}>
                           <Text variant="bodyMd" as="p" tone="subdued">
-                            Nenhum país encontrado com o termo "{searchCountry}".
+                            Por favor, selecione um país no menu acima para visualizar as respetivas regras de envio.
+                          </Text>
+                        </div>
+                      ) : filteredRules.length > 0 ? (
+                        <IndexTable
+                          resourceName={{ singular: "regra", plural: "regras" }}
+                          itemCount={filteredRules.length}
+                          headings={[
+                            { title: "País" },
+                            { title: "Tipo de Correspondência" },
+                            { title: "Escalões" },
+                            { title: "Ações" }
+                          ]}
+                          selectable={false}
+                        >
+                          {filteredRules.map((rule: any) => (
+                            <IndexTable.Row id={rule.id} key={rule.id} position={rule.id}>
+                              <IndexTable.Cell>
+                                <Text variant="bodyMd" fontWeight="bold" as="span">
+                                  {rule.country} ({rule.countryCode})
+                                </Text>
+                              </IndexTable.Cell>
+                              <IndexTable.Cell>{rule.matchType}: {rule.postalCodeRange}</IndexTable.Cell>
+                              <IndexTable.Cell>{rule.rates.length} escalões</IndexTable.Cell>
+                              <IndexTable.Cell>
+                                <InlineStack gap="200">
+                                  <Button url={`/app/rule/${rule.id}`} variant="secondary">Gerir Tarifas</Button>
+                                  <Button tone="critical" variant="plain" onClick={() => handleAction("DELETE_RULE", { ruleId: rule.id })}>Remover</Button>
+                                </InlineStack>
+                              </IndexTable.Cell>
+                            </IndexTable.Row>
+                          ))}
+                        </IndexTable>
+                      ) : (
+                        /* Condition 3: Country selected but no rules found */
+                        <div style={{ textAlign: "center", padding: "20px" }}>
+                          <Text variant="bodyMd" as="p" tone="subdued">
+                            Não existem regras associadas a este país.
                           </Text>
                         </div>
                       )}
-
                     </BlockStack>
                   </div>
                 )}

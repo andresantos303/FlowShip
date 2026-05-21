@@ -71,18 +71,16 @@ export default function CreateCarrier() {
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
   const [apiAccountNumber, setApiAccountNumber] = useState("");
-  const [apiUrlRates, setApiUrlRates] = useState("");
-  const [apiUrlAvailability, setApiUrlAvailability] = useState("");
   const [markupType, setMarkupType] = useState("PERCENTAGE");
   const [markupValue, setMarkupValue] = useState("");
 
   const isFormValid = useMemo(() => {
     if (!name || !description) return false;
     if (method[0] === 'API') {
-      return apiKey && apiSecret && apiUrlRates;
+      return apiKey && apiSecret;
     }
     return true;
-  }, [name, description, method, apiKey, apiSecret, apiUrlRates]);
+  }, [name, description, method, apiKey, apiSecret, markupType, markupValue]);
 
   const handleSave = useCallback(() => {
     const formData = new FormData();
@@ -94,14 +92,12 @@ export default function CreateCarrier() {
       formData.append("apiKey", apiKey);
       formData.append("apiSecret", apiSecret);
       formData.append("apiAccountNumber", apiAccountNumber);
-      formData.append("apiUrlRates", apiUrlRates);
-      formData.append("apiUrlAvailability", apiUrlAvailability);
       formData.append("markupType", markupType);
       formData.append("markupValue", markupValue);
     }
 
     submit(formData, { method: "post" });
-  }, [name, description, method, apiKey, apiSecret, apiAccountNumber, apiUrlRates, apiUrlAvailability, markupType, markupValue, submit]);
+  }, [name, description, method, apiKey, apiSecret, apiAccountNumber, markupType, markupValue, submit]);
 
   return (
     <Page
@@ -121,8 +117,6 @@ export default function CreateCarrier() {
               <Text variant="headingMd" as="h2">Configurações Gerais</Text>
               
               <FormLayout>
-                <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" placeholder="Ex: CTT Expresso" />
-                <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
                 <FormLayout.Group>
                   <ChoiceList
                     title="Método de Cálculo"
@@ -134,6 +128,12 @@ export default function CreateCarrier() {
                     onChange={setMethod}
                   />
                 </FormLayout.Group>
+                {method[0] === "TABLE" ? (
+                  <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" placeholder="Ex: CTT Expresso" />
+                ) : (
+                  <Select label="Nome da Transportadora" options={[{label:'Selecione o nome',value:''},{label:'FedEx',value:'FedEx'},{label:'GLS',value:'GLS'}]} value={name} onChange={setName} />
+                )}
+                <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
               </FormLayout>
             </BlockStack>
           </Card>
@@ -150,8 +150,6 @@ export default function CreateCarrier() {
                     <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
                     <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
                   </FormLayout.Group>
-                  <TextField label="URL de Cálculo (Rates)" value={apiUrlRates} onChange={setApiUrlRates} autoComplete="off" />
-                  <TextField label="URL de Disponibilidade" value={apiUrlAvailability} onChange={setApiUrlAvailability} autoComplete="off" />
                   <Divider />
                   <Text variant="headingSm" as="h3">Margem de Lucro (*Markup*)</Text>
                   <FormLayout.Group>

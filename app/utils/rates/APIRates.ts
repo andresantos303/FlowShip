@@ -1,44 +1,38 @@
-import { getDeliveryDate } from '../DeliveryDate'; 
+import { getDeliveryDate } from '../rateHelpers'; 
 import logger from '../logger';
-import type { CarrierRate } from '../rateHelpers.ts';
+import type { CarrierRate } from '../rateHelpers';
+import {getFedExOptions} from './FedExRates';
 import prisma from '../../db.server';
 
 
 export const calculateAPIRates = async (rateRequestInfo: any, activeAPICarriers: any[]): Promise<CarrierRate[]> => {
     const availableRates: CarrierRate[] = [];
     for (const carrier of activeAPICarriers) {
-      
-        // Mock external API call for the carrier
-        console.log(`Mocking API call for carrier ${carrier.name}`);
-        
-        let apiBasePrice = 10.00; // Mocked base price from the external API
+        let matchingRate: CarrierRate | undefined;
+        if (carrier.name === "FedEx") {
+          const fedexOptions = await getFedExOptions(rateRequestInfo, carrier);
+          matchingRate = fedexOptions && fedexOptions.length ? fedexOptions[0] : undefined;
+        }
 
         // Apply markup
-        let finalPrice = apiBasePrice;
+        let finalPrice = matchingRate ? matchingRate.total_price : 0;
         if (carrier.markupType === "PERCENTAGE" && carrier.markupValue) {
-          finalPrice = apiBasePrice * (1 + (carrier.markupValue / 100));
+          finalPrice = finalPrice * (1 + (carrier.markupValue / 100));
         } else if (carrier.markupType === "ABSOLUTE" && carrier.markupValue) {
-          finalPrice = apiBasePrice + carrier.markupValue;
+          finalPrice = finalPrice + carrier.markupValue;
         }
 
         if (matchingRate) {
-          availableRates.push({
-            service_name: carrier.name,
-            service_code: `${carrier.name}-table`,
-            total_price: Math.round(matchingRate.price * 100),
-            currency: rateRequestInfo.currency,
-            description: carrier.description,
-            category: carrier.category,
-            min_delivery_date: getDeliveryDate(matchingRate.deliveryTime),
-            max_delivery_date: getDeliveryDate(matchingRate.deliveryTime + 2)
-          });
-          console.log(`Added API rate for carrier ${carrier.name}: ${matchingRate.price} ${rateRequestInfo.currency}`);
+          // update price after markup
+          matchingRate.total_price = finalPrice;
+          availableRates.push(matchingRate);
+          logger.info(`Added API rate for carrier ${carrier.name}: ${matchingRate.total_price} ${rateRequestInfo.currency}`);
         } else {
-           console.log(`No matching API rate found for carrier ${carrier.name}`);
+           logger.error(`No matching API rate found for carrier ${carrier.name}`);
         }
-
-        return availableRates;
     }
+
+    return availableRates;
 
     
   
