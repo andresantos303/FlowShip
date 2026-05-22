@@ -55,7 +55,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (calculationMethod === 'TABLE') {
     return redirect(`/app/carrier/${newCarrier.id}`);
   }else {
-    return redirect(`/app`);
+    return redirect(`/app/carriers`);
   }
 }
 
@@ -103,7 +103,7 @@ export default function CreateCarrier() {
   return (
     <Page
       title="Nova Transportadora"
-      backAction={{ content: 'Voltar', url: '/app' }}
+      backAction={{ content: 'Voltar', url: '/app/carriers' }}
       primaryAction={{
         content: method[0] === 'API' ? 'Criar Transportadora' : 'Continuar para Regras de Envio',
         onAction: handleSave,

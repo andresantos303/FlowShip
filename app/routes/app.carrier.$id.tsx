@@ -65,7 +65,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   marketsData.forEach((edge: any) => {
     const market = edge.node;
     
-    // Optional filter: if (market.status === "ACTIVE") to only allow enabled markets
+    // if (market.status === "ACTIVE") to only allow enabled markets
     market.regions?.edges?.forEach((regionEdge: any) => {
       const region = regionEdge.node;
       if (region.code && !seenCodes.has(region.code)) {
@@ -194,7 +194,7 @@ export default function CarrierEdit() {
   }, [carrier.rules, filterCountryCode]);
 
   return (
-    <Page title={`Configurar: ${carrier.name}`} backAction={{ url: "/app" }}>
+    <Page title={`Configurar: ${carrier.name}`} backAction={{ url: "/app/carriers" }}>
       <Layout>
         <Layout.Section>
           <Card>
