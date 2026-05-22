@@ -24,10 +24,10 @@ async function getFedExToken(carrier: any): Promise<string> {
     throw error;
   }
 }
-
 export const getFedExOptions = async (rateRequestInfo: any, carrier: any): Promise<CarrierRate[]> => {
   try {
     const token = await getFedExToken(carrier);
+    console.log(rateRequestInfo);
     
     const fedexPayload = {
       accountNumber: { value: carrier.apiAccountNumber },
@@ -74,7 +74,7 @@ export const getFedExOptions = async (rateRequestInfo: any, carrier: any): Promi
     if (fedexData.output && fedexData.output.rateReplyDetails) {
       for (const rateOption of fedexData.output.rateReplyDetails) {
         const shipmentDetails = rateOption.ratedShipmentDetails.find((d: any) => d.rateType === 'PREFERRED_CURRENCY' || d.rateType === 'ACCOUNT');
-        const priceInCents = Math.round(parseFloat(shipmentDetails.totalNetCharge) * 100);
+        const priceInCents = parseFloat(shipmentDetails.totalNetCharge) * 100;
         
         parsedRates.push({
           service_name: `${rateOption.serviceName}`,
@@ -87,7 +87,6 @@ export const getFedExOptions = async (rateRequestInfo: any, carrier: any): Promi
         });
       }
     }
-    logger.info(`FedEx returned ${parsedRates.length} rate options for ZIP ${rateRequestInfo.ShipTo.PostalCode} in ${rateRequestInfo.ShipTo.Country}.`);
     return parsedRates;
   } catch (error) {
     logger.error("Error processing FedEx rates:", error);

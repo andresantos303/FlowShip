@@ -28,7 +28,15 @@ export const calculateTableRates = async (rateRequestInfo: any, activeTableCarri
             continue;
         }
 
-        for (const rule of carrier.rules) {
+        // Sort rules by match type priority: EXACT (1) > PREFIX (2) > RANGE (3)
+        const priorityMap: Record<string, number> = { 'EXACT': 1, 'PREFIX': 2, 'RANGE': 3 };
+        const sortedRules = [...carrier.rules].sort((a: any, b: any) => {
+            const priorityA = priorityMap[a.matchType] || 4;
+            const priorityB = priorityMap[b.matchType] || 4;
+            return priorityA - priorityB;
+        });
+
+        for (const rule of sortedRules) {
             if (rule.countryCode !== destinationCountryCode) {
                 console.log(`[REGRA REJEITADA] ID: ${rule.id} - País não coincide (${rule.countryCode} vs ${destinationCountryCode})`);
                 continue;
@@ -81,7 +89,7 @@ export const calculateTableRates = async (rateRequestInfo: any, activeTableCarri
         if (matchedRule) {
             console.log(`[TARIFAS] A analisar ${matchedRule.rates?.length || 0} escalões de peso para a regra encontrada.`);
 
-            const volumetricDivisor = carrier.conversionFactor;
+            const volumetricDivisor = matchedRule.conversionFactor;
             const volumetricWeight = totalVolumeCubicCm / volumetricDivisor;
             
             // Determine the taxable weight as the highest value between real and volumetric weight

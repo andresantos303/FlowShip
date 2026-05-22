@@ -19,7 +19,7 @@ const FALLBACK_RATE = {
 export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: any): Promise<CarrierRate[]> => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 8000);
-  const bestrate: CarrierRate[] = [];
+  const bestRate: CarrierRate[] = [];
   try {
     const activeTableCarriers = await prisma.carrier.findMany({
       where: { 
@@ -29,6 +29,9 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
       },
       include: { 
         rules: {
+          where: {
+            countryCode: rateRequestInfo.ShipTo.Country
+          },
           include: {
             rates: true
           }
@@ -54,14 +57,14 @@ export const fetchFinalRate = async (rateRequestInfo: any, prismaStoreConfig: an
         cheapestRate.total_price = 0;
         cheapestRate.description = "Free shipping for orders over " + prismaStoreConfig.freeShippingThreshold + " " + cheapestRate.currency;
       }
-      bestrate.push(cheapestRate);
+      bestRate.push(cheapestRate);
       logger.info(`Cheapest rate selected: ${cheapestRate.service_name} at ${(cheapestRate.total_price / 100).toFixed(2)}`);
     } else {
       logger.warn("No carrier rates could be fetched, returning fallback rate.");
-      bestrate.push(FALLBACK_RATE);
+      bestRate.push(FALLBACK_RATE);
     }
     clearTimeout(timeoutId);
-    return bestrate;
+    return bestRate;
   } catch (error) {
     clearTimeout(timeoutId);
     logger.error("Critical error fetching Rates:", error);

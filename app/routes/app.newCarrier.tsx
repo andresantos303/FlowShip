@@ -44,8 +44,6 @@ export async function action({ request }: ActionFunctionArgs) {
       apiKey: calculationMethod === 'API' ? apiKey : null,
       apiSecret: calculationMethod === 'API' ? apiSecret : null,
       apiAccountNumber: calculationMethod === 'API' ? apiAccountNumber : null,
-      apiUrlRates: calculationMethod === 'API' ? apiUrlRates : null,
-      apiUrlAvailability: calculationMethod === 'API' ? apiUrlAvailability : null,
       markupType: calculationMethod === 'API' ? markupType : null,
       markupValue: calculationMethod === 'API' ? markupValue : null,
     }

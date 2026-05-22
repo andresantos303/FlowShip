@@ -1,39 +1,42 @@
-import { getDeliveryDate } from '../rateHelpers'; 
 import logger from '../logger';
 import type { CarrierRate } from '../rateHelpers';
 import {getFedExOptions} from './FedExRates';
-import prisma from '../../db.server';
-
 
 export const calculateAPIRates = async (rateRequestInfo: any, activeAPICarriers: any[]): Promise<CarrierRate[]> => {
     const availableRates: CarrierRate[] = [];
+
     for (const carrier of activeAPICarriers) {
-        let matchingRate: CarrierRate | undefined;
+        let fetchedRates: CarrierRate[] = [];
+
+        // Fetch rates based on the active API carrier
         if (carrier.name === "FedEx") {
           const fedexOptions = await getFedExOptions(rateRequestInfo, carrier);
-          matchingRate = fedexOptions && fedexOptions.length ? fedexOptions[0] : undefined;
+          if (fedexOptions && fedexOptions.length > 0) {
+            fetchedRates = fedexOptions;
+          }
         }
 
-        // Apply markup
-        let finalPrice = matchingRate ? matchingRate.total_price : 0;
-        if (carrier.markupType === "PERCENTAGE" && carrier.markupValue) {
-          finalPrice = finalPrice * (1 + (carrier.markupValue / 100));
-        } else if (carrier.markupType === "ABSOLUTE" && carrier.markupValue) {
-          finalPrice = finalPrice + carrier.markupValue;
-        }
+        // Check if any rates were returned from the API
+        if (fetchedRates.length > 0) {
+            // Iterate over every option returned by the API
+            for (const rate of fetchedRates) {
+                let finalPrice = rate.total_price;
 
-        if (matchingRate) {
-          // update price after markup
-          matchingRate.total_price = finalPrice;
-          availableRates.push(matchingRate);
-          logger.info(`Added API rate for carrier ${carrier.name}: ${matchingRate.total_price} ${rateRequestInfo.currency}`);
+                // Apply markup to the individual rate
+                if (carrier.markupType === "PERCENTAGE" && carrier.markupValue) {
+                    finalPrice = finalPrice * (1 + (carrier.markupValue / 100));
+                } else if (carrier.markupType === "ABSOLUTE" && carrier.markupValue) {
+                    finalPrice = finalPrice + carrier.markupValue;
+                }
+                rate.total_price = Math.round(finalPrice);
+                                
+                availableRates.push(rate);
+            }
+            logger.info(`Added ${fetchedRates.length} API rates for carrier ${carrier.name}`);
         } else {
-           logger.error(`No matching API rate found for carrier ${carrier.name}`);
+            logger.error(`No API rates found for carrier ${carrier.name}`);
         }
     }
 
     return availableRates;
-
-    
-  
 };

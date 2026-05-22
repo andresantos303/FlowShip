@@ -94,7 +94,6 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         apiAccountNumber: formData.get("apiAccountNumber") as string || null,
         markupType: formData.get("markupType") as string || "PERCENTAGE",
         markupValue: parseFloat(formData.get("markupValue") as string || "0"),
-        conversionFactor: parseFloat(formData.get("conversionFactor") as string || "5000")
       }
     });
   }
@@ -107,6 +106,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         countryCode: (formData.get("countryCode") as string).toUpperCase(),
         matchType: formData.get("matchType") as string,
         postalCodeRange: formData.get("postalCodeRange") as string,
+        conversionFactor: parseFloat(formData.get("conversionFactor") as string || "5000"),
       }
     });
   }
@@ -127,7 +127,6 @@ export default function CarrierEdit() {
   const [name, setName] = useState(carrier.name);
   const [description, setDescription] = useState(carrier.description);
   const [isActive, setIsActive] = useState(carrier.isActive ? "true" : "false");
-  const [conversionFactor, setConversionFactor] = useState(carrier.conversionFactor.toString());
 
   const [apiKey, setApiKey] = useState(carrier.apiKey || "");
   const [apiSecret, setApiSecret] = useState(carrier.apiSecret || "");
@@ -135,7 +134,7 @@ export default function CarrierEdit() {
   const [markupType, setMarkupType] = useState(carrier.markupType || "PERCENTAGE");
   const [markupValue, setMarkupValue] = useState(carrier.markupValue?.toString() || "0");
 
-  const [ruleData, setRuleData] = useState({ country: "", countryCode: "", type: "", postalCodeRange: "" });
+  const [ruleData, setRuleData] = useState({ country: "", countryCode: "", type: "", postalCodeRange: "", conversionFactor: "" });
   
   const [filterCountryCode, setFilterCountryCode] = useState("");
 
@@ -204,9 +203,6 @@ export default function CarrierEdit() {
                 </FormLayout.Group>
                 <FormLayout.Group>
                   <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
-                  {carrier.calculationMethod === "TABLE" && (
-                    <TextField label="Fator de Conversão para peso volumétrico" type="number" value={conversionFactor} onChange={setConversionFactor} autoComplete="off" />
-                  )}
                 </FormLayout.Group>
               </FormLayout>
                 {carrier.calculationMethod === "API" && (
@@ -222,12 +218,12 @@ export default function CarrierEdit() {
                         <FormLayout.Group>
                           <Select label="Markup" options={[{label:'%',value:'PERCENTAGE'},{label:'€',value:'ABSOLUTE'}]} value={markupType} onChange={setMarkupType} />
                           <TextField label="Valor Markup" type="number" value={markupValue} onChange={setMarkupValue} autoComplete="off" />
-                        </FormLayout.Group> 
+                        </FormLayout.Group>
                     </FormLayout>
                   </>
                 )}
                 <InlineStack align="end">
-                  <Button variant="primary" onClick={() => handleAction("UPDATE_CARRIER", { name, description, isActive, apiAccountNumber, apiKey, apiSecret, markupType, markupValue, conversionFactor })} loading={isSubmitting}>Guardar Geral</Button>
+                  <Button variant="primary" onClick={() => handleAction("UPDATE_CARRIER", { name, description, isActive, apiAccountNumber, apiKey, apiSecret, markupType, markupValue })} loading={isSubmitting}>Guardar Geral</Button>
                 </InlineStack>
             </BlockStack>
           </Card>
@@ -253,12 +249,13 @@ export default function CarrierEdit() {
                   <FormLayout.Group>
                     <Select label="Tipo de Correspondência" options={[{label:'Selecione o tipo',value:''},{label:'Intervalo',value:'RANGE'},{label:'Prefixo',value:'PREFIX'},{label:'Exato',value:'EXACT'}]} value={ruleData.type} onChange={(v)=>setRuleData({...ruleData, type:v})} />
                     <TextField label="Código Postal" value={ruleData.postalCodeRange} onChange={(v)=>setRuleData({...ruleData, postalCodeRange:v})} autoComplete="off" placeholder="Ex: 4000-4999, 4*** ou SW" />
+                    <TextField label="Fator de Conversão para peso volumétrico" type="number" value={ruleData.conversionFactor} onChange={(v)=>setRuleData({...ruleData, conversionFactor:v})} autoComplete="off" placeholder="Ex: 5000" />
                   </FormLayout.Group>
                   <div style={{ alignSelf: 'end' }}>
                     <Button 
                       disabled={!ruleData.postalCodeRange} 
                       onClick={() => {
-                        handleAction("CREATE_RULE", { country: ruleData.country, countryCode: ruleData.countryCode, matchType: ruleData.type, postalCodeRange: ruleData.postalCodeRange });
+                        handleAction("CREATE_RULE", { country: ruleData.country, countryCode: ruleData.countryCode, matchType: ruleData.type, postalCodeRange: ruleData.postalCodeRange, conversionFactor: ruleData.conversionFactor });
                         setRuleData({...ruleData, postalCodeRange: ""});
                       }}
                     >
@@ -293,6 +290,7 @@ export default function CarrierEdit() {
                           headings={[
                             { title: "País" },
                             { title: "Tipo de Correspondência" },
+                            { title: "Fator de conversão" },
                             { title: "Escalões" },
                             { title: "Ações" }
                           ]}
@@ -306,6 +304,7 @@ export default function CarrierEdit() {
                                 </Text>
                               </IndexTable.Cell>
                               <IndexTable.Cell>{rule.matchType}: {rule.postalCodeRange}</IndexTable.Cell>
+                              <IndexTable.Cell>{rule.conversionFactor}</IndexTable.Cell>
                               <IndexTable.Cell>{rule.rates.length} escalões</IndexTable.Cell>
                               <IndexTable.Cell>
                                 <InlineStack gap="200">

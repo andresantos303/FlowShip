@@ -43,14 +43,11 @@ model Carrier {
   description        String   @default("")
   calculationMethod  String  
   isActive           Boolean  @default(true)
-  conversionFactor   Int      @default(5000)
   
   apiKey             String?
   apiSecret          String?
   apiAccountNumber   String?
-  apiUrlRates        String?
-  apiUrlAvailability String?
-  markupType         String?   @default("PERCENTAGE")
+  markupType         String?  @default("PERCENTAGE")
   markupValue        Float?   @default(0)
 
   rules              Rule[]
@@ -68,6 +65,7 @@ model Rule {
   countryCode     String
   matchType       String   // "RANGE", "PREFIX", "EXACT"
   postalCodeRange String   // e.g., "4***", "9***", "SW"
+  conversionFactor   Int      @default(5000)
   
   carrier         Carrier  @relation(fields: [carrierId], references: [id], onDelete: Cascade)
   

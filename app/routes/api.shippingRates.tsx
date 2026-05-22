@@ -83,7 +83,6 @@ export async function action({ request }: ActionFunctionArgs) {
       totalVolumeCubicCm += (item.properties._length * item.properties._width * item.properties._height) * item.quantity;
       cartTotalCents += item.price * item.quantity;
     });
-    console.log("Total Volume (cubic cm):", totalVolumeCubicCm);
     const totalWeightKg = totalWeightGrams / 1000;
 
     const rateRequestInfo = {
