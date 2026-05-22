@@ -7,6 +7,7 @@ import {
 import { useState, useMemo } from "react";
 import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
+import { decrypt } from "../utils/encryption";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
@@ -22,6 +23,13 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   });
 
   if (!carrier) throw new Response("Not Found", { status: 404 });
+
+  if (carrier.apiKey) {
+    carrier.apiKey = decrypt(carrier.apiKey);
+  }
+  if (carrier.apiSecret) {
+    carrier.apiSecret = decrypt(carrier.apiSecret);
+  }
 
   // Execute the GraphQL query to fetch active markets and their countries
   const response = await admin.graphql(`

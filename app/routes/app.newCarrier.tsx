@@ -15,6 +15,7 @@ import {
 } from "@shopify/polaris";
 import { useState, useCallback, useMemo } from "react";
 import { authenticate } from "../shopify.server";
+import { encrypt } from "../utils/encryption";
 import prisma from "../db.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -25,13 +26,15 @@ export async function action({ request }: ActionFunctionArgs) {
   const description = formData.get("description") as string;
   const calculationMethod = formData.get("calculationMethod") as string;
   
-  const apiKey = formData.get("apiKey") as string | null;
-  const apiSecret = formData.get("apiSecret") as string | null;
+  const apiKeyRaw = formData.get("apiKey") as string | null;
+  const apiSecretRaw = formData.get("apiSecret") as string | null;
   const apiAccountNumber = formData.get("apiAccountNumber") as string | null;
-  const apiUrlRates = formData.get("apiUrlRates") as string | null;
-  const apiUrlAvailability = formData.get("apiUrlAvailability") as string | null;
   const markupType = formData.get("markupType") as string;
   const markupValue = Number(formData.get("markupValue") || 0);
+
+  // Encrypt sensitive API credentials
+  const apiKey = apiKeyRaw ? encrypt(apiKeyRaw) : null;
+  const apiSecret = apiSecretRaw ? encrypt(apiSecretRaw) : null;
 
   // Criar a transportadora base
   const newCarrier = await prisma.carrier.create({
@@ -75,7 +78,7 @@ export default function CreateCarrier() {
   const isFormValid = useMemo(() => {
     if (!name || !description) return false;
     if (method[0] === 'API') {
-      return apiKey && apiSecret;
+      return apiKey && apiSecret && markupType && markupValue;
     }
     return true;
   }, [name, description, method, apiKey, apiSecret, markupType, markupValue]);
@@ -102,7 +105,7 @@ export default function CreateCarrier() {
       title="Nova Transportadora"
       backAction={{ content: 'Voltar', url: '/app' }}
       primaryAction={{
-        content: method[0] === 'API' ? 'Guardar' : 'Continuar para Regras de Envio',
+        content: method[0] === 'API' ? 'Criar Transportadora' : 'Continuar para Regras de Envio',
         onAction: handleSave,
         loading: isSaving,
         disabled: !isFormValid
