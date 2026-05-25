@@ -31,20 +31,22 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     carrier.apiSecret = decrypt(carrier.apiSecret);
   }
 
+  if (carrier.calculationMethod === "TABLE") {
   // Execute the GraphQL query to fetch active markets and their countries
-  const response = await admin.graphql(`
-    query getMarkets {
-      markets(first: 10) {
-        edges {
-          node {
-            name
-            status
-            regions(first: 50) {
-              edges {
-                node {
-                  name
-                  ... on MarketRegionCountry {
-                    code
+    const response = await admin.graphql(`
+      query getMarkets {
+        markets(first: 10) {
+          edges {
+            node {
+              name
+              status
+              regions(first: 50) {
+                edges {
+                  node {
+                    name
+                    ... on MarketRegionCountry {
+                      code
+                    }
                   }
                 }
               }
@@ -52,36 +54,36 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
           }
         }
       }
-    }
-  `);
+    `);
+    const responseJson = await response.json();
+    const marketsData = responseJson.data?.markets?.edges || [];
 
-  const responseJson = await response.json();
-  const marketsData = responseJson.data?.markets?.edges || [];
+    const countriesList: { label: string; value: string }[] = [];
+    const seenCodes = new Set<string>();
 
-  const countriesList: { label: string; value: string }[] = [];
-  const seenCodes = new Set<string>();
-
-  // Parse the markets data and extract unique countries
-  marketsData.forEach((edge: any) => {
-    const market = edge.node;
-    
-    // if (market.status === "ACTIVE") to only allow enabled markets
-    market.regions?.edges?.forEach((regionEdge: any) => {
-      const region = regionEdge.node;
-      if (region.code && !seenCodes.has(region.code)) {
-        seenCodes.add(region.code);
-        countriesList.push({
-          label: region.name,
-          value: region.code
-        });
-      }
+    // Parse the markets data and extract unique countries
+    marketsData.forEach((edge: any) => {
+      const market = edge.node;
+      
+      // if (market.status === "ACTIVE") to only allow enabled markets
+      market.regions?.edges?.forEach((regionEdge: any) => {
+        const region = regionEdge.node;
+        if (region.code && !seenCodes.has(region.code)) {
+          seenCodes.add(region.code);
+          countriesList.push({
+            label: region.name,
+            value: region.code
+          });
+        }
+      });
     });
-  });
+    // Sort countries alphabetically by their label
+    countriesList.sort((a, b) => a.label.localeCompare(b.label));
 
-  // Sort countries alphabetically by their label
-  countriesList.sort((a, b) => a.label.localeCompare(b.label));
-
-  return json({ carrier, countries: countriesList });
+    return json({ carrier, countries: countriesList });
+  }else {
+    return json({ carrier, countries: [] });
+  }  
 };
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
