@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 // The encryption key must be a 32 character string (256 bits)
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-secret-key-must-be-32-ch';
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '';
 const IV_LENGTH = 16; 
 
 export function encrypt(text: string): string | null {

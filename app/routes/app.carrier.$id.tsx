@@ -1,13 +1,13 @@
 import { json, type ActionFunctionArgs, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
+import { useActionData, useLoaderData, useSubmit, useNavigation } from "@remix-run/react";
 import {
   Page, Layout, Card, FormLayout, TextField, Select, Button,
   BlockStack, Text, IndexTable, InlineStack, Divider
 } from "@shopify/polaris";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
-import { decrypt } from "../utils/encryption";
+import { decrypt, encrypt } from "../utils/encryption";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { session, admin } = await authenticate.admin(request);
@@ -89,20 +89,37 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   const { id: carrierId } = params;
   const formData = await request.formData();
   const actionType = formData.get("actionType");
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const isActive = formData.get("isActive") === "true";
+  
+  const apiKeyRaw = formData.get("apiKey") as string | null;
+  const apiSecretRaw = formData.get("apiSecret") as string | null;
+  const apiAccountNumber = formData.get("apiAccountNumber") as string | null;
+  const markupType = formData.get("markupType") as string;
+  const markupValue = Number(formData.get("markupValue") || 0);
+
+  // Encrypt the credentials again before updating the database
+  const apiKey = apiKeyRaw ? encrypt(apiKeyRaw) : null;
+  const apiSecret = apiSecretRaw ? encrypt(apiSecretRaw) : null;
 
   if (actionType === "UPDATE_CARRIER") {
     await prisma.carrier.update({
       where: { id: carrierId, shopDomain: session.shop },
       data: {
-        name: formData.get("name") as string,
-        description: formData.get("description") as string,
-        isActive: formData.get("isActive") === "true",
-        apiKey: formData.get("apiKey") as string || null,
-        apiSecret: formData.get("apiSecret") as string || null,
-        apiAccountNumber: formData.get("apiAccountNumber") as string || null,
-        markupType: formData.get("markupType") as string || "PERCENTAGE",
-        markupValue: parseFloat(formData.get("markupValue") as string || "0"),
+        name,
+        description,
+        isActive,
+        apiKey,
+        apiSecret,
+        apiAccountNumber,
+        markupType,
+        markupValue,
       }
+    });
+    return json({ 
+      success: true, 
+      message: "Transportadora atualizada com sucesso." 
     });
   }
 
@@ -117,13 +134,13 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         conversionFactor: parseFloat(formData.get("conversionFactor") as string || "5000"),
       }
     });
+    return json({ success: true, message: "Regra criada com sucesso." });
   }
 
   if (actionType === "DELETE_RULE") {
     await prisma.rule.delete({ where: { id: formData.get("ruleId") as string } });
+    return json({ success: true, message: "Regra excluída com sucesso." });
   }
-
-  return json({ success: true });
 };
 
 export default function CarrierEdit() {
@@ -131,6 +148,7 @@ export default function CarrierEdit() {
   const submit = useSubmit();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
+  const actionData = useActionData<typeof action>();
 
   const [name, setName] = useState(carrier.name);
   const [description, setDescription] = useState(carrier.description);
@@ -192,6 +210,24 @@ export default function CarrierEdit() {
     }
     return carrier.rules.filter((rule: any) => rule.countryCode === filterCountryCode);
   }, [carrier.rules, filterCountryCode]);
+
+  useEffect(() => {
+    // Check if there is a response from the action and if it was successful
+    if (actionData && actionData.message) {
+      if (actionData.success) {
+        // Trigger the Shopify App Bridge toast
+        shopify.toast.show(actionData.message, {
+          duration: 3000,
+        });
+      } else {
+        // Show an error toast if success is false
+        shopify.toast.show(actionData.message, {
+          duration: 4000,
+          isError: true,
+        });
+      }
+    }
+  }, [actionData]);
 
   return (
     <Page title={`Configurar: ${carrier.name}`} backAction={{ url: "/app/carriers" }}>
