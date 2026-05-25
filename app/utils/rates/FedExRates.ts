@@ -1,13 +1,16 @@
 import { getDeliveryDate } from '../rateHelpers';
 import logger from '../logger';
 import type { CarrierRate } from '../rateHelpers.ts';
+import { decrypt } from '../encryption';
 
 async function getFedExToken(carrier: any): Promise<string> {
   const url = `${process.env.FEDEX_BASE_URL}/oauth/token`;
   const params = new URLSearchParams();
+  const decryptedApiKey = carrier.apiKey ? decrypt(carrier.apiKey) : null;
+  const decryptedApiSecret = carrier.apiSecret ? decrypt(carrier.apiSecret) : null;
   params.append('grant_type', 'client_credentials');
-  params.append('client_id', carrier.apiKey as string);
-  params.append('client_secret', carrier.apiSecret as string);
+  params.append('client_id', decryptedApiKey as string);
+  params.append('client_secret', decryptedApiSecret as string);
 
   try {
     const response = await fetch(url, {
@@ -27,7 +30,6 @@ async function getFedExToken(carrier: any): Promise<string> {
 export const getFedExOptions = async (rateRequestInfo: any, carrier: any): Promise<CarrierRate[]> => {
   try {
     const token = await getFedExToken(carrier);
-    console.log(rateRequestInfo);
     
     const fedexPayload = {
       accountNumber: { value: carrier.apiAccountNumber },
