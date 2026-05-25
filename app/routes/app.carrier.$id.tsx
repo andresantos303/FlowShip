@@ -251,7 +251,7 @@ export default function CarrierEdit() {
                       onChange={handleCountryChange}
                       value={ruleData.countryCode}
                     />
-                    <TextField label="País" value={ruleData.country} onChange={(v)=>setRuleData({...ruleData, country:v})} autoComplete="off" disabled />
+                    {/* <TextField label="País" value={ruleData.country} onChange={(v)=>setRuleData({...ruleData, country:v})} autoComplete="off" disabled /> */}
                     <TextField label="Código País (ISO)" value={ruleData.countryCode} onChange={(v)=>setRuleData({...ruleData, countryCode:v})} autoComplete="off" maxLength={2} disabled />
                   </FormLayout.Group>
                   <FormLayout.Group>
