@@ -1,4 +1,3 @@
-// app/routes/app.onboarding.tsx
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useNavigate } from "@remix-run/react";
 import {
@@ -10,12 +9,20 @@ import {
   Button,
   List,
   InlineStack,
-  Divider
+  Divider,
+  CalloutCard,
+  Icon,
+  FooterHelp,
+  Link
 } from "@shopify/polaris";
+import {
+  SettingsIcon,
+  CashDollarIcon,
+  PackageIcon
+} from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  // Authenticate the session before rendering the page
   await authenticate.admin(request);
   return json({});
 }
@@ -27,47 +34,109 @@ export default function Onboarding() {
     <Page title="Configuração Inicial">
       <Layout>
         <Layout.Section>
+          <CalloutCard
+            title="Bem-vindo ao FlowShip"
+            illustration=""
+            primaryAction={{
+              content: 'Criar Transportadora',
+              onAction: () => navigate("/app/newCarrier"),
+            }}
+          >
+            <p>
+              Automatiza os cálculos de portes e otimiza a gestão das tuas entregas. O teu novo motor de decisão logística está pronto para ser configurado e ligado à tua loja.
+            </p>
+          </CalloutCard>
+        </Layout.Section>
+
+        <Layout.Section>
           <Card>
-            <BlockStack gap="400">
-              <Text variant="headingLg" as="h2">
-                Bem-vindo ao Gestor de Envios
+            <BlockStack gap="500">
+              <Text variant="headingMd" as="h2">
+                Passos para a ativação do serviço
               </Text>
               
-              <Text as="p" variant="bodyMd">
-                Para começares a automatizar os cálculos de portes de envio e a gerir os teus serviços de entrega na loja, deves concluir a configuração inicial da aplicação.
-              </Text>
-              
-              <Divider />
+              <BlockStack gap="400">
+                <InlineStack wrap={false} gap="400" blockAlign="start">
+                  <Icon source={SettingsIcon} tone="primary" />
+                  <BlockStack gap="200">
+                    <Text variant="headingSm" as="h3">1. Configurar métodos de cálculo</Text>
+                    <Text as="p" variant="bodyMd" tone="subdued">
+                      Introduz tabelas manuais estruturadas por zonas e pesos, ou ativa ligações automáticas através de chaves de API das tuas transportadoras.
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
 
-              <BlockStack gap="300">
-                <Text variant="headingMd" as="h3">
-                  Passos para a ativação do serviço:
-                </Text>
-                
-                <List type="number">
-                  <List.Item>
-                    <strong>Configurar métodos de cálculo:</strong> Podes optar por introduzir tabelas manuais estruturadas por zonas e pesos ou ativar ligações automáticas através de chaves de API das tuas transportadoras.
-                  </List.Item>
-                  <List.Item>
-                    <strong>Definir margens de lucro:</strong> Escolhe se queres aplicar taxas adicionais (*markup*) fixas ou percentuais sobre o valor real do envio para cobrir custos operacionais.
-                  </List.Item>
-                  <List.Item>
-                    <strong>Disponibilizar tarifas no checkout:</strong> Garante que as novas opções aparecem corretamente configuradas para os clientes no momento da finalização de compra.
-                  </List.Item>
-                </List>
+                <InlineStack wrap={false} gap="400" blockAlign="start">
+                  <Icon source={CashDollarIcon} tone="primary" />
+                  <BlockStack gap="200">
+                    <Text variant="headingSm" as="h3">2. Definir margens de lucro</Text>
+                    <Text as="p" variant="bodyMd" tone="subdued">
+                      Aplica taxas adicionais fixas ou percentuais sobre o valor real do envio para cobrir os teus custos operacionais.
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
+
+                <InlineStack wrap={false} gap="400" blockAlign="start">
+                  <Icon source={PackageIcon} tone="primary" />
+                  <BlockStack gap="200">
+                    <Text variant="headingSm" as="h3">3. Disponibilizar tarifas aos clientes</Text>
+                    <Text as="p" variant="bodyMd" tone="subdued">
+                      Garante que as novas opções de envio aparecem corretamente configuradas no momento da finalização de compra.
+                    </Text>
+                  </BlockStack>
+                </InlineStack>
               </BlockStack>
-
+              
               <Divider />
-
+              
               <InlineStack align="end">
                 <Button variant="primary" onClick={() => navigate("/app/newCarrier")}>
-                  Começar e Criar Transportadora
+                  Começar agora
                 </Button>
               </InlineStack>
             </BlockStack>
           </Card>
         </Layout.Section>
+
+        <Layout.Section variant="oneThird">
+          <BlockStack gap="400">
+            <Card>
+              <BlockStack gap="300">
+                <Text variant="headingMd" as="h2">Recursos de apoio</Text>
+                <List>
+                  <List.Item>
+                    <Link url="#">Documentação oficial</Link>
+                  </List.Item>
+                  <List.Item>
+                    <Link url="#">Guia de transportadoras</Link>
+                  </List.Item>
+                </List>
+              </BlockStack>
+            </Card>
+            
+            <Card background="bg-surface-secondary">
+              <BlockStack gap="300">
+                <Text variant="headingMd" as="h2">Precisas de ajuda?</Text>
+                <Text as="p" variant="bodyMd">
+                  Se tiveres dúvidas durante a configuração, a nossa equipa de suporte está disponível para te ajudar a integrar todas as regras da loja.
+                </Text>
+                <InlineStack>
+                  <Button onClick={() => console.log("Contactar Suporte")}>
+                    Contactar suporte
+                  </Button>
+                </InlineStack>
+              </BlockStack>
+            </Card>
+          </BlockStack>
+        </Layout.Section>
       </Layout>
+
+      <FooterHelp>
+        Descobre mais sobre logística e envios na{' '}
+        <Link url="https://help.shopify.com/pt-PT/manual/shipping">
+          Central de Ajuda da Shopify
+        </Link>.
+      </FooterHelp>
     </Page>
   );
 }

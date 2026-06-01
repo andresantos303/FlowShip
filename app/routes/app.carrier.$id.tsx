@@ -289,7 +289,6 @@ export default function CarrierEdit() {
                       onChange={handleCountryChange}
                       value={ruleData.countryCode}
                     />
-                    {/* <TextField label="País" value={ruleData.country} onChange={(v)=>setRuleData({...ruleData, country:v})} autoComplete="off" disabled /> */}
                     <TextField label="Código País (ISO)" value={ruleData.countryCode} onChange={(v)=>setRuleData({...ruleData, countryCode:v})} autoComplete="off" maxLength={2} disabled />
                   </FormLayout.Group>
                   <FormLayout.Group>
@@ -337,7 +336,7 @@ export default function CarrierEdit() {
                             { title: "País" },
                             { title: "Tipo de Correspondência" },
                             { title: "Fator de conversão" },
-                            { title: "Escalões" },
+                            { title: "Tarifas" },
                             { title: "Ações" }
                           ]}
                           selectable={false}
@@ -349,9 +348,13 @@ export default function CarrierEdit() {
                                   {rule.country} ({rule.countryCode})
                                 </Text>
                               </IndexTable.Cell>
-                              <IndexTable.Cell>{rule.matchType}: {rule.postalCodeRange}</IndexTable.Cell>
+                              <IndexTable.Cell>
+                                {rule.matchType === "RANGE" && `Entre: ${rule.postalCodeRange}`}
+                                {rule.matchType === "PREFIX" && `Prefixo: ${rule.postalCodeRange}`}
+                                {rule.matchType === "EXACT" && `Exato: ${rule.postalCodeRange}`}
+                              </IndexTable.Cell>
                               <IndexTable.Cell>{rule.conversionFactor}</IndexTable.Cell>
-                              <IndexTable.Cell>{rule.rates.length} escalões</IndexTable.Cell>
+                              <IndexTable.Cell>{rule.rates.length} tarifas</IndexTable.Cell>
                               <IndexTable.Cell>
                                 <InlineStack gap="200">
                                   <Button url={`/app/rule/${rule.id}`} variant="secondary">Gerir Tarifas</Button>
