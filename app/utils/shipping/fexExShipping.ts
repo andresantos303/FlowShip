@@ -137,7 +137,7 @@ const buildFedExShipmentRequest = (
 export const createFedExShipment = async (
   shipmentRequest: FedExShipmentRequest,
   carrier: any
-): Promise<{ raw: any; trackingNumber: string | null; trackingUrl: string | null }> => {
+): Promise<{ raw: any; trackingNumber: string | null; trackingUrl: string | null; packageDocumentUrl: string | null }> => {
   const token = await getFedExToken(carrier);
 
   try {
@@ -169,13 +169,15 @@ export const createFedExShipment = async (
 
     const shipmentOutput = responseBody?.output?.transactionShipments?.[0];
     const trackingNumber = shipmentOutput?.masterTrackingNumber ?? shipmentOutput?.pieceResponses?.[0]?.trackingNumber ?? null;
+    const packageDocumentUrl = shipmentOutput?.pieceResponses?.[0]?.packageDocuments?.url;
 
     logger.debug(`FedEx shipment created successfully. Tracking number: ${trackingNumber}`);
 
     return {
       raw: responseBody,
       trackingNumber,
-      trackingUrl: trackingNumber ? buildTrackingUrl(trackingNumber) : null
+      trackingUrl: trackingNumber ? buildTrackingUrl(trackingNumber) : null,
+      packageDocumentUrl: packageDocumentUrl ?? null
     };
   } catch (error) {
     logger.error('Critical error during FedEx shipment creation:', error);
@@ -248,6 +250,7 @@ export async function generateFedExLabel(orderId: string, admin: any) {
 
   return {
     trackingNumber: shipmentResponse.trackingNumber ?? `FDX${Math.floor(Math.random() * 1000000000)}`,
-    trackingUrl: shipmentResponse.trackingUrl ?? 'https://www.fedex.com/fedextrack/?trknbr='
+    trackingUrl: shipmentResponse.trackingUrl ?? 'https://www.fedex.com/fedextrack/?trknbr=',
+    packageDocumentUrl: shipmentResponse.packageDocumentUrl ?? null
   };
 }

@@ -115,7 +115,7 @@ export async function processShippingAndFulfillOrder(
     
     return { 
       success: true, 
-      trackingNumber: trackingInfo ? trackingInfo.number : "Pending Manual Entry" 
+      trackingNumber: trackingInfo ? trackingInfo.number : "Pending Manual Entry",
     };
 
   } catch (error) {

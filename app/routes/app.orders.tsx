@@ -109,6 +109,80 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
+  // Handle the action to mark the order as IN_PROGRESS
+  if (actionType === "markAsInProgress") {
+    try {
+      const ordersPayload = formData.get("orders") as string;
+      const selectedOrders = JSON.parse(ordersPayload);
+      const results = [];
+
+      console.log(`Starting bulk progress update for ${selectedOrders.length} orders.`);
+
+      for (const order of selectedOrders) {
+        const orderId = order.id;
+
+        // Fetch the fulfillment order ID required to fulfill items in Shopify
+        const fulfillmentOrderQuery = `
+          query GetFulfillmentOrder($orderId: ID!) {
+            order(id: $orderId) {
+              fulfillmentOrders(first: 1, query: "status:OPEN") {
+                edges {
+                  node {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        `;
+        
+        const orderResponse = await admin.graphql(fulfillmentOrderQuery, { variables: { orderId } });
+        const orderResponseJson = await orderResponse.json();
+        const fulfillmentOrders = orderResponseJson.data?.order?.fulfillmentOrders?.edges;
+
+        if (!fulfillmentOrders || fulfillmentOrders.length === 0) {
+          results.push({ orderId, success: false, message: "No open fulfillment orders found." });
+          continue;
+        }
+
+        const fulfillmentOrderId = fulfillmentOrders[0].node.id;
+        console.log(`Marking order ${orderId} as IN_PROGRESS using fulfillment order ID: ${fulfillmentOrderId}`);
+        // Report progress on the fulfillment order to mark it as IN_PROGRESS
+        const MARK_IN_PROGRESS_MUTATION = `
+          mutation markAsInProgress($id: ID!) {
+            fulfillmentOrderReportProgress(id: $id) {
+              userErrors {
+                message
+              }
+            }
+          }
+        `;
+
+        const progressResponse = await admin.graphql(MARK_IN_PROGRESS_MUTATION, { variables: { id: fulfillmentOrderId } });
+        const progressResponseJson = await progressResponse.json();
+        const errors = progressResponseJson.data?.fulfillmentOrderReportProgress?.userErrors;
+
+        if (errors && errors.length > 0) {
+          results.push({ orderId, success: false, errors });
+        } else {
+          results.push({ orderId, success: true });
+        }
+      }
+
+      return json({ 
+        success: true, 
+        actionType: "markAsInProgress", 
+        results 
+      });
+    } catch (error) {
+      console.error("Bulk progress update failed:", error);
+      return json({ 
+        success: false, 
+        message: "Failed to update order status." 
+      }, { status: 500 });
+    }
+  }
+
   return json({ success: false, message: "Invalid action." }, { status: 400 });
 }
 
@@ -126,21 +200,25 @@ export default function UnfulfilledOrders() {
 
   // Monitor actionData to show a toast when the server responds
   useEffect(() => {
-    if (actionData && actionData.actionType === "generateLabels") {
-      if (actionData.success && actionData.results) {
-        const successCount = actionData.results.filter((r: any) => r.success).length;
-        const total = actionData.results.length;
-        
-        shopify.toast.show(`${successCount} de ${total} etiquetas geradas com sucesso.`, {
-          isError: successCount === 0,
-          duration: 3000
-        });
+    if (actionData) {
+      if (actionData.actionType === "generateLabels" || actionData.actionType === "markAsInProgress") {
+        if (actionData.success && actionData.results) {
+          const successCount = actionData.results.filter((r: any) => r.success).length;
+          const total = actionData.results.length;
+          
+          const actionText = actionData.actionType === "generateLabels" ? "etiquetas geradas" : "encomendas atualizadas";
+          
+          shopify.toast.show(`${successCount} de ${total} ${actionText} com sucesso.`, {
+            isError: successCount === 0,
+            duration: 3000
+          });
 
-        clearSelection();
-      } else {
-        shopify.toast.show(actionData.message || "Ocorreu um erro no servidor.", {
-          isError: true
-        });
+          clearSelection();
+        } else {
+          shopify.toast.show(actionData.message || "Ocorreu um erro no servidor.", {
+            isError: true
+          });
+        }
       }
     }
   }, [actionData, clearSelection]);
@@ -176,6 +254,19 @@ export default function UnfulfilledOrders() {
         
         const formData = new FormData();
         formData.append("actionType", "generateLabels");
+        formData.append("orders", JSON.stringify(ordersToProcess));
+
+        submit(formData, { method: "post" });
+      },
+    },
+    {
+      content: "Colocar em progresso",
+      onAction: () => {
+        // Prepare the payload for marking selected orders as IN_PROGRESS
+        const ordersToProcess = orders.filter((o: any) => selectedResources.includes(o.id));
+        
+        const formData = new FormData();
+        formData.append("actionType", "markAsInProgress");
         formData.append("orders", JSON.stringify(ordersToProcess));
 
         submit(formData, { method: "post" });
@@ -255,6 +346,20 @@ export default function UnfulfilledOrders() {
                     onAction: () => {
                       const orderNumericId = id.split('/').pop();
                       window.open(`https://admin.shopify.com/store/${storeName}/orders/${orderNumericId}`, "_blank");
+                      setActivePopoverId(null);
+                    },
+                  },
+                  {
+                    content: "Colocar em progresso",
+                    onAction: () => {
+                      // Find the specific order and send it as an array to the action
+                      const orderToProcess = orders.find((o: any) => o.id === id);
+                      
+                      const formData = new FormData();
+                      formData.append("actionType", "markAsInProgress");
+                      formData.append("orders", JSON.stringify([orderToProcess]));
+                      
+                      submit(formData, { method: "post" });
                       setActivePopoverId(null);
                     },
                   },

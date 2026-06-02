@@ -1174,3 +1174,20 @@
 {"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"02-06-2026 11:58:31"}
 {"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"02-06-2026 11:58:33"}
 {"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"02-06-2026 11:58:33"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"02-06-2026 12:25:03"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"02-06-2026 12:25:03"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"02-06-2026 12:25:03"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"02-06-2026 12:25:03"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"02-06-2026 12:25:04"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"02-06-2026 12:25:04"}
+{"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6758876315902 with carrier: FedEx Economy™","timestamp":"02-06-2026 12:34:59"}
+{"level":"info","message":"Processing FedEx automated label for order: gid://shopify/Order/6758876315902","timestamp":"02-06-2026 12:34:59"}
+{"level":"info","message":"Successfully generated FedEx label. Tracking Number: 794823945977","timestamp":"02-06-2026 12:35:05"}
+{"level":"error","message":"Unexpected error during shipping label generation for order gid://shopify/Order/6758876315902: Error: Variable $trackingInfo of type FulfillmentTrackingInput was provided invalid value for documentUrl (Field is not defined on FulfillmentTrackingInput)","timestamp":"02-06-2026 12:35:05"}
+{"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6758876315902 with carrier: FedEx Economy™","timestamp":"02-06-2026 12:36:04"}
+{"level":"info","message":"Processing FedEx automated label for order: gid://shopify/Order/6758876315902","timestamp":"02-06-2026 12:36:04"}
+{"level":"info","message":"Successfully generated FedEx label. Tracking Number: 794823946274","timestamp":"02-06-2026 12:36:10"}
+{"level":"info","message":"Order gid://shopify/Order/6758876315902 successfully fulfilled in Shopify.","timestamp":"02-06-2026 12:36:11"}
+{"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6752344310014 with carrier: GLS","timestamp":"02-06-2026 14:48:30"}
+{"level":"info","message":"Processing manual carrier (GLS). Marking as fulfilled.","timestamp":"02-06-2026 14:48:30"}
+{"level":"info","message":"Order gid://shopify/Order/6752344310014 successfully fulfilled in Shopify.","timestamp":"02-06-2026 14:48:31"}
