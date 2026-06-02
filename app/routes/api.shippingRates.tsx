@@ -74,13 +74,23 @@ export async function action({ request }: ActionFunctionArgs) {
       logger.info(`New store registered: ${shopDomain}`);
     }
 
-    // Business Logic Calculation
+    // Weight and volume calculations with fallbacks
     let totalWeightGrams = 0;
     let totalVolumeCubicCm = 0;
     let cartTotalCents = 0;
+    const fallbackWeightGrams = (config.defaultWeight || 0) * 1000;
+    const fallbackLength = config.defaultLength || 0;
+    const fallbackWidth = config.defaultWidth || 0;
+    const fallbackHeight = config.defaultHeight || 0;
     rate.items.forEach((item: any) => {
-      totalWeightGrams += item.grams * item.quantity;
-      totalVolumeCubicCm += (item.properties._length * item.properties._width * item.properties._height) * item.quantity;
+      const itemWeight = (item.grams && item.grams > 0) ? item.grams : fallbackWeightGrams;
+      totalWeightGrams += itemWeight * item.quantity;
+
+      const length = (item.properties?._length && Number(item.properties._length) > 0) ? Number(item.properties._length) : fallbackLength;
+      const width = (item.properties?._width && Number(item.properties._width) > 0) ? Number(item.properties._width) : fallbackWidth;
+      const height = (item.properties?._height && Number(item.properties._height) > 0) ? Number(item.properties._height) : fallbackHeight;
+
+      totalVolumeCubicCm += (length * width * height) * item.quantity;
       cartTotalCents += item.price * item.quantity;
     });
     const totalWeightKg = totalWeightGrams / 1000;

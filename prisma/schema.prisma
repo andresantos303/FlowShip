@@ -32,6 +32,10 @@ model StoreConfig {
   shopDomain            String   @unique
   freeShippingActive    Boolean  @default(false)
   freeShippingThreshold Int      @default(10000)
+  defaultWeight         Float?   @default(0)
+  defaultLength         Float?   @default(0)
+  defaultWidth          Float?   @default(0)
+  defaultHeight         Float?   @default(0)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }

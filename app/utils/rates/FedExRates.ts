@@ -30,7 +30,7 @@ export const getFedExToken = async (carrier: any): Promise<string> => {
 export const getFedExOptions = async (rateRequestInfo: any, carrier: any): Promise<CarrierRate[]> => {
   try {
     const token = await getFedExToken(carrier);
-    console.log(token)
+    // console.log(token)
     
     const fedexPayload = {
       accountNumber: { value: carrier.apiAccountNumber },

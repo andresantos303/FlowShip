@@ -24,8 +24,8 @@ export default function App() {
         <Link to="/app" rel="home">Home</Link>
         <Link to="/app/carriers">Transportadoras</Link>
         <Link to="/app/newCarrier">Criar Transportadora</Link>
-        <Link to="/app/adicionalRules">Regras Adicionais</Link>
         <Link to="/app/orders">Encomendas</Link>
+        <Link to="/app/adicionalRules">Definições</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>

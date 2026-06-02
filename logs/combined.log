@@ -1168,3 +1168,9 @@
 {"level":"info","message":"Processing FedEx automated label for order: gid://shopify/Order/6758876315902","timestamp":"01-06-2026 18:02:38"}
 {"level":"info","message":"Successfully generated FedEx label. Tracking Number: 794823617247","timestamp":"01-06-2026 18:02:46"}
 {"level":"info","message":"Order gid://shopify/Order/6758876315902 successfully fulfilled in Shopify.","timestamp":"01-06-2026 18:02:47"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"02-06-2026 11:58:31"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"02-06-2026 11:58:31"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"02-06-2026 11:58:31"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"02-06-2026 11:58:31"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"02-06-2026 11:58:33"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"02-06-2026 11:58:33"}
