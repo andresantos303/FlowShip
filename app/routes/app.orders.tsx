@@ -61,17 +61,18 @@ const UNFULFILLED_ORDERS_QUERY = `
 `;
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const { admin } = await authenticate.admin(request);
+  const { admin, session } = await authenticate.admin(request);
 
   try {
     const response = await admin.graphql(UNFULFILLED_ORDERS_QUERY);
     const responseJson = await response.json();
+    const storeName = session.shop.split('.')[0];
     const orders = responseJson.data.orders.edges.map((edge: any) => edge.node);
 
-    return json({ orders });
+    return json({ orders, storeName });
   } catch (error) {
     console.error("Error fetching orders:", error);
-    return json({ orders: [] });
+    return json({ orders: [], storeName: "" });
   }
 }
 
@@ -91,7 +92,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
       // Pass the array of orders and the admin object to the service
       const results = await Promise.all(
-        selectedOrders.map((order: any) => processShippingAndFulfillOrder(order.id, order.carrier, admin))
+        selectedOrders.map((order: any) => processShippingAndFulfillOrder(order.id, order.shippingLines?.edges?.[0]?.node?.title, admin))
       );
 
       return json({ 
@@ -112,7 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function UnfulfilledOrders() {
-  const { orders } = useLoaderData<typeof loader>();
+  const { orders, storeName } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const actionData = useActionData<typeof action>();
 
@@ -159,8 +160,8 @@ export default function UnfulfilledOrders() {
   const renderFulfillmentStatus = (status: string) => {
     switch (status) {
       case 'UNFULFILLED': return <Badge tone="attention">Por processar</Badge>;
-      case 'PARTIALLY_FULFILLED': return <Badge tone="warning">Parcialmente processado</Badge>;
       case 'FULFILLED': return <Badge tone="success">Processado</Badge>;
+      case 'IN_PROGRESS': return <Badge tone="info">Em progresso</Badge>;
       default: return <Badge>{status}</Badge>;
     }
   };
@@ -253,7 +254,7 @@ export default function UnfulfilledOrders() {
                     content: "Ver encomenda",
                     onAction: () => {
                       const orderNumericId = id.split('/').pop();
-                      window.open(`https://admin.shopify.com/store/academy-dev-store-2088/orders/${orderNumericId}`, "_blank");
+                      window.open(`https://admin.shopify.com/store/${storeName}/orders/${orderNumericId}`, "_blank");
                       setActivePopoverId(null);
                     },
                   },

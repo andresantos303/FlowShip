@@ -3,7 +3,7 @@ import logger from '../logger';
 import type { CarrierRate } from '../rateHelpers.ts';
 import { decrypt } from '../encryption';
 
-async function getFedExToken(carrier: any): Promise<string> {
+export const getFedExToken = async (carrier: any): Promise<string> => {
   const url = `${process.env.FEDEX_BASE_URL}/oauth/token`;
   const params = new URLSearchParams();
   const decryptedApiKey = carrier.apiKey ? decrypt(carrier.apiKey) : null;
@@ -30,6 +30,7 @@ async function getFedExToken(carrier: any): Promise<string> {
 export const getFedExOptions = async (rateRequestInfo: any, carrier: any): Promise<CarrierRate[]> => {
   try {
     const token = await getFedExToken(carrier);
+    console.log(token)
     
     const fedexPayload = {
       accountNumber: { value: carrier.apiAccountNumber },
