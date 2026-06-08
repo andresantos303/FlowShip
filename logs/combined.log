@@ -1191,3 +1191,85 @@
 {"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6752344310014 with carrier: GLS","timestamp":"02-06-2026 14:48:30"}
 {"level":"info","message":"Processing manual carrier (GLS). Marking as fulfilled.","timestamp":"02-06-2026 14:48:30"}
 {"level":"info","message":"Order gid://shopify/Order/6752344310014 successfully fulfilled in Shopify.","timestamp":"02-06-2026 14:48:31"}
+{"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6758876315902 with carrier: FedEx Economy™","timestamp":"03-06-2026 11:49:46"}
+{"level":"info","message":"Processing FedEx automated label for order: gid://shopify/Order/6758876315902","timestamp":"03-06-2026 11:49:46"}
+{"level":"info","message":"Successfully generated FedEx label. Tracking Number: 794824382022","timestamp":"03-06-2026 11:49:49"}
+{"level":"info","message":"Order gid://shopify/Order/6758876315902 successfully fulfilled in Shopify.","timestamp":"03-06-2026 11:49:50"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"03-06-2026 11:51:27"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"03-06-2026 11:51:27"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"03-06-2026 11:51:27"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"03-06-2026 11:51:27"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"03-06-2026 11:51:29"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"03-06-2026 11:51:29"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"03-06-2026 12:07:21"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"03-06-2026 12:07:21"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"03-06-2026 12:07:21"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"03-06-2026 12:07:21"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"03-06-2026 12:07:22"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"03-06-2026 12:07:22"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 11:55:47"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 11:55:47"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 11:55:47"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 11:55:47"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 11:55:48"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 11:55:48"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 11:55:48"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 11:55:48"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 11:55:48"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 11:55:48"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 11:55:49"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 11:55:49"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:19:59"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:19:59"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:19:59"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:19:59"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:20:01"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:20:01"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:20:05"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:20:05"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:20:05"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:20:05"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:20:06"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:20:06"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:20:55"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:20:55"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:20:56"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:20:56"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:20:57"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:20:57"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:20:57"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:20:57"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:20:57"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:20:57"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:20:58"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:20:58"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:22:05"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:22:05"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:22:05"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:22:05"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:22:06"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:22:06"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:22:06"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:22:06"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:22:06"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:22:06"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:22:07"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:22:07"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:22:52"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:22:52"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:22:52"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:22:52"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:22:54"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:22:54"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:23:51"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:23:51"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:23:51"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:23:51"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:23:52"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:23:52"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"08-06-2026 15:33:59"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"08-06-2026 15:33:59"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:33:59"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:33:59"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:34:01"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:34:01"}

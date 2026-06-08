@@ -58,15 +58,49 @@ const FEDEX_SHIPMENT_URL = `${process.env.FEDEX_BASE_URL}/ship/v1/shipments`;
 const buildTrackingUrl = (trackingNumber: string): string =>
   `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`;
 
+const normalizeShipLines = (lines: (string | null | undefined)[]): string[] => 
+  lines.filter((line): line is string => Boolean(line));
+
+const sanitizePhoneNumber = (phone: string | null | undefined, fallback = '000000000'): string => {
+  if (!phone) return fallback;
+  const cleaned = phone.replace(/[^\d+]/g, '');
+  return cleaned.length > 0 ? cleaned : fallback;
+};
+
 const buildFedExShipmentRequest = (
   order: any, 
   carrier: any,
   serviceTypeOverride?: string
 ): FedExShipmentRequest => {
-  // STATIC TEST DATA FOR SANDBOX BYPASS
-  // Using hardcoded US addresses to ensure successful testing
-  const staticAddress: FedExAddress = {
-    streetLines: ['Rua Espido'],
+  // Extract real data from the Shopify order object
+  const shippingAddress = order?.shippingAddress;
+  const assignedLocation = order?.fulfillmentOrders?.edges?.[0]?.node?.assignedLocation;
+  const totalWeightGrams = Number(order?.currentTotalWeight ?? 0);
+
+  // Dynamic Shipper Data
+  const shipperName = assignedLocation?.name || 'Sender Name';
+  const shipperPhone = sanitizePhoneNumber(
+    assignedLocation?.phone ?? shippingAddress?.phone ?? order?.phone ?? order?.customer?.phone
+  );
+  const rawShipperLines = normalizeShipLines([assignedLocation?.address1, assignedLocation?.address2]);
+  const shipperStreetLines = rawShipperLines.length > 0 ? rawShipperLines : ['Rua'];
+
+  // Dynamic Recipient Data
+  const customerFullName = [order?.customer?.firstName, order?.customer?.lastName].filter(Boolean).join(' ').trim();
+  const recipientName = shippingAddress?.name || customerFullName || order?.name || 'Recipient Name';
+  const recipientPhone = sanitizePhoneNumber(
+    shippingAddress?.phone ?? order?.phone ?? order?.customer?.phone
+  );
+  const rawRecipientLines = normalizeShipLines([shippingAddress?.address1, shippingAddress?.address2]);
+  const recipientStreetLines = rawRecipientLines.length > 0 ? rawRecipientLines : ['Rua'];
+
+  // Convert grams to LB for the US static test (API often rejects 0 weight)
+  let weightInLb = Number((totalWeightGrams / 453.592).toFixed(2));
+  if (weightInLb <= 0) weightInLb = 1;
+
+  // HYBRID TEST DATA
+  const shipperAddress: FedExAddress = {
+    streetLines: shipperStreetLines,
     city: 'MEMPHIS',
     stateOrProvinceCode: 'TN',
     postalCode: '38116',
@@ -74,7 +108,7 @@ const buildFedExShipmentRequest = (
   };
 
   const recipientAddress: FedExAddress = {
-    streetLines: ['Rua nova da lomba'],
+    streetLines: recipientStreetLines,
     city: 'MEMPHIS',
     stateOrProvinceCode: 'TN',
     postalCode: '38116',
@@ -84,26 +118,26 @@ const buildFedExShipmentRequest = (
   return {
     labelResponseOptions: 'URL_ONLY',
     accountNumber: {
-      value: carrier.apiAccountNumber ?? '740561073'
+      value: carrier.apiAccountNumber
     },
     requestedShipment: {
       shipper: {
         contact: {
-          personName: 'Eu sou',
-          phoneNumber: '9018328595'
+          personName: shipperName,
+          phoneNumber: shipperPhone
         },
-        address: staticAddress
+        address: shipperAddress
       },
       recipients: [
         {
           contact: {
-            personName: 'Eu vou',
-            phoneNumber: '9018328595'
+            personName: recipientName,
+            phoneNumber: recipientPhone
           },
           address: recipientAddress
         }
       ],
-      serviceType: 'STANDARD_OVERNIGHT', // Forced US Domestic service for sandbox acceptance
+      serviceType: 'STANDARD_OVERNIGHT', // Forced US Domestic service
       packagingType: 'YOUR_PACKAGING',
       pickupType: 'DROPOFF_AT_FEDEX_LOCATION',
       shippingChargesPayment: {
@@ -111,9 +145,9 @@ const buildFedExShipmentRequest = (
         payor: {
           responsibleParty: {
             accountNumber: {
-              value: carrier.apiAccountNumber ?? '740561073'
+              value: carrier.apiAccountNumber
             },
-            address: staticAddress
+            address: shipperAddress
           }
         }
       },
@@ -125,8 +159,8 @@ const buildFedExShipmentRequest = (
       requestedPackageLineItems: [
         {
           weight: {
-            units: 'LB', // Forced to pounds
-            value: 20
+            units: 'LB', 
+            value: weightInLb
           }
         }
       ]
@@ -137,17 +171,17 @@ const buildFedExShipmentRequest = (
 export const createFedExShipment = async (
   shipmentRequest: FedExShipmentRequest,
   carrier: any
-): Promise<{ raw: any; trackingNumber: string | null; trackingUrl: string | null; packageDocumentUrl: string | null }> => {
+): Promise<{ raw: any; trackingNumber: string | null; trackingUrl: string | null }> => {
   const token = await getFedExToken(carrier);
 
   try {
-    logger.debug(`Sending static FedEx shipment payload: ${JSON.stringify(shipmentRequest)}`);
+    logger.debug(`Sending hybrid FedEx shipment payload: ${JSON.stringify(shipmentRequest)}`);
 
     const response = await fetch(FEDEX_SHIPMENT_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-locale': 'en_US',
+        'X-locale': 'pt_PT',
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify(shipmentRequest)
@@ -169,15 +203,13 @@ export const createFedExShipment = async (
 
     const shipmentOutput = responseBody?.output?.transactionShipments?.[0];
     const trackingNumber = shipmentOutput?.masterTrackingNumber ?? shipmentOutput?.pieceResponses?.[0]?.trackingNumber ?? null;
-    const packageDocumentUrl = shipmentOutput?.pieceResponses?.[0]?.packageDocuments?.url;
 
     logger.debug(`FedEx shipment created successfully. Tracking number: ${trackingNumber}`);
 
     return {
       raw: responseBody,
       trackingNumber,
-      trackingUrl: trackingNumber ? buildTrackingUrl(trackingNumber) : null,
-      packageDocumentUrl: packageDocumentUrl ?? null
+      trackingUrl: trackingNumber ? buildTrackingUrl(trackingNumber) : null
     };
   } catch (error) {
     logger.error('Critical error during FedEx shipment creation:', error);
@@ -186,7 +218,7 @@ export const createFedExShipment = async (
 };
 
 export async function generateFedExLabel(orderId: string, admin: any) {
-  logger.debug(`Starting label generation process for order: ${orderId} (using STATIC TEST DATA)`);
+  logger.debug(`Starting label generation process for order: ${orderId} (using HYBRID TEST DATA)`);
 
   const carrier = await prisma.carrier.findFirst({
     where: { name: 'FedEx', isActive: true },
@@ -244,13 +276,11 @@ export async function generateFedExLabel(orderId: string, admin: any) {
 
   if (!order) throw new Error(`Unable to fetch Shopify order with ID: ${orderId}.`);
 
-  // Overriding actual logic to force static testing parameters
   const shipmentRequest = buildFedExShipmentRequest(order, carrier, 'STANDARD_OVERNIGHT');
   const shipmentResponse = await createFedExShipment(shipmentRequest, carrier);
 
   return {
     trackingNumber: shipmentResponse.trackingNumber ?? `FDX${Math.floor(Math.random() * 1000000000)}`,
-    trackingUrl: shipmentResponse.trackingUrl ?? 'https://www.fedex.com/fedextrack/?trknbr=',
-    packageDocumentUrl: shipmentResponse.packageDocumentUrl ?? null
+    trackingUrl: shipmentResponse.trackingUrl ?? 'https://www.fedex.com/fedextrack/?trknbr='
   };
 }
