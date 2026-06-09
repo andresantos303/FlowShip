@@ -1273,3 +1273,41 @@
 {"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"08-06-2026 15:33:59"}
 {"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"08-06-2026 15:34:01"}
 {"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"08-06-2026 15:34:01"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"09-06-2026 11:45:15"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"09-06-2026 11:45:15"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"09-06-2026 11:45:15"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"09-06-2026 11:45:15"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"09-06-2026 11:45:16"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"09-06-2026 11:45:16"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"09-06-2026 15:52:58"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"09-06-2026 15:52:58"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"09-06-2026 15:52:58"}
+{"level":"info","message":"Transportadora GLS aplicou regra para o postal 4505-141","timestamp":"09-06-2026 15:52:58"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"09-06-2026 15:53:00"}
+{"level":"info","message":"Cheapest rate selected: GLS at 2.50","timestamp":"09-06-2026 15:53:00"}
+{"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6752342737150 with carrier: GLS","timestamp":"09-06-2026 16:08:44"}
+{"level":"warn","message":"Order gid://shopify/Order/6752342737150 does not have an IN_PROGRESS fulfillment status.","timestamp":"09-06-2026 16:08:44"}
+{"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6752342737150 with carrier: GLS","timestamp":"09-06-2026 16:09:17"}
+{"level":"info","message":"Processing manual carrier (GLS). Marking as fulfilled.","timestamp":"09-06-2026 16:09:18"}
+{"level":"info","message":"Order gid://shopify/Order/6752342737150 successfully fulfilled in Shopify.","timestamp":"09-06-2026 16:09:18"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"09-06-2026 16:12:04"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"09-06-2026 16:12:04"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"09-06-2026 16:12:04"}
+{"level":"info","message":"Cheapest rate selected: CTT at 3.00","timestamp":"09-06-2026 16:12:04"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"09-06-2026 16:14:17"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"09-06-2026 16:14:17"}
+{"level":"warn","message":"No carrier rates could be fetched, returning fallback rate.","timestamp":"09-06-2026 16:14:17"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"09-06-2026 16:15:35"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"09-06-2026 16:15:35"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 28036","timestamp":"09-06-2026 16:15:35"}
+{"level":"info","message":"Cheapest rate selected: CTT at 0.00","timestamp":"09-06-2026 16:15:35"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"09-06-2026 16:22:47"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"09-06-2026 16:22:47"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"09-06-2026 16:22:49"}
+{"level":"info","message":"Cheapest rate selected: FedEx Economy™ at 0.00","timestamp":"09-06-2026 16:22:49"}
+{"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6752342737150 with carrier: GLS","timestamp":"09-06-2026 17:00:36"}
+{"level":"info","message":"Processing manual carrier (GLS). Marking as fulfilled.","timestamp":"09-06-2026 17:00:37"}
+{"level":"info","message":"Order gid://shopify/Order/6752342737150 successfully fulfilled in Shopify.","timestamp":"09-06-2026 17:00:38"}
+{"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6752344310014 with carrier: GLS","timestamp":"09-06-2026 17:01:51"}
+{"level":"info","message":"Processing manual carrier (GLS). Marking as fulfilled.","timestamp":"09-06-2026 17:01:52"}
+{"level":"info","message":"Order gid://shopify/Order/6752344310014 successfully fulfilled in Shopify.","timestamp":"09-06-2026 17:01:52"}

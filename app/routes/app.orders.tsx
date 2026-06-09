@@ -33,6 +33,13 @@ const UNFULFILLED_ORDERS_QUERY = `
             firstName
             lastName
           }
+          fulfillmentOrders(first:10) {
+            edges{
+              node {
+                fulfillBy
+              }
+            }
+          }
           currentTotalPriceSet {
             shopMoney {
               amount
@@ -223,6 +230,45 @@ export default function UnfulfilledOrders() {
     }
   }, [actionData, clearSelection]);
 
+  // Helper function to format the fulfillment date into relative time
+  const formatFulfillByDate = (dateString: string | undefined): string => {
+    if (!dateString) return "Não definido";
+
+    const targetDate = new Date(dateString);
+    const today = new Date();
+    
+    // Normalize dates to midnight to ensure accurate day calculation
+    targetDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    const diffInMilliseconds = targetDate.getTime() - today.getTime();
+    const diffInDays = Math.round(diffInMilliseconds / (1000 * 60 * 60 * 24));
+
+    // Initialize the relative time formatter for PT-PT
+    const rtf = new Intl.RelativeTimeFormat('pt-PT', { numeric: 'auto' });
+
+    if (diffInDays === 0) {
+      return "Hoje";
+    }
+    
+    if (diffInDays === 1) {
+      return "Amanhã";
+    }
+    
+    if (diffInDays === -1) {
+      return "Ontem";
+    }
+    
+    if (diffInDays > 1 && diffInDays < 7) {
+      // Get the weekday and capitalize the first letter
+      const weekday = targetDate.toLocaleDateString('pt-PT', { weekday: 'long' });
+      return weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    }
+    
+    // Format to "há X dias" (past) or "em X dias" (future)
+    return rtf.format(diffInDays, 'day');
+  };
+
   // Map financial status to Portuguese badges
   const renderFinancialStatus = (status: string) => {
     switch (status) {
@@ -284,6 +330,7 @@ export default function UnfulfilledOrders() {
       customer,
       currentTotalPriceSet,
       lineItems,
+      fulfillmentOrders,
       shippingLines,
       tags,
     } = order;
@@ -295,6 +342,10 @@ export default function UnfulfilledOrders() {
     const currency = currentTotalPriceSet.shopMoney.currencyCode;
     const totalItems = lineItems?.edges?.reduce((acc: number, edge: any) => acc + edge.node.quantity, 0) || 0;
     const itemsText = totalItems === 1 ? "1 artigo" : `${totalItems} artigos`;
+    // Fetch the raw date string from the GraphQL response
+    const rawFulfillBy = fulfillmentOrders?.edges?.[0]?.node?.fulfillBy;
+    // Apply the relative time formatting for the table cell
+    const fulfillmentDeadline = formatFulfillByDate(rawFulfillBy);    
     const deliveryMethod = shippingLines?.edges?.[0]?.node?.title || "Não definido";
 
     return (
@@ -315,6 +366,7 @@ export default function UnfulfilledOrders() {
         <IndexTable.Cell>{renderFinancialStatus(displayFinancialStatus)}</IndexTable.Cell>
         <IndexTable.Cell>{renderFulfillmentStatus(displayFulfillmentStatus)}</IndexTable.Cell>
         <IndexTable.Cell>{itemsText}</IndexTable.Cell>
+        <IndexTable.Cell>{fulfillmentDeadline}</IndexTable.Cell>
         <IndexTable.Cell>{deliveryMethod}</IndexTable.Cell>
         <IndexTable.Cell>
           {tags && tags.length > 0 ? (
@@ -413,6 +465,7 @@ export default function UnfulfilledOrders() {
                   { title: "Estado Financeiro" },
                   { title: "Estado do Processamento" },
                   { title: "Artigos" },
+                  { title: "Processar Até" },
                   { title: "Método de Entrega" },
                   { title: "Etiquetas" },
                   { title: "Ações", hidden: true },

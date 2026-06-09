@@ -43,7 +43,7 @@ export default function Onboarding() {
             }}
           >
             <p>
-              Automatiza os cálculos de portes e otimiza a gestão das tuas entregas. O teu novo motor de decisão logística está pronto para ser configurado e ligado à tua loja.
+              Automatiza os cálculos de portes de envio e otimiza a gestão das tuas entregas. O teu novo motor de decisão logística está pronto para ser configurado e ligado à tua loja.
             </p>
           </CalloutCard>
         </Layout.Section>
@@ -61,7 +61,7 @@ export default function Onboarding() {
                   <BlockStack gap="200">
                     <Text variant="headingSm" as="h3">1. Configurar métodos de cálculo</Text>
                     <Text as="p" variant="bodyMd" tone="subdued">
-                      Introduz tabelas manuais estruturadas por zonas e pesos, ou ativa ligações automáticas através de chaves de API das tuas transportadoras.
+                      Introduz regras estruturadas por zonas e pesos para cada transportadora, ou ativa ligações automáticas através de chaves de API das tuas transportadoras.
                     </Text>
                   </BlockStack>
                 </InlineStack>
@@ -71,7 +71,7 @@ export default function Onboarding() {
                   <BlockStack gap="200">
                     <Text variant="headingSm" as="h3">2. Definir margens de lucro</Text>
                     <Text as="p" variant="bodyMd" tone="subdued">
-                      Aplica taxas adicionais fixas ou percentuais sobre o valor real do envio para cobrir os teus custos operacionais.
+                      Aplica taxas adicionais fixas ou percentuais sobre o valor real do envio recebido da api da transportadora para cobrir os teus custos operacionais.
                     </Text>
                   </BlockStack>
                 </InlineStack>
