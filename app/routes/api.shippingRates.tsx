@@ -78,6 +78,7 @@ export async function action({ request }: ActionFunctionArgs) {
     let totalWeightGrams = 0;
     let totalVolumeCubicCm = 0;
     let cartTotalCents = 0;
+    let lengthT = 0, widthT = 0, heightT = 0;
     const fallbackWeightGrams = (config.defaultWeight || 0) * 1000;
     const fallbackLength = config.defaultLength || 0;
     const fallbackWidth = config.defaultWidth || 0;
@@ -89,7 +90,9 @@ export async function action({ request }: ActionFunctionArgs) {
       const length = (item.properties?._length && Number(item.properties._length) > 0) ? Number(item.properties._length) : fallbackLength;
       const width = (item.properties?._width && Number(item.properties._width) > 0) ? Number(item.properties._width) : fallbackWidth;
       const height = (item.properties?._height && Number(item.properties._height) > 0) ? Number(item.properties._height) : fallbackHeight;
-
+      lengthT += length;
+      widthT += width;
+      heightT += height;
       totalVolumeCubicCm += (length * width * height) * item.quantity;
       cartTotalCents += item.price * item.quantity;
     });
@@ -98,15 +101,20 @@ export async function action({ request }: ActionFunctionArgs) {
     const rateRequestInfo = {
       ShipFrom: {
         PostalCode: rate.origin.postal_code,
-        Country: rate.origin.country
+        Country: rate.origin.country,
+        City: rate.origin.city
       },
       ShipTo: {
         PostalCode: rate.destination.postal_code,
-        Country: rate.destination.country
+        Country: rate.destination.country,
+        City: rate.destination.city
       },
       PackageWeight: {
         UnitOfMeasurement: "KG",
         Weight: totalWeightKg,
+        Length: lengthT,
+        Width: widthT,
+        Height: heightT,
         totalVolumeCubicCm
       },
       currency: rate.currency,

@@ -1,6 +1,6 @@
 import { getDeliveryDate } from '../rateHelpers';
 import logger from '../logger';
-import type { CarrierRate } from '../rateHelpers.ts';
+import type { CarrierRate } from '../rateHelpers';
 import { decrypt } from '../encryption';
 
 export const getFedExToken = async (carrier: any): Promise<string> => {

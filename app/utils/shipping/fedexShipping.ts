@@ -1,5 +1,5 @@
 import logger from '../logger';
-import { getFedExToken } from '../rates/FedExRates';
+import { getFedExToken } from '../rates/fedexRates';
 import prisma from '../../db.server';
 
 type FedExAddress = {

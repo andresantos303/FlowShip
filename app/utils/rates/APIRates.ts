@@ -1,6 +1,8 @@
 import logger from '../logger';
 import type { CarrierRate } from '../rateHelpers';
-import {getFedExOptions} from './FedExRates';
+import {getFedExOptions} from './fedexRates';
+import {getDhlOptions} from './dhlRates';
+import { getUpsOptions } from './upsRates';
 
 export const calculateAPIRates = async (rateRequestInfo: any, activeAPICarriers: any[]): Promise<CarrierRate[]> => {
     const availableRates: CarrierRate[] = [];
@@ -13,6 +15,16 @@ export const calculateAPIRates = async (rateRequestInfo: any, activeAPICarriers:
           const fedexOptions = await getFedExOptions(rateRequestInfo, carrier);
           if (fedexOptions && fedexOptions.length > 0) {
             fetchedRates = fedexOptions;
+          }
+        } else if (carrier.name === "DHL") {
+          const dhlOptions = await getDhlOptions(rateRequestInfo, carrier);
+          if (dhlOptions && dhlOptions.length > 0) {
+            fetchedRates = dhlOptions;
+          }
+        } else if (carrier.name === "UPS") {
+          const upsOptions = await getUpsOptions(rateRequestInfo, carrier);
+          if (upsOptions && upsOptions.length > 0) {
+            fetchedRates = upsOptions;
           }
         }
 

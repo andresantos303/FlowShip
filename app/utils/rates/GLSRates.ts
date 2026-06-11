@@ -1,6 +1,6 @@
-import { getDeliveryDate } from '../DeliveryDate';
+import { getDeliveryDate } from '../rateHelpers';
 import logger from '../logger';
-import type { CarrierRate } from '../rateHelpers.ts';
+import type { CarrierRate } from '../rateHelpers';
 import prisma from '../../db.server';
 
 async function getGLSToken(): Promise<string> {

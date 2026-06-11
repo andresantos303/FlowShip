@@ -1,5 +1,5 @@
 import logger from '../utils/logger';
-import { generateFedExLabel } from '../utils/shipping/fexExShipping';
+import { generateFedExLabel } from '../utils/shipping/fedexShipping';
 
 export async function processShippingAndFulfillOrder(
   orderId: string, 
