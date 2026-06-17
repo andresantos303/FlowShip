@@ -132,7 +132,7 @@ export default function CreateCarrier() {
                 {method[0] === "TABLE" ? (
                   <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" placeholder="Ex: CTT Expresso" />
                 ) : (
-                  <Select label="Nome da Transportadora" options={[{label:'Selecione o nome',value:''},{label:'FedEx',value:'FedEx'},{label:'GLS',value:'GLS'},{label:'DHL',value:'DHL'},{label:'UPS',value:'UPS'}]} value={name} onChange={setName} />
+                  <Select label="Nome da Transportadora" options={[{label:'Selecione o nome',value:''},{label:'FedEx',value:'FedEx'},{label:'DHL',value:'DHL'},{label:'UPS',value:'UPS'}]} value={name} onChange={setName} />
                 )}
                 <TextField label="Descrição" value={description} onChange={setDescription} autoComplete="off" />
               </FormLayout>
@@ -152,7 +152,7 @@ export default function CreateCarrier() {
                     <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
                   </FormLayout.Group>
                   <Divider />
-                  <Text variant="headingSm" as="h3">Margem de Lucro (*Markup*)</Text>
+                  <Text variant="headingSm" as="h3">Margem de Lucro (Markup)</Text>
                   <FormLayout.Group>
                     <Select
                       label="Tipo"

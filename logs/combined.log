@@ -1311,3 +1311,15 @@
 {"level":"info","message":"Starting fulfillment process for order: gid://shopify/Order/6752344310014 with carrier: GLS","timestamp":"09-06-2026 17:01:51"}
 {"level":"info","message":"Processing manual carrier (GLS). Marking as fulfilled.","timestamp":"09-06-2026 17:01:52"}
 {"level":"info","message":"Order gid://shopify/Order/6752344310014 successfully fulfilled in Shopify.","timestamp":"09-06-2026 17:01:52"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"15-06-2026 15:02:28"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"15-06-2026 15:02:28"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"15-06-2026 15:02:28"}
+{"level":"info","message":"Transportadora GLS Portugal aplicou regra para o postal 4505-141","timestamp":"15-06-2026 15:02:28"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"15-06-2026 15:02:29"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 2.50","timestamp":"15-06-2026 15:02:29"}
+{"level":"info","message":"Secure request received from: academy-dev-store-2088.myshopify.com","timestamp":"16-06-2026 16:12:50"}
+{"level":"info","message":"Processing Shipping Rates with available carriers...","timestamp":"16-06-2026 16:12:50"}
+{"level":"info","message":"Transportadora CTT aplicou regra para o postal 4505-141","timestamp":"16-06-2026 16:12:50"}
+{"level":"info","message":"Transportadora GLS Portugal aplicou regra para o postal 4505-141","timestamp":"16-06-2026 16:12:50"}
+{"level":"info","message":"Added 6 API rates for carrier FedEx","timestamp":"16-06-2026 16:12:52"}
+{"level":"info","message":"Cheapest rate selected: GLS Portugal at 0.00","timestamp":"16-06-2026 16:12:52"}

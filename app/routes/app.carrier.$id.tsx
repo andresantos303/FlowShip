@@ -243,7 +243,7 @@ export default function CarrierEdit() {
                   {carrier.calculationMethod === "TABLE" ? (
                     <TextField label="Nome da Transportadora" value={name} onChange={setName} autoComplete="off" placeholder="Ex: CTT Expresso" />
                   ) : (
-                    <Select label="Nome da Transportadora" options={[{label:'Selecione o nome',value:''},{label:'FedEx',value:'FedEx'},{label:'GLS',value:'GLS'}]} value={name} onChange={setName} />
+                    <Select label="Nome da Transportadora" options={[{label:'Selecione o nome',value:''},{label:'FedEx',value:'FedEx'},{label:'GLS',value:'GLS'},{label:'DHL',value:'DHL'},{label:'UPS',value:'UPS'}]} value={name} onChange={setName} />
                   )}
                   <Select label="Estado" options={[{label:'Ativo',value:'true'},{label:'Inativo',value:'false'}]} value={isActive} onChange={setIsActive} />
                 </FormLayout.Group>
@@ -256,8 +256,8 @@ export default function CarrierEdit() {
                     <Divider />
                     <FormLayout>
                         <Text variant="headingSm" as="h3">Configuração API</Text>
-                        <TextField label="Número de Conta (opcional)" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
                         <FormLayout.Group>
+                          <TextField label="Número de Conta (opcional)" value={apiAccountNumber} onChange={setApiAccountNumber} autoComplete="off" />
                           <TextField label="API Key" value={apiKey} onChange={setApiKey} autoComplete="off" />
                           <TextField label="API Secret" type="password" value={apiSecret} onChange={setApiSecret} autoComplete="off" />
                         </FormLayout.Group>
